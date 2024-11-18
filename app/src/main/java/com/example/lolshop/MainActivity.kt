@@ -32,6 +32,7 @@ class MainActivity : ComponentActivity() {
     // Danh sách sản phẩm mẫu
     private fun getProductList(): List<Product> {
         return listOf(
+            Product("Banner", "", R.drawable.banner),
             Product("Running Shoes", "$99", R.drawable.shoe1),
             Product("Sports Jacket", "$79", R.drawable.jacket1),
             Product("Backpack", "$59", R.drawable.bag1)
@@ -82,6 +83,7 @@ fun ProductItem(product: Product) {
 fun DefaultPreview() {
     LoLShopTheme {
         ProductList(products = listOf(
+            Product("Banner", "", R.drawable.banner),
             Product("Running Shoes", "$99", R.drawable.shoe1),
             Product("Sports Jacket", "$79", R.drawable.jacket1),
             Product("Backpack", "$59", R.drawable.bag1)
