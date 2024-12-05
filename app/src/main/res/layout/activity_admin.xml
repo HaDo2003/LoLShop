@@ -17,6 +17,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="50dp"/>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <!-- Add more UI elements like RecyclerView for products, buttons to add, edit, delete products -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
