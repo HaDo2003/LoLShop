@@ -1,4 +1,4 @@
-package com.example.lolshop
+package com.example.lolshop.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,8 +7,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.lolshop.ui.AdminActivity
-import com.example.lolshop.ui.SignUpActivity
+import com.example.lolshop.R
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
