@@ -8,6 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.lolshop.ui.AdminActivity
+import com.example.lolshop.ui.SignUpActivity
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
@@ -53,6 +54,8 @@ class MainActivity : AppCompatActivity() {
         signupTextView.setOnClickListener {
             // Navigate to the sign-up screen or perform another action
             Toast.makeText(this, "Sign-up clicked", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, SignUpActivity::class.java)
+            startActivity(intent)
         }
     }
 }
