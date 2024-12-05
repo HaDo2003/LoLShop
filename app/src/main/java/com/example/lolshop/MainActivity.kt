@@ -1,16 +1,24 @@
 package com.example.lolshop
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.lolshop.ui.AdminActivity
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login) // Set the login screen layout
+
+        // Initialize Firebase Auth
+        auth = FirebaseAuth.getInstance()
 
         // Find views by ID
         val emailEditText = findViewById<EditText>(R.id.emailEditText)
@@ -26,8 +34,18 @@ class MainActivity : AppCompatActivity() {
             if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show()
             } else {
-                // Perform login logic here (e.g., authenticate with backend)
-                Toast.makeText(this, "Login successful for $email", Toast.LENGTH_SHORT).show()
+                // Perform login with Firebase
+                auth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this) { task ->
+                        if (task.isSuccessful) {
+                            // Login successful, navigate to Admin screen
+                            val intent = Intent(this, AdminActivity::class.java)
+                            startActivity(intent)
+                            finish() // Finish the login activity so the user can't go back
+                        } else {
+                            Toast.makeText(this, "Authentication failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
             }
         }
 
