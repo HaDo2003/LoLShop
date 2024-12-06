@@ -61,6 +61,8 @@ class AdminActivity : ComponentActivity() {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(32.dp))
+
             Text(text = "Welcome Admin!", style = MaterialTheme.typography.headlineLarge)
 
             Spacer(modifier = Modifier.height(32.dp))
