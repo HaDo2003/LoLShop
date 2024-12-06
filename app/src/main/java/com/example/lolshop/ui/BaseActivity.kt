@@ -14,13 +14,14 @@ open class BaseActivity : AppCompatActivity() {
         // Bỏ giới hạn layout để nội dung tràn lên thanh trạng thái nếu cần
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        // Làm thanh trạng thái trong suốt
+        // Làm thanh trạng thái trong suốt đối với các phiên bản Android >= Lollipop (API 21)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // Làm thanh trạng thái trong suốt
             window.statusBarColor = Color.TRANSPARENT
-        }
 
-        // Thay đổi giao diện thanh trạng thái để biểu tượng và văn bản có màu tối
-        val windowInsetsController = WindowInsetsControllerCompat(window, window.decorView)
-        windowInsetsController.isAppearanceLightStatusBars = true
+            // Thiết lập giao diện thanh trạng thái để biểu tượng và văn bản có màu tối
+            val windowInsetsController = WindowInsetsControllerCompat(window, window.decorView)
+            windowInsetsController.isAppearanceLightStatusBars = true
+        }
     }
 }
