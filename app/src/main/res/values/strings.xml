@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">LoLShop</string>
     <string name="logo">App Logo</string>
+
+    <!-- IntroScreen -->
+    <string name="intro">Welcome to League of Legend online shop</string>
+    <string name="get_started">Get Started</string>
 </resources>
