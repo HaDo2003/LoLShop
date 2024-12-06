@@ -1,68 +1,72 @@
-package com.example.lolshop.ui
+@Composable
+fun LoginScreen(
+    onLoginSuccess: () -> Unit,
+    onSignupClick: () -> Unit
+) {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
 
-import android.content.Intent
-import android.os.Bundle
-import android.util.Log
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import com.example.lolshop.R
-import com.google.firebase.auth.FirebaseAuth
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Email Input
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email") },
+            modifier = Modifier.fillMaxWidth()
+        )
 
+        Spacer(modifier = Modifier.height(16.dp))
 
-class LoginActivity : AppCompatActivity() {
-    private lateinit var auth: FirebaseAuth
+        // Password Input
+        OutlinedTextField(
+            value = password,
+            onValueChange = { password = it },
+            label = { Text("Password") },
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth()
+        )
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        Spacer(modifier = Modifier.height(16.dp))
 
-
-        // Initialize Firebase Auth
-        auth = FirebaseAuth.getInstance()
-
-        // Find views by ID
-        val emailEditText = findViewById<EditText>(R.id.emailEditText)
-        val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
-        val loginButton = findViewById<Button>(R.id.loginButton)
-        val signupTextView = findViewById<TextView>(R.id.signupTextView)
-
-        // Handle login button click
-        loginButton.setOnClickListener {
-            val email = emailEditText.text.toString().trim()
-            val password = passwordEditText.text.toString().trim()
-
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show()
-            } else {
-                Log.d("LoginActivity", "Attempting to sign in with $email")
-                // Perform login with Firebase
-                auth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this) { task ->
-                        if (task.isSuccessful) {
-                            Log.d("LoginActivity", "Login successful")
-                            // Login successful, navigate to Admin screen
-                            val intent = Intent(this, AdminActivity::class.java)
-                            startActivity(intent)
-                            finish() // Finish the login activity so the user can't go back
-                        } else {
-                            Log.e("LoginActivity", "Login failed: ${task.exception?.message}")
-                            Toast.makeText(this, "Authentication failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+        // Login Button
+        Button(
+            onClick = {
+                if (email.isNotEmpty() && password.isNotEmpty()) {
+                    FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                onLoginSuccess()
+                            } else {
+                                Log.e("LoginScreen", "Login failed: ${task.exception?.message}")
+                                Toast.makeText(
+                                    LocalContext.current,
+                                    "Login failed: ${task.exception?.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
-                    }
-            }
+                } else {
+                    Toast.makeText(LocalContext.current, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Login")
         }
 
-        // Handle sign-up text click
-        signupTextView.setOnClickListener {
-            // Navigate to the sign-up screen or perform another action
-            Toast.makeText(this, "Sign-up clicked", Toast.LENGTH_SHORT).show()
-            val intent = Intent(this, SignUpActivity::class.java)
-            startActivity(intent)
-        }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Sign-up Text
+        Text(
+            text = "Don't have an account? Sign up",
+            modifier = Modifier.clickable { onSignupClick() },
+            color = MaterialTheme.colors.primary
+        )
     }
 }
-
-
