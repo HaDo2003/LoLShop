@@ -8,9 +8,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Chuyển hướng trực tiếp đến LoginActivity
+        // Navigate to  LoginActivity
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
-        finish()  // Đảm bảo MainActivity không nằm lại trong stack
+        finish()
     }
 }
