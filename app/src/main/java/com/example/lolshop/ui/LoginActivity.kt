@@ -25,16 +25,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.lolshop.R
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 class LoginActivity : BaseActivity() {
     private lateinit var auth: FirebaseAuth
+    private lateinit var FStore: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Initialize Firebase Auth
         auth = FirebaseAuth.getInstance()
+        FStore = FirebaseFirestore.getInstance()
 
         setContent {
             LoginScreen(
@@ -57,16 +61,50 @@ class LoginActivity : BaseActivity() {
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
-                        Log.d("LoginActivity", "Login successful. Navigating to AdminActivity.")
-                        val intent = Intent(this, AdminActivity::class.java)
-                        startActivity(intent)
-                        finish()
+                        //Log.d("LoginActivity", "Login successful. Navigating to AdminActivity.")
+                        //val intent = Intent(this, AdminActivity::class.java)
+                        //startActivity(intent)
+                        val authResult = FirebaseAuth.getInstance().currentUser
+                        authResult?.let { user ->
+                            checkUserAccessLevel(user.uid)
+                        } ?: run {
+                            // Handle the case where the user is not authenticated
+                            println("No user is logged in.")
+                        }
                     } else {
                         val errorMessage = task.exception?.message ?: "Unknown error occurred"
                         Log.e("LoginActivity", "Authentication failed: $errorMessage")
                         Toast.makeText(this, "Authentication failed: $errorMessage", Toast.LENGTH_SHORT).show()
                     }
                 }
+        }
+    }
+
+    private fun checkUserAccessLevel(uid: String) {
+        val df = FStore.collection("Users").document(uid)
+        df.get().addOnSuccessListener { documentSnapshot ->
+            val isAdmin = documentSnapshot.getBoolean("isAdmin")
+
+            when (isAdmin) {
+                true -> {
+                    // Login as Admin
+                    val intent = Intent(this, AdminActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                }
+                false -> {
+                    // Login as Customer
+                    val intent = Intent(this, MainScreen::class.java)
+                    startActivity(intent)
+                    finish()
+                }
+                else -> {
+                    Log.e("TAG", "User is neither admin nor customer")
+                    // Handle the case where neither condition is met, maybe show an error or redirect to login
+                }
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("TAG", "Error getting document", exception)
         }
     }
 }
