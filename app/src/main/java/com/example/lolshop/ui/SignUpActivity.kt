@@ -25,12 +25,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.lolshop.R
 import com.example.lolshop.ui.theme.LoLShopTheme
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FirebaseFirestore
+import java.nio.file.FileStore
 
 class SignUpActivity : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
+    private lateinit var FStore: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +49,7 @@ class SignUpActivity : ComponentActivity() {
     fun SignUpScreen() {
         // FirebaseAuth instance
         auth = FirebaseAuth.getInstance()
+        FStore = FirebaseFirestore.getInstance()
 
         var name by remember { mutableStateOf("") }
         var email by remember { mutableStateOf("") }
@@ -68,6 +75,12 @@ class SignUpActivity : ComponentActivity() {
                             user.updateProfile(profileUpdates)
                                 .addOnCompleteListener { profileUpdateTask ->
                                     if (profileUpdateTask.isSuccessful) {
+                                        val df = FStore.collection("Users").document(user.uid)
+                                        val userInfo: MutableMap<String, Any> = mutableMapOf()
+                                        userInfo["name"] = name
+                                        userInfo["email"] = email
+                                        userInfo["isAdmin"] = false
+                                        df.set(userInfo)
                                         Toast.makeText(this@SignUpActivity, "Sign-up successful", Toast.LENGTH_SHORT).show()
                                         finish() // Close the SignUp screen
                                     }

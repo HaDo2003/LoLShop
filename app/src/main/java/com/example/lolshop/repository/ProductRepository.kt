@@ -62,7 +62,8 @@ class ProductRepository(private val context: Context) {
         return withContext(Dispatchers.IO) {
             val requestParams = mapOf(
                 "public_id" to UUID.randomUUID().toString(),
-                "overwrite" to true
+                "overwrite" to true,
+                "folder" to "MobileProject"
             )
             val result = CloudinaryConfig.cloudinary.uploader().upload(file, requestParams)
             result["url"]?.toString() ?: throw Exception("Image upload failed")
