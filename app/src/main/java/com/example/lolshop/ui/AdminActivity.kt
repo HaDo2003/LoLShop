@@ -7,11 +7,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
+import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,16 +26,24 @@ import androidx.lifecycle.lifecycleScope
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.lolshop.R
+import com.example.lolshop.model.Category
 import com.example.lolshop.model.Product
 import com.example.lolshop.repository.ProductRepository
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.unit.dp
 
 class AdminActivity : ComponentActivity() {
 
     private lateinit var productRepository: ProductRepository
     private var imageUriState by mutableStateOf<Uri?>(null)
     private var productsList by mutableStateOf<List<Product>>(emptyList())
-    private var totalProducts by mutableStateOf(0)
+    private var totalProducts by mutableIntStateOf(0)
 
     private val imageResultLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -49,14 +61,25 @@ class AdminActivity : ComponentActivity() {
         }
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun AdminScreen() {
+
         var name by remember { mutableStateOf("") }
         var price by remember { mutableStateOf("") }
         var description by remember { mutableStateOf("") }
-        var category by remember { mutableStateOf("") }
+        var expanded by remember { mutableStateOf(false) }
         var isLoading by remember { mutableStateOf(false) }
 
+        val categoryOptions = listOf(
+            Category("-OE4s6JDMNBmybnPHxzj", "LCK"),
+            Category("-OE4tac7kwwSFADLtfoG", "LPL"),
+            Category("-OE4tefxh5HJh8UgGyU5", "VCS"),
+            Category("-OE4tiYv8OMefiXdZ-el", "LEC"),
+            Category("-OE4tmqfq9DWVUO-5Kpm", "PCS"),
+            Category("-OE4ts0w9YaDnfT2UM_-", "LCS")
+        )
+        var categoryId by remember { mutableStateOf(categoryOptions[0])}
         // Fetch products and total count from Firebase
         LaunchedEffect(Unit) {
             fetchProducts()
@@ -86,12 +109,48 @@ class AdminActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    OutlinedTextField(
-                        value = category,
-                        onValueChange = { category = it },
-                        label = { Text("Category") },
+//                    OutlinedTextField(
+//                        value = categoryId,
+//                        onValueChange = { categoryId = it },
+//                        label = { Text("Category") },
+//                        modifier = Modifier.fillMaxWidth()
+//                    )
+                    ExposedDropdownMenuBox(
+                        expanded = expanded,
+                        onExpandedChange = { expanded = it },
                         modifier = Modifier.fillMaxWidth()
-                    )
+                    ) {
+                        // OutlinedTextField for category selection
+                        OutlinedTextField(
+                            value = categoryId.name, // Display the category name
+                            onValueChange = { },
+                            readOnly = true, // Make it read-only since it's used as a dropdown
+                            trailingIcon = {
+                                TrailingIcon(expanded = expanded)
+                            },
+                            modifier = Modifier
+                                .menuAnchor()
+                                .fillMaxWidth()
+                                .clickable { expanded = !expanded } // Toggle dropdown
+                        )
+
+                        // Dropdown menu with category options
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            categoryOptions.forEach { categoryItem ->
+                                DropdownMenuItem(
+                                    text = { Text(text = categoryItem.name) },
+                                    onClick = {
+                                        categoryId = categoryItem
+                                        expanded = false // Close dropdown after selection
+                                    },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                )
+                            }
+                        }
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
                     OutlinedTextField(
                         value = price,
@@ -125,18 +184,17 @@ class AdminActivity : ComponentActivity() {
                     // Add product button
                     Button(
                         onClick = {
-                            if (name.isEmpty() || price.isEmpty() || description.isEmpty() || category.isEmpty() || imageUriState == null) {
+                            if (name.isEmpty() || price.isEmpty() || description.isEmpty() || imageUriState == null) {
                                 Toast.makeText(this@AdminActivity, "Please fill all fields and select an image", Toast.LENGTH_SHORT).show()
                             } else {
                                 isLoading = true
                                 lifecycleScope.launch {
-                                    productRepository.addProduct(name, price, description, category, imageUriState)
+                                    productRepository.addProduct(name, price, description, categoryId.id, imageUriState)
                                     isLoading = false
                                     // Clear fields after successful addition
                                     name = ""
                                     price = ""
                                     description = ""
-                                    category = ""
                                     imageUriState = null
                                     // Fetch the updated product list
                                     fetchProducts()

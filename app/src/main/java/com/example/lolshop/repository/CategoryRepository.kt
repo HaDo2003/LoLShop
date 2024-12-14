@@ -3,29 +3,28 @@ package com.example.lolshop.repository
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import com.example.lolshop.model.Product
+import com.example.lolshop.model.Category
 import com.example.lolshop.utils.CloudinaryConfig
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.util.*
+import java.util.UUID
 
-class ProductRepository(private val context: Context) {
+class CategoryRepository(private val context: Context) {
+    private val database = FirebaseDatabase.getInstance().reference.child("category")
 
-    private val database = FirebaseDatabase.getInstance().reference.child("products")
-
-    // Fetch products from Firebase
-    suspend fun fetchProducts(): List<Product> {
+    // Fetch categories from Firebase
+    suspend fun fetchCategories(): List<Category> {
         return withContext(Dispatchers.IO) {
             val snapshot = database.get().await()
-            snapshot.children.mapNotNull { it.getValue(Product::class.java) }
+            snapshot.children.mapNotNull { it.getValue(Category::class.java) }
         }
     }
 
-    // Add product to Firebase
-    suspend fun addProduct(name: String, price: String, description: String, categoryId: String, imageUri: Uri?) {
+    // Add category to Firebase
+    suspend fun addCategory(name: String, imageUri: Uri?) {
         imageUri?.let { uri ->
             val file = uriToFile(uri)
             if (file != null) {
@@ -33,13 +32,13 @@ class ProductRepository(private val context: Context) {
                     // Upload image to Cloudinary
                     val downloadUrl = uploadImageToCloudinary(file)
 
-                    // Save product to Firebase
-                    val productId = database.push().key ?: return@let
-                    val product = Product(productId, name, price, description, categoryId, downloadUrl)
+                    // Save category to Firebase
+                    val categoryId = database.push().key ?: return@let
+                    val category = Category(categoryId, name, downloadUrl)
 
-                    database.child(productId).setValue(product)
+                    database.child(categoryId).setValue(category)
                 } catch (e: Exception) {
-                    Log.e("ProductRepository", "Error uploading image or adding product: ${e.message}")
+                    Log.e("CategoryRepository", "Error uploading image or adding category: ${e.message}")
                 }
             }
         }
@@ -63,7 +62,7 @@ class ProductRepository(private val context: Context) {
             val requestParams = mapOf(
                 "public_id" to UUID.randomUUID().toString(),
                 "overwrite" to true,
-                "folder" to "MobileProject/ProductImages"
+                "folder" to "MobileProject/CategoryImages"
             )
             val result = CloudinaryConfig.cloudinary.uploader().upload(file, requestParams)
             result["url"]?.toString() ?: throw Exception("Image upload failed")
