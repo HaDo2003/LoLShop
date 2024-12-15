@@ -25,7 +25,7 @@ class ProductRepository(private val context: Context) {
     }
 
     // Add product to Firebase
-    suspend fun addProduct(name: String, price: String, description: String, categoryId: String, imageUri: Uri?) {
+    suspend fun addProduct(name: String, price: String, description: String, categoryId: String, showRecommended: Boolean, imageUri: Uri?) {
         imageUri?.let { uri ->
             val file = uriToFile(uri)
             if (file != null) {
@@ -35,7 +35,7 @@ class ProductRepository(private val context: Context) {
 
                     // Save product to Firebase
                     val productId = database.push().key ?: return@let
-                    val product = Product(productId, name, price, description, categoryId, downloadUrl)
+                    val product = Product(productId, name, price, description, categoryId, showRecommended, downloadUrl)
 
                     database.child(productId).setValue(product)
                 } catch (e: Exception) {
