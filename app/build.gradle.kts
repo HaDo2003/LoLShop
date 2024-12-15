@@ -32,14 +32,17 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     buildFeatures {
         compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion="1.5.1"
     }
     packaging {
         resources {
@@ -49,7 +52,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -77,4 +79,16 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation("io.coil-kt:coil-compose: 2.2.2") // Check for the latest version
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.28.0")
+    implementation("com.google.accompanist:accompanist-pager:0.28.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+    implementation("androidx.compose.runtime:runtime-livedata:1.7.5")
+    implementation("com.github.bumptech.glide:glide:4.13.0")
+    implementation("com.google.code.gson:gson:2.10.1")
+    implementation ("androidx.constraintlayout:constraintlayout-compose:1.1.0")
+    implementation ("androidx.compose.foundation:foundation:1.5.0")
+    implementation ("androidx.compose.ui:ui-tooling:1.7.5")
+    implementation ("com.google.android.material: material:1.12.0")
+
 }
