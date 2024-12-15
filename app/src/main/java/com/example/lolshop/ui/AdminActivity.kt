@@ -80,6 +80,12 @@ class AdminActivity : ComponentActivity() {
             Category("-OE4ts0w9YaDnfT2UM_-", "LCS")
         )
         var categoryId by remember { mutableStateOf(categoryOptions[0])}
+
+        val recommendOption = arrayOf("Unrecommended", "Recommended")
+        var isRecommended by remember { mutableStateOf(recommendOption[0]) }
+        var showRecommended by remember { mutableStateOf(false) }
+        var expanded1 by remember { mutableStateOf(false) }
+
         // Fetch products and total count from Firebase
         LaunchedEffect(Unit) {
             fetchProducts()
@@ -101,7 +107,7 @@ class AdminActivity : ComponentActivity() {
                 elevation = CardDefaults.cardElevation(8.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    // Input fields
+                    // Input fields for name of product
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
@@ -109,12 +115,8 @@ class AdminActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-//                    OutlinedTextField(
-//                        value = categoryId,
-//                        onValueChange = { categoryId = it },
-//                        label = { Text("Category") },
-//                        modifier = Modifier.fillMaxWidth()
-//                    )
+
+                    //Select field for region
                     ExposedDropdownMenuBox(
                         expanded = expanded,
                         onExpandedChange = { expanded = it },
@@ -122,16 +124,16 @@ class AdminActivity : ComponentActivity() {
                     ) {
                         // OutlinedTextField for category selection
                         OutlinedTextField(
-                            value = categoryId.name, // Display the category name
+                            value = categoryId.name,
                             onValueChange = { },
-                            readOnly = true, // Make it read-only since it's used as a dropdown
+                            readOnly = true,
                             trailingIcon = {
                                 TrailingIcon(expanded = expanded)
                             },
                             modifier = Modifier
                                 .menuAnchor()
                                 .fillMaxWidth()
-                                .clickable { expanded = !expanded } // Toggle dropdown
+                                .clickable { expanded = !expanded }
                         )
 
                         // Dropdown menu with category options
@@ -152,6 +154,8 @@ class AdminActivity : ComponentActivity() {
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
+
+                    //Input field for price
                     OutlinedTextField(
                         value = price,
                         onValueChange = { price = it },
@@ -159,6 +163,8 @@ class AdminActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(16.dp))
+
+                    //Input field for description
                     OutlinedTextField(
                         value = description,
                         onValueChange = { description = it },
@@ -167,6 +173,45 @@ class AdminActivity : ComponentActivity() {
                     )
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    //Select field for recommendation
+                    ExposedDropdownMenuBox(
+                        expanded = expanded1,
+                        onExpandedChange = { expanded1 = it },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        // OutlinedTextField for category selection
+                        OutlinedTextField(
+                            value = isRecommended,
+                            onValueChange = { },
+                            readOnly = true,
+                            trailingIcon = {
+                                TrailingIcon(expanded = expanded1)
+                            },
+                            modifier = Modifier
+                                .menuAnchor()
+                                .fillMaxWidth()
+                                .clickable { expanded1 = !expanded1 }
+                        )
+
+                        // Dropdown menu with category options
+                        ExposedDropdownMenu(
+                            expanded = expanded1,
+                            onDismissRequest = { expanded1 = false }
+                        ) {
+                            recommendOption.forEach { option ->
+                                DropdownMenuItem(
+                                    text = { Text(text = option) },
+                                    onClick = {
+                                        isRecommended = option
+                                        showRecommended = option == "Recommended"
+                                        expanded1 = false // Close dropdown after selection
+                                    },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                )
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
                     // Image selection
                     if (imageUriState != null) {
                         Image(
@@ -189,13 +234,14 @@ class AdminActivity : ComponentActivity() {
                             } else {
                                 isLoading = true
                                 lifecycleScope.launch {
-                                    productRepository.addProduct(name, price, description, categoryId.id, imageUriState)
+                                    productRepository.addProduct(name, price, description, categoryId.id, showRecommended, imageUriState)
                                     isLoading = false
                                     // Clear fields after successful addition
                                     name = ""
                                     price = ""
                                     categoryId = categoryOptions[0]
                                     description = ""
+                                    isRecommended = recommendOption[0]
                                     imageUriState = null
                                     // Fetch the updated product list
                                     fetchProducts()
