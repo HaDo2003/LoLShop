@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
+import com.example.lolshop.R
 
 
 class MainScreen : BaseActivity() {
@@ -39,7 +40,7 @@ class MainScreen : BaseActivity() {
         super.onCreate(savedInstanceState)
         auth = FirebaseAuth.getInstance()
         setContent {
-
+            HomePageScreen()
         }
     }
 }
@@ -77,7 +78,7 @@ fun HomePageScreen() {
                         )
                     }
                     Image(
-                        painter = painterResource(android.R.drawable.ic_menu_search),
+                        painter = painterResource(R.drawable.search_icon),
                         contentDescription = null
                     )
                     Spacer(modifier = Modifier.width(16.dp))
