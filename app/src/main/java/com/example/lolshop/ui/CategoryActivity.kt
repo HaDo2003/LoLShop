@@ -17,10 +17,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,11 +39,11 @@ import com.example.lolshop.model.Category
 import com.example.lolshop.repository.CategoryRepository
 import kotlinx.coroutines.launch
 
-class CategoryActivity : ComponentActivity() {
+class CategoryActivity : BaseActivity() {
     private lateinit var categoryRepository: CategoryRepository
     private var imageUriState by mutableStateOf<Uri?>(null)
     private var categoriesList by mutableStateOf<List<Category>>(emptyList())
-    private var totalCategories by mutableStateOf(0)
+    private var totalCategories by mutableIntStateOf(0)
 
     private val imageResultLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -86,9 +88,10 @@ class CategoryActivity : ComponentActivity() {
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     // Input field for Category name
-                    BasicTextField(
+                    OutlinedTextField(
                         value = categoryName,
                         onValueChange = { categoryName = it },
+                        label = { Text(text = "Region") },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                         keyboardActions = KeyboardActions(onDone = {
@@ -124,6 +127,7 @@ class CategoryActivity : ComponentActivity() {
                                     isLoading = false
                                     categoryName = ""  // Clear field after successful addition
                                     imageUriState = null // Reset image
+                                    Toast.makeText(this@CategoryActivity, "Add region successfully", Toast.LENGTH_SHORT).show()
                                     // Fetch the updated category list
                                     fetchCategories()
                                 }

@@ -194,6 +194,7 @@ class AdminActivity : ComponentActivity() {
                                     // Clear fields after successful addition
                                     name = ""
                                     price = ""
+                                    categoryId = categoryOptions[0]
                                     description = ""
                                     imageUriState = null
                                     // Fetch the updated product list
