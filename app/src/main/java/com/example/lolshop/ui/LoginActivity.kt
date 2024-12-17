@@ -49,6 +49,9 @@ class LoginActivity : BaseActivity() {
                     Log.d("LoginScreen", "Navigating to SignUpActivity.")
                     val intent = Intent(this, SignUpActivity::class.java)
                     startActivity(intent)
+                },
+                onLoginWithGG = {
+                    Log.d("LoginScreen", "Navigating to LoginWithGG.")
                 }
             )
         }
@@ -112,7 +115,8 @@ class LoginActivity : BaseActivity() {
 @Composable
 fun LoginScreen(
     onLogin: (String, String) -> Unit,
-    onSignUp: () -> Unit
+    onSignUp: () -> Unit,
+    onLoginWithGG: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -189,6 +193,22 @@ fun LoginScreen(
             )
         ) {
             Text(text = "Login", fontSize = 16.sp)
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Text(
+            text = "or",
+            color = MaterialTheme.colorScheme.primary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Login with Google
+        OutlinedButton(onClick = onLoginWithGG) {
+            Text("Login with Google")
         }
 
         Spacer(modifier = Modifier.height(10.dp))

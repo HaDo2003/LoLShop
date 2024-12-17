@@ -4,7 +4,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -36,7 +38,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 class AdminActivity : ComponentActivity() {
 
@@ -57,264 +63,13 @@ class AdminActivity : ComponentActivity() {
         productRepository = ProductRepository(this) // Initialize repository with context
 
         setContent {
-            AdminScreen()
-        }
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun AdminScreen() {
-
-        var name by remember { mutableStateOf("") }
-        var price by remember { mutableStateOf("") }
-        var description by remember { mutableStateOf("") }
-        var expanded by remember { mutableStateOf(false) }
-        var isLoading by remember { mutableStateOf(false) }
-
-        val categoryOptions = listOf(
-            Category("-OE4s6JDMNBmybnPHxzj", "LCK"),
-            Category("-OE4tac7kwwSFADLtfoG", "LPL"),
-            Category("-OE4tefxh5HJh8UgGyU5", "VCS"),
-            Category("-OE4tiYv8OMefiXdZ-el", "LEC"),
-            Category("-OE4tmqfq9DWVUO-5Kpm", "PCS"),
-            Category("-OE4ts0w9YaDnfT2UM_-", "LCS")
-        )
-        var categoryId by remember { mutableStateOf(categoryOptions[0])}
-
-        val recommendOption = arrayOf("Unrecommended", "Recommended")
-        var isRecommended by remember { mutableStateOf(recommendOption[0]) }
-        var showRecommended by remember { mutableStateOf(false) }
-        var expanded1 by remember { mutableStateOf(false) }
-
-        // Fetch products and total count from Firebase
-        LaunchedEffect(Unit) {
-            fetchProducts()
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.height(32.dp))
-            Text(text = "Welcome Admin!", style = MaterialTheme.typography.headlineLarge)
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Card for Add Product form
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(8.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    // Input fields for name of product
-                    OutlinedTextField(
-                        value = name,
-                        onValueChange = { name = it },
-                        label = { Text("Product Name") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    //Select field for region
-                    ExposedDropdownMenuBox(
-                        expanded = expanded,
-                        onExpandedChange = { expanded = it },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        // OutlinedTextField for category selection
-                        OutlinedTextField(
-                            value = categoryId.name,
-                            onValueChange = { },
-                            readOnly = true,
-                            trailingIcon = {
-                                TrailingIcon(expanded = expanded)
-                            },
-                            modifier = Modifier
-                                .menuAnchor()
-                                .fillMaxWidth()
-                                .clickable { expanded = !expanded }
-                        )
-
-                        // Dropdown menu with category options
-                        ExposedDropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false }
-                        ) {
-                            categoryOptions.forEach { categoryItem ->
-                                DropdownMenuItem(
-                                    text = { Text(text = categoryItem.name) },
-                                    onClick = {
-                                        categoryId = categoryItem
-                                        expanded = false // Close dropdown after selection
-                                    },
-                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                                )
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    //Input field for price
-                    OutlinedTextField(
-                        value = price,
-                        onValueChange = { price = it },
-                        label = { Text("Price") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    //Input field for description
-                    OutlinedTextField(
-                        value = description,
-                        onValueChange = { description = it },
-                        label = { Text("Description") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    //Select field for recommendation
-                    ExposedDropdownMenuBox(
-                        expanded = expanded1,
-                        onExpandedChange = { expanded1 = it },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        // OutlinedTextField for category selection
-                        OutlinedTextField(
-                            value = isRecommended,
-                            onValueChange = { },
-                            readOnly = true,
-                            trailingIcon = {
-                                TrailingIcon(expanded = expanded1)
-                            },
-                            modifier = Modifier
-                                .menuAnchor()
-                                .fillMaxWidth()
-                                .clickable { expanded1 = !expanded1 }
-                        )
-
-                        // Dropdown menu with category options
-                        ExposedDropdownMenu(
-                            expanded = expanded1,
-                            onDismissRequest = { expanded1 = false }
-                        ) {
-                            recommendOption.forEach { option ->
-                                DropdownMenuItem(
-                                    text = { Text(text = option) },
-                                    onClick = {
-                                        isRecommended = option
-                                        showRecommended = option == "Recommended"
-                                        expanded1 = false // Close dropdown after selection
-                                    },
-                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                                )
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    // Image selection
-                    if (imageUriState != null) {
-                        Image(
-                            painter = rememberAsyncImagePainter(imageUriState),
-                            contentDescription = "Selected Image",
-                            modifier = Modifier.size(100.dp).align(Alignment.CenterHorizontally)
-                        )
-                    } else {
-                        Button(onClick = { imageResultLauncher.launch("image/*") }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                            Text("Select Product Image")
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Add product button
-                    Button(
-                        onClick = {
-                            if (name.isEmpty() || price.isEmpty() || description.isEmpty() || imageUriState == null) {
-                                Toast.makeText(this@AdminActivity, "Please fill all fields and select an image", Toast.LENGTH_SHORT).show()
-                            } else {
-                                isLoading = true
-                                lifecycleScope.launch {
-                                    productRepository.addProduct(name, price, description, categoryId.id, showRecommended, imageUriState)
-                                    isLoading = false
-                                    // Clear fields after successful addition
-                                    name = ""
-                                    price = ""
-                                    categoryId = categoryOptions[0]
-                                    description = ""
-                                    isRecommended = recommendOption[0]
-                                    imageUriState = null
-                                    // Fetch the updated product list
-                                    fetchProducts()
-                                }
-                            }
-                        },
-                        enabled = !isLoading,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    ) {
-                        Text(if (isLoading) "Uploading..." else "Add Product")
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Display total products and product list
-            Text(text = "Total Products: $totalProducts", style = MaterialTheme.typography.bodyLarge)
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Display list of products in a grid
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier.fillMaxWidth().weight(1f), // Ensure it takes up remaining space
-                contentPadding = PaddingValues(8.dp)
-            ) {
-                items(productsList) { product ->
-                    ProductItem(product)
-                }
-            }
-        }
-    }
-
-    @Composable
-    fun ProductItem(product: Product) {
-        Column(
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Display product name
-            Text(text = product.name, style = MaterialTheme.typography.bodyLarge)
-
-            // Display product price
-            Text(text = product.price, style = MaterialTheme.typography.bodyMedium)
-
-            // Display product image from Cloudinary
-            if (product.imageUrl.isNotEmpty()) {
-                Image(
-                    painter = rememberAsyncImagePainter(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(product.imageUrl)  // Set the image URL
-                            .size(200)  // Set the image size
-                            .placeholder(R.drawable.placeholder)  // Set a placeholder image
-                            .error(R.drawable.error_image)  // Set an error image
-                            .build()
-                    ),
-                    contentDescription = "Product Image",
-                    modifier = Modifier
-                        .size(100.dp)  // Set the size for image display
-                        .padding(top = 8.dp)
-                )
-            } else {
-                // Placeholder text if imageUrl is empty
-                Text("No image available", style = MaterialTheme.typography.bodySmall)
-            }
-
-            // Display product description with a character limit
-            Text(
-                text = product.description.take(100) + if (product.description.length > 100) "..." else "",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 8.dp)
+            AdminScreen(
+                productRepository = productRepository,
+                imageUriState = imageUriState,
+                productsList = productsList,
+                totalProducts = totalProducts,
+                imageResultLauncher = imageResultLauncher,
+                fetchProducts = { fetchProducts() }
             )
         }
     }
@@ -326,5 +81,245 @@ class AdminActivity : ComponentActivity() {
             productsList = products
             totalProducts = products.size
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AdminScreen(
+    productRepository: ProductRepository,
+    imageUriState: Uri?,
+    productsList: List<Product>,
+    totalProducts: Int,
+    imageResultLauncher: ActivityResultLauncher<String>,
+    fetchProducts: () -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var price by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var expanded by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
+
+    val categoryOptions = listOf(
+        Category("-OE4s6JDMNBmybnPHxzj", "LCK"),
+        Category("-OE4tac7kwwSFADLtfoG", "LPL"),
+        Category("-OE4tefxh5HJh8UgGyU5", "VCS"),
+        Category("-OE4tiYv8OMefiXdZ-el", "LEC"),
+        Category("-OE4tmqfq9DWVUO-5Kpm", "PCS"),
+        Category("-OE4ts0w9YaDnfT2UM_-", "LCS")
+    )
+    var categoryId by remember { mutableStateOf(categoryOptions[0]) }
+
+    val recommendOption = arrayOf("Unrecommended", "Recommended")
+    var isRecommended by remember { mutableStateOf(recommendOption[0]) }
+    var showRecommended by remember { mutableStateOf(false) }
+    var expanded1 by remember { mutableStateOf(false) }
+    var showSnackbar by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        fetchProducts()
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.height(32.dp))
+        Text(text = "Welcome Admin!", style = MaterialTheme.typography.headlineLarge)
+        Spacer(modifier = Modifier.height(32.dp))
+
+        if (showSnackbar) {
+            Snackbar(
+                action = {
+                    TextButton(onClick = { showSnackbar = false }) {
+                        Text("Dismiss")
+                    }
+                }
+            ) {
+                Text("Please fill all fields and select an image")
+            }
+        }
+
+        // Card for Add Product form
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(8.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Product Name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    OutlinedTextField(
+                        value = categoryId.name,
+                        onValueChange = { },
+                        readOnly = true,
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded)
+                        },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        categoryOptions.forEach { categoryItem ->
+                            DropdownMenuItem(
+                                text = { Text(text = categoryItem.name) },
+                                onClick = {
+                                    categoryId = categoryItem
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = price,
+                    onValueChange = { price = it },
+                    label = { Text("Price") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Description") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                ExposedDropdownMenuBox(
+                    expanded = expanded1,
+                    onExpandedChange = { expanded1 = it },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    OutlinedTextField(
+                        value = isRecommended,
+                        onValueChange = { },
+                        readOnly = true,
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded1)
+                        },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded1,
+                        onDismissRequest = { expanded1 = false }
+                    ) {
+                        recommendOption.forEach { option ->
+                            DropdownMenuItem(
+                                text = { Text(text = option) },
+                                onClick = {
+                                    isRecommended = option
+                                    showRecommended = option == "Recommended"
+                                    expanded1 = false
+                                }
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (imageUriState != null) {
+                    Image(
+                        painter = rememberAsyncImagePainter(imageUriState),
+                        contentDescription = "Selected Image",
+                        modifier = Modifier
+                            .size(100.dp)
+                            .align(Alignment.CenterHorizontally)
+                    )
+                } else {
+                    Button(onClick = { imageResultLauncher.launch("image/*") }) {
+                        Text("Select Product Image")
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        if (name.isEmpty() || price.isEmpty() || description.isEmpty() || imageUriState == null) {
+                            showSnackbar = true
+                        } else {
+                            isLoading = true
+                            CoroutineScope(Dispatchers.IO).launch {
+                                productRepository.addProduct(name, price, description, categoryId.id, showRecommended, imageUriState)
+                                isLoading = false
+                            }
+                        }
+                    },
+                    enabled = !isLoading,
+                ) {
+                    Text(if (isLoading) "Uploading..." else "Add Product")
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+        Text(text = "Total Products: $totalProducts", style = MaterialTheme.typography.bodyLarge)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            items(productsList) { product ->
+                ProductItem(product)
+            }
+        }
+    }
+}
+
+@Composable
+fun ProductItem(product: Product) {
+    Column(
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = product.name, style = MaterialTheme.typography.bodyLarge)
+        Text(text = product.price, style = MaterialTheme.typography.bodyMedium)
+
+        if (product.imageUrl.isNotEmpty()) {
+            Image(
+                painter = rememberAsyncImagePainter(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(product.imageUrl)
+                        .build()
+                ),
+                contentDescription = "Product Image",
+                modifier = Modifier.size(100.dp)
+            )
+        } else {
+            Text("No image available", style = MaterialTheme.typography.bodySmall)
+        }
+
+        Text(
+            text = product.description.take(100) + if (product.description.length > 100) "..." else "",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 8.dp)
+        )
     }
 }
