@@ -1,4 +1,4 @@
-package com.example.lolshop.ui
+package com.example.lolshop.view
 
 import android.net.Uri
 import android.os.Bundle

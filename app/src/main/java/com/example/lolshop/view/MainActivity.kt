@@ -1,4 +1,4 @@
-package com.example.lolshop.ui
+package com.example.lolshop.view
 
 import android.content.Intent
 import android.os.Bundle
