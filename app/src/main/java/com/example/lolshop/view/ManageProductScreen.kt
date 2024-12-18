@@ -15,9 +15,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.lolshop.R
 import com.example.lolshop.model.Product
@@ -26,7 +23,6 @@ import com.example.lolshop.viewmodel.AdminViewModel
 @Composable
 fun ManageProductScreen(adminViewModel: AdminViewModel, navController: NavController) {
     val products by adminViewModel.products.collectAsState()
-    val navController = rememberNavController()
 
     LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.fillMaxSize()) {
         items(products) { product ->
@@ -42,7 +38,6 @@ fun ManageProductScreen(adminViewModel: AdminViewModel, navController: NavContro
         }
     }
 }
-
 
 @Composable
 fun ProductItem(product: Product, onDelete: () -> Unit, onEdit: () -> Unit) {
@@ -63,8 +58,7 @@ fun ProductItem(product: Product, onDelete: () -> Unit, onEdit: () -> Unit) {
                         model = product.imageUrl,
                         contentScale = ContentScale.Crop,
                         error = painterResource(id = R.drawable.placeholder_image),
-                        placeholder = painterResource(id = R.drawable.placeholder_image
-                        )
+                        placeholder = painterResource(id = R.drawable.placeholder_image)
                     ),
                     contentDescription = "Product Image",
                     modifier = Modifier
@@ -95,4 +89,3 @@ fun ProductItem(product: Product, onDelete: () -> Unit, onEdit: () -> Unit) {
         }
     }
 }
-

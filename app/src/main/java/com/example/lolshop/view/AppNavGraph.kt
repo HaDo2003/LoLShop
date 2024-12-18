@@ -7,21 +7,35 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lolshop.model.Screen
+import com.example.lolshop.repository.ProductRepository
 import com.example.lolshop.viewmodel.AdminViewModel
+import com.example.lolshop.viewmodel.AdminViewModelFactory
 
 @Composable
 fun AppNavGraph(navController: NavHostController, modifier: Modifier) {
     val context = LocalContext.current
 
-    val adminViewModel = AdminViewModel(context = context)
+    // Use ViewModelProvider to get AdminViewModel instance
+    val adminViewModel: AdminViewModel = viewModel(factory = AdminViewModelFactory(context))
 
+    // Assuming ProductRepository is a simple class or singleton
+    val productRepository = ProductRepository(context) // Replace with actual initialization if necessary
+
+    // Using NavHost to define different destinations
     NavHost(navController = navController, startDestination = Screen.Home.route) {
-        composable(Screen.Home.route) { HomeScreen() }
-        composable(Screen.Products.route) { ProductsScreen() }
-        composable(Screen.Admin.route) { AdminScreen() }
-        composable(Screen.Cart.route) { CartScreen() }
-        composable(Screen.Profile.route) { ProfileScreen() }
+//        composable(Screen.Home.route) {
+//            MainScreen()  // Assuming MainScreen doesn't require any arguments
+//        }
+
+        composable(Screen.Admin.route) {
+            AdminScreen(
+                adminViewModel = adminViewModel,
+                productRepository = productRepository // Passing productRepository to AdminScreen
+            )
+        }
+
         composable("edit_product/{productId}") { backStackEntry ->
             val productId = backStackEntry.arguments?.getString("productId")
             if (productId != null) {
@@ -30,25 +44,7 @@ fun AppNavGraph(navController: NavHostController, modifier: Modifier) {
                     adminViewModel = adminViewModel,
                     navController = navController
                 )
-            } else {
-
             }
         }
     }
 }
-
-// Dummy screens for illustration
-@Composable
-fun HomeScreen() { /* UI for Home */ }
-
-@Composable
-fun ProductsScreen() { /* UI for Products */ }
-
-@Composable
-fun AdminScreen() { /* UI for Admin */ }
-
-@Composable
-fun CartScreen() { /* UI for Cart */ }
-
-@Composable
-fun ProfileScreen() { /* UI for Profile */ }

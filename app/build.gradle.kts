@@ -88,6 +88,7 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.volley)
+    implementation(libs.androidx.espresso.core)
 
     // Testing dependencies
     testImplementation(libs.junit)
