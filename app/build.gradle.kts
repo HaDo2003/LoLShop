@@ -68,6 +68,8 @@ dependencies {
     // Compose ViewModel support
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
     implementation("com.google.firebase:firebase-appcheck-playintegrity:17.1.0")
+    implementation("io.coil-kt:coil-compose:2.3.0")
+
 
     // Firebase
     implementation(libs.firebase.database)
@@ -83,6 +85,9 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.cloudinary.android)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.volley)
 
     // Testing dependencies
     testImplementation(libs.junit)

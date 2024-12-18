@@ -6,6 +6,7 @@ import android.util.Log
 import com.example.lolshop.model.Product
 import com.example.lolshop.utils.CloudinaryConfig
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -45,6 +46,19 @@ class ProductRepository(private val context: Context) {
         }
     }
 
+    // Delete product from Realtime Database
+    suspend fun deleteProduct(productId: String) {
+        withContext(Dispatchers.IO) {
+            try {
+                database.child(productId).removeValue().await()
+                Log.d("DeleteProduct", "Product deleted successfully")
+            } catch (e: Exception) {
+                Log.e("DeleteProduct", "Error deleting product", e)
+            }
+        }
+    }
+
+
     // Convert URI to File
     private fun uriToFile(uri: Uri): File? {
         return try {
@@ -69,4 +83,10 @@ class ProductRepository(private val context: Context) {
             result["url"]?.toString() ?: throw Exception("Image upload failed")
         }
     }
+
+    fun updateProduct(productId: String, name: String, price: String, description: String) {
+        val product = Product(productId, name, price, description)
+        database.child(productId).setValue(product)
+    }
+
 }

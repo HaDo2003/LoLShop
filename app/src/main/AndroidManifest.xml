@@ -24,9 +24,6 @@
             android:name=".view.CategoryActivity"
             android:exported="false" />
         <activity
-            android:name=".view.MainScreen"
-            android:exported="false" />
-        <activity
             android:name=".view.IntroActivity"
             android:exported="true">
             <intent-filter>
