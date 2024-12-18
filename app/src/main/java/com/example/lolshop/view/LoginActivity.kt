@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,18 +25,26 @@ import androidx.compose.ui.unit.sp
 import com.example.lolshop.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
+import com.google.firebase.appcheck.FirebaseAppCheck
 
 
-class LoginActivity : BaseActivity() {
+class LoginActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var FStore: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize Firebase Auth
+        // Initialize Firebase
         auth = FirebaseAuth.getInstance()
         FStore = FirebaseFirestore.getInstance()
+
+        val appCheck = FirebaseAppCheck.getInstance()
+        appCheck.installAppCheckProviderFactory(
+            PlayIntegrityAppCheckProviderFactory.getInstance()
+        )
+
 
         setContent {
             LoginScreen(
@@ -61,14 +70,10 @@ class LoginActivity : BaseActivity() {
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
-                        //Log.d("LoginActivity", "Login successful. Navigating to AdminActivity.")
-                        //val intent = Intent(this, AdminActivity::class.java)
-                        //startActivity(intent)
                         val authResult = FirebaseAuth.getInstance().currentUser
                         authResult?.let { user ->
                             checkUserAccessLevel(user.uid)
                         } ?: run {
-                            // Handle the case where the user is not authenticated
                             println("No user is logged in.")
                         }
                     } else {
@@ -87,20 +92,17 @@ class LoginActivity : BaseActivity() {
 
             when (isAdmin) {
                 true -> {
-                    // Login as Admin
                     val intent = Intent(this, AdminActivity::class.java)
                     startActivity(intent)
                     finish()
                 }
                 false -> {
-                    // Login as Customer
                     val intent = Intent(this, MainScreen::class.java)
                     startActivity(intent)
                     finish()
                 }
                 else -> {
                     Log.e("TAG", "User is neither admin nor customer")
-                    // Handle the case where neither condition is met, maybe show an error or redirect to login
                 }
             }
         }.addOnFailureListener { exception ->
@@ -126,22 +128,18 @@ fun LoginScreen(
     ) {
         Spacer(modifier = Modifier.height(100.dp))
 
-        // Logo
         Image(
             painter = painterResource(id = R.drawable.mobilelogo),
             contentDescription = stringResource(id = R.string.logo),
-            modifier = Modifier
-                .size(100.dp)
-                .background(Color.Black)
+            modifier = Modifier.size(100.dp)
         )
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Email field
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text(text = "Email") },
+            label = { Text("Email") },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             singleLine = true,
@@ -158,11 +156,10 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Password field
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text(text = "Password") },
+            label = { Text("Password") },
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -180,7 +177,6 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Login Button
         Button(
             onClick = { onLogin(email, password) },
             modifier = Modifier.fillMaxWidth(),
@@ -189,36 +185,27 @@ fun LoginScreen(
                 contentColor = Color.Black
             )
         ) {
-            Text(text = "Login", fontSize = 16.sp)
+            Text("Login", fontSize = 16.sp)
         }
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        Text(
-            text = "or",
-            color = MaterialTheme.colorScheme.primary,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
+        Text("or", color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center)
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Login with Google
         OutlinedButton(onClick = onLoginWithGG) {
             Text("Login with Google")
         }
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Sign-up text
         TextButton(onClick = onSignUp) {
             Text(
-                text = "Don't have an account? Sign up",
+                "Don't have an account? Sign up",
                 color = MaterialTheme.colorScheme.primary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                textAlign = TextAlign.Center
             )
         }
-
     }
 }
