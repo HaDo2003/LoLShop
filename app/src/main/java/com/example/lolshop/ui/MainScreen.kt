@@ -1,6 +1,9 @@
 package com.example.lolshop.ui
 
+import android.R.attr.fontWeight
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Space
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -27,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -42,22 +46,27 @@ import com.example.lolshop.model.SlideModle
 import com.example.lolshop.ui.ViewModel.MainViewModel
 import androidx.compose.runtime.*
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.Dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.lolshop.model.CategoryModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
+import java.util.Locale
 
 
 @Composable
@@ -89,13 +98,25 @@ fun HomePageScreen() {
     val viewModel= MainViewModel()
 
     val banners = remember { mutableStateListOf<SlideModle>() }
-
+    val categories = remember { mutableStateListOf<CategoryModel>() }
     var showBannerLoading by remember { mutableStateOf(true) }
+    var showCategoryLoading by remember {mutableStateOf(true)}
+
+    //Banner
     LaunchedEffect(Unit) {
         viewModel.loadBanner().observeForever{
             banners.clear()
             banners.addAll(it)
             showBannerLoading=false
+        }
+    }
+
+    //category
+    LaunchedEffect(Unit) {
+        viewModel.loadCategory().observeForever{
+            categories.clear()
+            categories.addAll(it)
+            showCategoryLoading=false
         }
     }
     ConstraintLayout(modifier = Modifier.background(Color.White)) {
@@ -157,9 +178,117 @@ fun HomePageScreen() {
                     Banners(banners)
                 }
             }
+
+            item{
+                Text(
+                    text="LoL Team",
+                    color = Color.Black,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 24.dp)
+                        .padding(horizontal = 16.dp)
+                )
+
+            }
+            item{
+                if (showBannerLoading){
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .height(50.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }else{
+                    CategoryList(categories)
+                }
+            }
         }
     }
 }
+
+@Composable
+fun CategoryList(categories: SnapshotStateList<CategoryModel>) {
+    var selectedIndex by remember { mutableStateOf(-1) }
+    val context = LocalContext.current
+
+    LazyRow(modifier = Modifier
+        .fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp),
+        contentPadding = PaddingValues(start=16.dp, end = 16.dp, top = 8.dp)
+    ) {
+
+        items(categories.size){index->
+            CategoryItem(item=categories[index], isSelected = selectedIndex == index,
+                onItemClick = {
+                    selectedIndex=index
+                    Handler(Looper.getMainLooper()).postDelayed({
+
+                    },500)
+                }
+            )
+        }
+    }
+}
+@Composable
+fun CategoryItem(item: CategoryModel,isSelected:Boolean,onItemClick:()->Unit){
+    Column(
+        modifier = Modifier
+            .clickable(onClick = onItemClick), horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        AsyncImage(
+            model = (item.imageUrl),
+            contentDescription = item.title,
+            modifier = Modifier
+                .size(if (isSelected)60.dp else 50.dp)
+                .background(
+                    color = if(isSelected) colorResource(R.color.purple_200)else colorResource(R.color.purple_500),
+                    shape = RoundedCornerShape(100.dp)
+                ),
+            contentScale = ContentScale.Inside,
+            colorFilter = if(isSelected){
+                ColorFilter.tint(Color.White)
+            }else{
+                ColorFilter.tint(Color.Black)
+            }
+        )
+        Spacer(modifier = Modifier.padding(top=8.dp))
+        Text(
+            text= item.title,
+            color = colorResource(R.color.purple_200),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
+
+}
+
+
+
+@Composable
+fun SectionTitLe(title: String, actionText: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 24.dp)
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ){
+        Text(
+            text=title,
+            color = Color.Black,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text= actionText,
+            color=colorResource(R.color.purple_200)
+        )
+    }
+}
+
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun Banners(banners: List<SlideModle>) {
@@ -179,7 +308,7 @@ fun AutoSlidingCarousel(
         HorizontalPager(count = banners.size, state = pagerState ) { page->
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(banners[page].url)
+                    .data(banners[page].imageUrl)
                     .build(),
                 contentDescription = null,
                 contentScale = ContentScale.FillBounds,

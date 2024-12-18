@@ -1,3 +1,6 @@
 package com.example.lolshop.model
 
-data class SlideModle(val url:String="")
+data class SlideModle(
+    val id: String = "",
+    val imageUrl: String = ""
+)
