@@ -1,4 +1,4 @@
-package com.example.lolshop.view
+package com.example.lolshop.view.admin
 
 import androidx.compose.runtime.Composable
 

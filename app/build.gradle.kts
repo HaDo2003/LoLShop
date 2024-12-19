@@ -66,9 +66,9 @@ dependencies {
     implementation(libs.androidx.material3)
 
     // Compose ViewModel support
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
-    implementation("com.google.firebase:firebase-appcheck-playintegrity:17.1.0")
-    implementation("io.coil-kt:coil-compose:2.3.0")
+    implementation(libs.lifecycle.viewmodel.compose)
+    implementation(libs.firebase.appcheck.playintegrity)
+    implementation(libs.coil.compose.v230)
 
 
     // Firebase

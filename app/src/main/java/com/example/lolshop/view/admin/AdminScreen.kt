@@ -1,6 +1,7 @@
-package com.example.lolshop.view
+package com.example.lolshop.view.admin
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -58,6 +59,14 @@ fun AdminScreen(adminViewModel: AdminViewModel, productRepository: ProductReposi
         }
         composable("manage_product") {
             ManageProductScreen(adminViewModel = adminViewModel, navController = navController)
+        }
+        composable("edit_product/{productId}") { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId")
+            if (productId != null) {
+                EditProductScreen(productId = productId, adminViewModel = adminViewModel, navController = navController)
+            } else {
+                Log.e("NavHost", "Product ID is null in edit_product route")
+            }
         }
         composable("manage_order") {
             ManageOrderScreen()

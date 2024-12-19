@@ -1,14 +1,17 @@
-package com.example.lolshop.view
+package com.example.lolshop.view.authentication
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
@@ -33,11 +36,11 @@ fun SignUpScreen(
     navigateToLogin: () -> Unit
 ) {
     val signUpState by viewModel.signUpState.collectAsState()
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
-    var address by remember { mutableStateOf("") }
+    var name by rememberSaveable { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var phoneNumber by rememberSaveable { mutableStateOf("") }
+    var address by rememberSaveable { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -50,7 +53,8 @@ fun SignUpScreen(
             painter = painterResource(id = R.drawable.mobilelogo),
             contentDescription = "Logo",
             modifier = Modifier
-                .size(100.dp)
+                .size(120.dp)
+                .clip(CircleShape)
                 .background(Color.Black)
         )
 
@@ -111,7 +115,12 @@ fun SignUpScreen(
 
         Button(
             onClick = { viewModel.signUp(name, email, password, phoneNumber, address, isAdmin = false) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Black,
+                contentColor = Color.White
+            )
         ) {
             Text("Sign Up")
         }

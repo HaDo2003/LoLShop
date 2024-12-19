@@ -2,14 +2,15 @@ package com.example.lolshop.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.lolshop.model.User
-import com.example.lolshop.model.UserRepository
+import com.example.lolshop.repository.UserRepository
 import com.example.lolshop.utils.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class SignUpViewModel(private val userRepository: UserRepository) : ViewModel() {
+class SignUpViewModel(
+    private val userRepository: UserRepository
+) : ViewModel() {
 
     private val _signUpState = MutableStateFlow<Resource<Unit>>(Resource.Empty())
     val signUpState: StateFlow<Resource<Unit>> get() = _signUpState

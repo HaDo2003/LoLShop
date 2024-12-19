@@ -1,13 +1,12 @@
-package com.example.lolshop.view
+package com.example.lolshop.view.admin
 
 import android.net.Uri
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.*
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -32,11 +31,11 @@ fun AddProductScreen(
     imageResultLauncher: ActivityResultLauncher<String>,
     fetchProducts: () -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
-    var price by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var expanded by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) }
+    var name by rememberSaveable { mutableStateOf("") }
+    var price by rememberSaveable { mutableStateOf("") }
+    var description by rememberSaveable { mutableStateOf("") }
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    var isLoading by rememberSaveable { mutableStateOf(false) }
 
     val categoryOptions = listOf(
         Category("-OE4s6JDMNBmybnPHxzj", "LCK"),
@@ -46,13 +45,13 @@ fun AddProductScreen(
         Category("-OE4tmqfq9DWVUO-5Kpm", "PCS"),
         Category("-OE4ts0w9YaDnfT2UM_-", "LCS")
     )
-    var categoryId by remember { mutableStateOf(categoryOptions[0]) }
+    var categoryId by rememberSaveable { mutableStateOf(categoryOptions[0]) }
 
     val recommendOption = arrayOf("Unrecommended", "Recommended")
-    var isRecommended by remember { mutableStateOf(recommendOption[0]) }
-    var showRecommended by remember { mutableStateOf(false) }
-    var expanded1 by remember { mutableStateOf(false) }
-    var showSnackbar by remember { mutableStateOf(false) }
+    var isRecommended by rememberSaveable { mutableStateOf(recommendOption[0]) }
+    var showRecommended by rememberSaveable { mutableStateOf(false) }
+    var expanded1 by rememberSaveable { mutableStateOf(false) }
+    var showSnackbar by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         fetchProducts()

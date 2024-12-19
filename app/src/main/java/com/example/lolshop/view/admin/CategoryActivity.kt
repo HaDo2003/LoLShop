@@ -1,4 +1,4 @@
-package com.example.lolshop.view
+package com.example.lolshop.view.admin
 
 import android.net.Uri
 import android.os.Bundle
@@ -35,6 +35,7 @@ import coil.request.ImageRequest
 import com.example.lolshop.R
 import com.example.lolshop.model.Category
 import com.example.lolshop.repository.CategoryRepository
+import com.example.lolshop.view.BaseActivity
 import kotlinx.coroutines.launch
 
 class CategoryActivity : BaseActivity() {
