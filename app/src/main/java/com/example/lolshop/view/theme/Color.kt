@@ -1,4 +1,4 @@
-package com.example.lolshop.ui.theme
+package com.example.lolshop.view.theme
 
 import androidx.compose.ui.graphics.Color
 

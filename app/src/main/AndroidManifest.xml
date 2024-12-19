@@ -17,19 +17,14 @@
         android:theme="@style/Theme.LoLShop"
         tools:targetApi="31">
         <activity
-            android:name=".ui.BannerActivity"
+            android:name=".view.admin.BannerActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".view.admin.CategoryActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.Test"
-            android:exported="false" />
-        <activity
-            android:name=".ui.CategoryActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.MainScreen"
-            android:exported="false" />
-        <activity
-            android:name=".ui.IntroActivity"
+            android:name=".view.IntroActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,16 +33,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.BaseActivity"
+            android:name=".view.BaseActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".view.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.LoLShop" />
-        <activity android:name=".ui.LoginActivity" />
-        <activity android:name=".ui.AdminActivity" />
-        <activity android:name=".ui.SignUpActivity" />
+        <activity android:name=".view.authentication.LoginActivity" />
+        <activity android:name=".view.admin.AdminActivity" />
+        <activity android:name=".view.authentication.SignUpActivity" />
     </application>
 
 </manifest>
