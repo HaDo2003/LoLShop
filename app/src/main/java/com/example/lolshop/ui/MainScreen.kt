@@ -54,10 +54,12 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Icon
 import androidx.compose.material.ListItem
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.Dp
@@ -91,20 +93,20 @@ class MainScreen : BaseActivity() {
         super.onCreate(savedInstanceState)
         auth = FirebaseAuth.getInstance()
         setContent {
-            HomePageScreen()
+            HomePageScreen{
+
+            }
         }
     }
 }
 
 @Composable
-fun HomePageScreen() {
+fun HomePageScreen(onCartClick:()-> Unit) {
     val viewModel= MainViewModel()
 
     val banners = remember { mutableStateListOf<SlideModle>() }
     val categories = remember { mutableStateListOf<CategoryModel>() }
     val Popular = remember { mutableStateListOf<ProductModel>() }
-
-
 
 
     var showBannerLoading by remember { mutableStateOf(true) }
@@ -242,6 +244,15 @@ fun HomePageScreen() {
                 }
             }
         }
+
+        BottomMenu(
+            modifier = Modifier
+                .fillMaxWidth()
+                .constrainAs(bottomMenu){
+                    bottom.linkTo(parent.bottom)
+                },
+            onItemClick = onCartClick
+        )
     }
 }
 
@@ -267,6 +278,7 @@ fun CategoryList(categories: SnapshotStateList<CategoryModel>) {
         }
     }
 }
+
 @Composable
 fun CategoryItem(item: CategoryModel,isSelected:Boolean,onItemClick:()->Unit){
     Column(
@@ -299,8 +311,6 @@ fun CategoryItem(item: CategoryModel,isSelected:Boolean,onItemClick:()->Unit){
     }
 
 }
-
-
 
 @Composable
 fun SectionTitLe(title: String, actionText: String) {
@@ -401,6 +411,48 @@ fun IndicatorDot(
             .clip(CircleShape)
             .background(color)
     )
+}
+
+
+
+@Composable
+fun BottomMenu(modifier: Modifier = Modifier, onItemClick: () -> Unit) {
+    Row(
+        modifier = modifier
+            .padding(start = 16.dp, end = 16.dp, bottom = 32.dp)
+            .background(
+                colorResource(R.color.purple_700),
+                shape = RoundedCornerShape(18.dp)
+            ),
+        horizontalArrangement = Arrangement.SpaceAround
+    ) {
+        BottomMenuItem(icon = painterResource(R.drawable.btn_1), text = "Explorer")
+        BottomMenuItem(icon = painterResource(R.drawable.btn_2), text = "Cart", onItemClick = onItemClick)
+        BottomMenuItem(icon = painterResource(R.drawable.btn_3), text = "Favorite")
+        BottomMenuItem(icon = painterResource(R.drawable.btn_4), text = "Order")
+        BottomMenuItem(icon = painterResource(R.drawable.btn_5), text = "Profile")
+    }
+}
+
+@Composable
+fun BottomMenuItem(icon: Painter, text: String, onItemClick: (() -> Unit)? = null) {
+    Column(
+        modifier = Modifier
+            .height(80.dp) // Increase the height of the item
+            .clickable { onItemClick?.invoke() }
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            painter = icon,
+            contentDescription = text,
+            tint = Color.White,
+            modifier = Modifier.size(33.dp) // Increase the icon size here
+        )
+        Spacer(modifier = Modifier.padding(vertical = 4.dp))
+        Text(text, color = Color.White, fontSize = 10.sp)
+    }
 }
 
 
