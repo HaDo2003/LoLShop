@@ -21,4 +21,8 @@ class MainViewModel(): ViewModel() {
     fun loadPopular(): LiveData<MutableList<ProductModel>>{
             return repository.loadPopular()
     }
+
+    fun loadFiltered(id: String): LiveData<MutableList<ProductModel>>{
+        return repository.loadFilterd(id)
+    }
 }

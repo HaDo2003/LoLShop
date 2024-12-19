@@ -1,14 +1,12 @@
 package com.example.lolshop.ui
 
-import android.R.attr.fontWeight
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.widget.Space
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,18 +16,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.material.Text
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Box
@@ -39,15 +34,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
 import com.example.lolshop.R
 import com.example.lolshop.model.SlideModle
 import com.example.lolshop.ui.ViewModel.MainViewModel
 import androidx.compose.runtime.*
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
@@ -55,7 +47,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
-import androidx.compose.material.ListItem
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
@@ -65,13 +56,14 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.Dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.cloudinary.android.uploadwidget.UploadWidget.startActivity
 import com.example.lolshop.model.CategoryModel
-import com.example.lolshop.model.ListProduct
+import com.example.lolshop.Activity.ListProduct
+import com.example.lolshop.Activity.ListProductActivity
 import com.example.lolshop.model.ProductModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
-import java.util.Locale
 
 
 @Composable
@@ -261,23 +253,30 @@ fun CategoryList(categories: SnapshotStateList<CategoryModel>) {
     var selectedIndex by remember { mutableStateOf(-1) }
     val context = LocalContext.current
 
-    LazyRow(modifier = Modifier
-        .fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp),
-        contentPadding = PaddingValues(start=16.dp, end = 16.dp, top = 8.dp)
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(24.dp),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp)
     ) {
-
-        items(categories.size){index->
-            CategoryItem(item=categories[index], isSelected = selectedIndex == index,
+        items(categories.size) { index ->
+            CategoryItem(
+                item = categories[index],
+                isSelected = selectedIndex == index,
                 onItemClick = {
-                    selectedIndex=index
+                    selectedIndex = index
                     Handler(Looper.getMainLooper()).postDelayed({
-
-                    },500)
+                        val intent = Intent(context, ListProductActivity::class.java).apply {
+                            putExtra("id", categories[index].id.toString())
+                            putExtra("title", categories[index].title)
+                        }
+                        context.startActivity(intent) // Use context.startActivity() explicitly.
+                    }, 500)
                 }
             )
         }
     }
 }
+
 
 @Composable
 fun CategoryItem(item: CategoryModel,isSelected:Boolean,onItemClick:()->Unit){
