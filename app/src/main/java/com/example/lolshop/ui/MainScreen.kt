@@ -54,6 +54,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.ListItem
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
@@ -63,6 +64,8 @@ import androidx.compose.ui.unit.Dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.lolshop.model.CategoryModel
+import com.example.lolshop.model.ListProduct
+import com.example.lolshop.model.ProductModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
@@ -99,8 +102,14 @@ fun HomePageScreen() {
 
     val banners = remember { mutableStateListOf<SlideModle>() }
     val categories = remember { mutableStateListOf<CategoryModel>() }
+    val Popular = remember { mutableStateListOf<ProductModel>() }
+
+
+
+
     var showBannerLoading by remember { mutableStateOf(true) }
     var showCategoryLoading by remember {mutableStateOf(true)}
+    var showPopularLoading by remember { mutableStateOf(true) }
 
     //Banner
     LaunchedEffect(Unit) {
@@ -119,6 +128,16 @@ fun HomePageScreen() {
             showCategoryLoading=false
         }
     }
+
+    //Popular
+    LaunchedEffect(Unit) {
+        viewModel.loadPopular().observeForever{
+            Popular.clear()
+            Popular.addAll(it)
+            showBannerLoading=false
+        }
+    }
+
     ConstraintLayout(modifier = Modifier.background(Color.White)) {
         val (scrollList, bottomMenu) = createRefs()
         LazyColumn(
@@ -204,6 +223,22 @@ fun HomePageScreen() {
                     }
                 }else{
                     CategoryList(categories)
+                }
+            }
+            item{
+                SectionTitLe("Most Popular", "See All")
+            }
+            item{
+                if(showBannerLoading){
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ){
+                        CircularProgressIndicator()
+                    }
+                }else{
+                    ListProduct(Popular)
                 }
             }
         }
