@@ -31,9 +31,9 @@ import com.example.lolshop.R
 import com.example.lolshop.view.admin.AdminActivity
 import com.example.lolshop.view.BaseActivity
 import com.example.lolshop.view.MainScreen
-import com.example.lolshop.viewmodel.LoginState
-import com.example.lolshop.viewmodel.LoginViewModel
-import com.example.lolshop.viewmodel.LoginViewModelFactory
+import com.example.lolshop.viewmodel.authentication.LoginState
+import com.example.lolshop.viewmodel.authentication.LoginViewModel
+import com.example.lolshop.viewmodel.authentication.LoginViewModelFactory
 import com.example.lolshop.viewmodel.UserRoleViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore

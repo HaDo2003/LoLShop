@@ -20,7 +20,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.lolshop.R
 import com.example.lolshop.model.Category
 import com.example.lolshop.model.Product
-import com.example.lolshop.viewmodel.AdminViewModel
+import com.example.lolshop.viewmodel.admin.AdminViewModel
 
 @Composable
 fun ManageProductScreen(adminViewModel: AdminViewModel, navController: NavController) {

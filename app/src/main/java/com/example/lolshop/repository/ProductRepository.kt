@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Log
 import com.example.lolshop.model.Product
 import com.example.lolshop.utils.CloudinaryConfig
+import com.example.lolshop.utils.CloudinaryHelper
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
@@ -14,8 +15,8 @@ import java.io.File
 import java.util.*
 
 class ProductRepository(private val context: Context) {
-
     private val database = FirebaseDatabase.getInstance().reference.child("products")
+    private val cloudinaryHelper = CloudinaryHelper(context)
 
     // Fetch products from Firebase
     suspend fun fetchProducts(): List<Product> {
@@ -26,17 +27,17 @@ class ProductRepository(private val context: Context) {
     }
 
     // Add product to Firebase
-    suspend fun addProduct(name: String, price: String, description: String, categoryId: String, showRecommended: Boolean, imageUri: Uri?) {
+    suspend fun addProduct(name: String, categoryId: String, price: String, description: String, showRecommended: Boolean, imageUri: Uri?) {
         imageUri?.let { uri ->
-            val file = uriToFile(uri)
+            val file = cloudinaryHelper.uriToFile(uri)
             if (file != null) {
                 try {
                     // Upload image to Cloudinary
-                    val downloadUrl = uploadImageToCloudinary(file)
+                    val downloadUrl = cloudinaryHelper.uploadImageToCloudinary(file, "MobileProject/ProductImages")
 
                     // Save product to Firebase
                     val productId = database.push().key ?: return@let
-                    val product = Product(productId, name, price, description, categoryId, showRecommended, downloadUrl)
+                    val product = Product(productId, name, categoryId, price, description, showRecommended, downloadUrl)
 
                     database.child(productId).setValue(product)
                 } catch (e: Exception) {
@@ -54,46 +55,6 @@ class ProductRepository(private val context: Context) {
                 Log.d("DeleteProduct", "Product deleted successfully")
             } catch (e: Exception) {
                 Log.e("DeleteProduct", "Error deleting product", e)
-            }
-        }
-    }
-
-
-    // Convert URI to File
-    private fun uriToFile(uri: Uri): File? {
-        return try {
-            val inputStream = context.contentResolver.openInputStream(uri)
-            val tempFile = File.createTempFile("upload", ".jpg", context.cacheDir)
-            inputStream?.copyTo(tempFile.outputStream())
-            tempFile
-        } catch (e: Exception) {
-            null
-        }
-    }
-
-    // Upload image to Cloudinary
-    private suspend fun uploadImageToCloudinary(file: File): String {
-        return withContext(Dispatchers.IO) {
-            val requestParams = mapOf(
-                "public_id" to UUID.randomUUID().toString(),
-                "overwrite" to true,
-                "folder" to "MobileProject/ProductImages"
-            )
-            try {
-                val result = CloudinaryConfig.cloudinary.uploader().upload(file, requestParams)
-
-                // Ensure the URL is HTTPS
-                val imageUrl = result["url"]?.toString()
-
-                // If URL is HTTP, you can manually replace it with HTTPS
-                if (imageUrl != null && imageUrl.startsWith("http://")) {
-                    return@withContext imageUrl.replace("http://", "https://")
-                }
-
-                // Return the URL (it should already be HTTPS)
-                return@withContext imageUrl ?: throw Exception("Image upload failed")
-            } catch (e: Exception) {
-                throw Exception("Image upload failed: ${e.message}")
             }
         }
     }

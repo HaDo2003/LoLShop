@@ -8,13 +8,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.*
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.lolshop.model.Category
 import com.example.lolshop.model.Product
 import com.example.lolshop.repository.ProductRepository
-import com.example.lolshop.viewmodel.AdminViewModel
+import com.example.lolshop.viewmodel.admin.AdminViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -52,6 +53,8 @@ fun AddProductScreen(
     var showRecommended by rememberSaveable { mutableStateOf(false) }
     var expanded1 by rememberSaveable { mutableStateOf(false) }
     var showSnackbar by rememberSaveable { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         fetchProducts()
@@ -185,7 +188,17 @@ fun AddProductScreen(
                             .align(Alignment.CenterHorizontally)
                     )
                 } else {
-                    Button(onClick = { imageResultLauncher.launch("image/*") }) {
+                    Button(
+                        onClick = { imageResultLauncher.launch("image/*") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(horizontal = 15.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Black,
+                            contentColor = Color.White
+                        )
+                    ) {
                         Text("Select Product Image")
                     }
                 }
@@ -193,21 +206,41 @@ fun AddProductScreen(
 
                 Button(
                     onClick = {
-                        if (name.isEmpty() || price.isEmpty() || description.isEmpty() || imageUriState == null) {
-                            showSnackbar = true
-                        } else {
-                            isLoading = true
-                            CoroutineScope(Dispatchers.IO).launch {
-                                productRepository.addProduct(name, price, description, categoryId.id, showRecommended, imageUriState)
-                                isLoading = false
-                                navController.navigate("AdminScreen") // Navigate to AdminScreen
+                    adminViewModel.addProduct(
+                        name = name,
+                        categoryId = categoryId.id,
+                        price = price,
+                        description = description,
+                        showRecommended = showRecommended,
+                        imageUri = imageUriState,
+                        onValidationError = {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Please fill in all fields")
                             }
+                        },
+                        onNavigationSuccess = {
+                            navController.navigate("admin_main")
                         }
+                    )
                     },
-                    enabled = !isLoading,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(horizontal = 15.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Black,
+                        contentColor = Color.White
+                    )
                 ) {
-                    Text(if (isLoading) "Uploading..." else "Add Product")
+                    if (isLoading) {
+                        CircularProgressIndicator() // Display loading indicator
+                    } else {
+                        Text("Add Product")
+                    }
                 }
+                SnackbarHost(
+                    hostState = snackbarHostState
+                )
             }
         }
     }

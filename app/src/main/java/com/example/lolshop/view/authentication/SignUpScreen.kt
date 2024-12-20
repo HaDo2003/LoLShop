@@ -19,8 +19,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lolshop.R
-import com.example.lolshop.viewmodel.SignUpViewModel
-import com.example.lolshop.viewmodel.SignUpViewModelFactory
+import com.example.lolshop.viewmodel.authentication.SignUpViewModel
+import com.example.lolshop.viewmodel.authentication.SignUpViewModelFactory
 import com.example.lolshop.utils.Resource
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore

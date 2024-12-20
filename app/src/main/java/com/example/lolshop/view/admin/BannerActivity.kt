@@ -34,9 +34,10 @@ import androidx.lifecycle.lifecycleScope
 import coil.compose.rememberAsyncImagePainter
 import com.example.lolshop.model.Banner
 import com.example.lolshop.repository.BannerRepository
+import com.example.lolshop.view.BaseActivity
 import kotlinx.coroutines.launch
 
-class BannerActivity : AppCompatActivity() {
+class BannerActivity : BaseActivity() {
     private lateinit var bannerRepository: BannerRepository
     private var imageUriState by mutableStateOf<Uri?>(null)
     private var bannersList by mutableStateOf<List<Banner>>(emptyList())
