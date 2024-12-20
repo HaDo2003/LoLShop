@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -22,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -72,6 +74,7 @@ fun LoginScreen(
     val loginState by viewModel.loginState.collectAsState()
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -121,9 +124,21 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 5.dp),
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             singleLine = true,
+            trailingIcon = {
+                val image = if (passwordVisible) R.drawable.show else R.drawable.hide
+                val description = if (passwordVisible) "Hide password" else "Show password"
+
+                Image(
+                    painter = painterResource(id = image),
+                    contentDescription = description,
+                    modifier = Modifier
+                        .clickable { passwordVisible = !passwordVisible }
+                        .size(30.dp)
+                )
+            },
             colors = TextFieldDefaults.colors(
                 focusedTextColor = Color.Black,
                 unfocusedTextColor = Color.Black,
@@ -152,12 +167,24 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(5.dp))
 
-        TextButton(onClick = onSignUp) {
-            Text(
-                "Don't have an account? Sign up",
-                color = MaterialTheme.colorScheme.primary,
-                textAlign = TextAlign.Center
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            TextButton(onClick = onSignUp) {
+                Text(
+                    "Forget Password",
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Start
+                )
+            }
+            TextButton(onClick = onSignUp) {
+                Text(
+                    "Don't have an account? Sign up",
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.End
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(10.dp))
