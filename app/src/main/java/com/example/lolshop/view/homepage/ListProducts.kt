@@ -1,4 +1,4 @@
-package com.example.lolshop.Activity
+package com.example.lolshop.view.homepage
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

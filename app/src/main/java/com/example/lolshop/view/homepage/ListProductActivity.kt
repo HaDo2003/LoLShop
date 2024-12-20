@@ -1,11 +1,10 @@
-package com.example.lolshop.Activity
+package com.example.lolshop.view.homepage
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import com.example.lolshop.R
-import com.example.lolshop.ui.BaseActivity
-import com.example.lolshop.ui.ViewModel.MainViewModel
+import com.example.lolshop.viewmodel.MainViewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +26,7 @@ import androidx.compose.runtime.*
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.text.style.TextAlign
+import com.example.lolshop.view.BaseActivity
 
 class ListProductActivity : BaseActivity() {
     private val viewModel= MainViewModel()

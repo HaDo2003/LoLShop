@@ -1,16 +1,15 @@
-package com.example.lolshop.ui.ViewModel
+package com.example.lolshop.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import com.example.lolshop.model.Category
+import com.example.lolshop.model.Banner
 import com.example.lolshop.model.CategoryModel
 import com.example.lolshop.model.ProductModel
-import com.example.lolshop.model.SlideModle
 import com.example.lolshop.repository.MainRepository
 
 class MainViewModel(): ViewModel() {
     private val repository= MainRepository()
-    fun loadBanner(): LiveData<MutableList<SlideModle>>{
+    fun loadBanner(): LiveData<MutableList<Banner>>{
         return repository.loadBanner()
     }
 

@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.lolshop.view.admin.AdminActivity
 import com.example.lolshop.view.authentication.LoginActivity
+import com.example.lolshop.view.homepage.MainScreen
 
 class MainActivity : AppCompatActivity() {
 
