@@ -55,9 +55,9 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.Dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.lolshop.model.CategoryModel
 import com.example.lolshop.model.Banner
-import com.example.lolshop.model.ProductModel
+import com.example.lolshop.model.Category
+import com.example.lolshop.model.Product
 import com.example.lolshop.view.BaseActivity
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -95,8 +95,8 @@ fun HomePageScreen(onCartClick:()-> Unit) {
     val viewModel= MainViewModel()
 
     val banners = remember { mutableStateListOf<Banner>() }
-    val categories = remember { mutableStateListOf<CategoryModel>() }
-    val Popular = remember { mutableStateListOf<ProductModel>() }
+    val categories = remember { mutableStateListOf<Category>() }
+    val Popular = remember { mutableStateListOf<Product>() }
 
 
     var showBannerLoading by remember { mutableStateOf(true) }
@@ -192,7 +192,7 @@ fun HomePageScreen(onCartClick:()-> Unit) {
 
             item{
                 Text(
-                    text="LoL Team",
+                    text="Region",
                     color = Color.Black,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
@@ -247,7 +247,7 @@ fun HomePageScreen(onCartClick:()-> Unit) {
 }
 
 @Composable
-fun CategoryList(categories: SnapshotStateList<CategoryModel>) {
+fun CategoryList(categories: SnapshotStateList<Category>) {
     var selectedIndex by remember { mutableStateOf(-1) }
     val context = LocalContext.current
 
@@ -265,7 +265,7 @@ fun CategoryList(categories: SnapshotStateList<CategoryModel>) {
                     Handler(Looper.getMainLooper()).postDelayed({
                         val intent = Intent(context, ListProductActivity::class.java).apply {
                             putExtra("id", categories[index].id.toString())
-                            putExtra("title", categories[index].title)
+                            putExtra("title", categories[index].name)
                         }
                         context.startActivity(intent) // Use context.startActivity() explicitly.
                     }, 500)
@@ -277,14 +277,14 @@ fun CategoryList(categories: SnapshotStateList<CategoryModel>) {
 
 
 @Composable
-fun CategoryItem(item: CategoryModel,isSelected:Boolean,onItemClick:()->Unit){
+fun CategoryItem(item: Category, isSelected:Boolean, onItemClick:()->Unit){
     Column(
         modifier = Modifier
             .clickable(onClick = onItemClick), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AsyncImage(
             model = (item.imageUrl),
-            contentDescription = item.title,
+            contentDescription = item.name,
             modifier = Modifier
                 .size(if (isSelected)60.dp else 50.dp)
                 .background(
@@ -300,7 +300,7 @@ fun CategoryItem(item: CategoryModel,isSelected:Boolean,onItemClick:()->Unit){
         )
         Spacer(modifier = Modifier.padding(top=8.dp))
         Text(
-            text= item.title,
+            text= item.name,
             color = colorResource(R.color.purple_200),
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold

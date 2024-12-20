@@ -36,8 +36,8 @@ class ListProductActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-    id= intent.getStringExtra("id")?:""
-         name=intent.getStringExtra("name")?:""
+        id= intent.getStringExtra("id")?:""
+        name=intent.getStringExtra("name")?:""
 
 
         setContent{

@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -29,11 +30,11 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.lolshop.R
 import androidx.compose.ui.text.style.TextAlign
-import com.example.lolshop.model.ProductModel
+import com.example.lolshop.model.Product
 
 
 @Composable
-fun PopularProduct(product: List<ProductModel>, pos: Int){
+fun PopularProduct(product: List<Product>, pos: Int){
     val context= LocalContext.current
 
     Column(modifier = Modifier
@@ -80,7 +81,7 @@ fun PopularProduct(product: List<ProductModel>, pos: Int){
 
 
 @Composable
-fun ListProduct(product: List<ProductModel>){
+fun ListProduct(product: SnapshotStateList<Product>){
     LazyRow (modifier = Modifier
         .padding(top=8.dp)
         .padding(horizontal = 8.dp),
@@ -94,7 +95,7 @@ fun ListProduct(product: List<ProductModel>){
 }
 
 @Composable
-fun ListProductFullSize(product:List<ProductModel>){
+fun ListProductFullSize(product: List<Product>){
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = Modifier
