@@ -1,16 +1,14 @@
-package com.example.lolshop.ui
+package com.example.lolshop.view.admin
 
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -37,6 +35,7 @@ import coil.request.ImageRequest
 import com.example.lolshop.R
 import com.example.lolshop.model.Category
 import com.example.lolshop.repository.CategoryRepository
+import com.example.lolshop.view.BaseActivity
 import kotlinx.coroutines.launch
 
 class CategoryActivity : BaseActivity() {

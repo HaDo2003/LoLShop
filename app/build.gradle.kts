@@ -32,17 +32,14 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "1.8"
     }
     buildFeatures {
         compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion="1.5.1"
     }
     packaging {
         resources {
@@ -52,6 +49,7 @@ android {
 }
 
 dependencies {
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -72,13 +70,6 @@ dependencies {
     implementation (libs.material3)
     implementation(libs.cloudinary.android)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.accompanist.pager.indicators)
-    implementation(libs.google.accompanist.pager)
-    implementation(libs.androidx.runtime.livedata)
-    implementation(libs.glide)
-    implementation(libs.gson)
-    implementation (libs.androidx.constraintlayout.compose)
-    implementation (libs.androidx.foundation)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
