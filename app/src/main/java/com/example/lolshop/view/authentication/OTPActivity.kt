@@ -5,8 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -47,8 +45,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lolshop.R
 import com.example.lolshop.utils.ChangeField
@@ -61,11 +57,10 @@ import com.example.lolshop.viewmodel.authentication.SignUpViewModel
 import com.example.lolshop.viewmodel.authentication.SignUpViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlin.random.Random
 import papaya.`in`.sendmail.SendMail
 
 class OTPActivity : BaseActivity() {
-    lateinit var random : String
+    private lateinit var random : String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,7 +92,8 @@ class OTPActivity : BaseActivity() {
                             Log.d("LoginScreen", "Navigating to LoginActivity.")
                             val intent = Intent(this, LoginActivity::class.java)
                             startActivity(intent)
-                        }
+                        },
+                        updateOtp = { newOtp -> random = newOtp }
                     )
                 }
             }
@@ -107,13 +103,10 @@ class OTPActivity : BaseActivity() {
 
 }
 
-fun VerifyOtp(otp: String, random: String): Boolean{
+fun verifyOtp(otp: String, random: String): Boolean{
     Log.d("OTP random", otp)
-    if(otp != random){
-        return false
-    }else{
-        return true
-    }
+    return otp == random
+
 }
 
 fun generateOtp(email: String): String {
@@ -134,8 +127,9 @@ fun generateOtp(email: String): String {
     return randomOtp.toString()
 }
 
-fun resendOTP(email: String) {
+fun resendOTP(email: String): String{
     val newOtp = generateOtp(email)
+    return newOtp
 }
 
 @Composable
@@ -152,7 +146,8 @@ fun OTPVerificationScreen(
     password: String,
     phoneNumber: String,
     address: String,
-    navigateToLogin: () -> Unit
+    navigateToLogin: () -> Unit,
+    updateOtp: (String) -> Unit
 ) {
     val signUpState by viewModel.signUpState.collectAsState()
     var isError by rememberSaveable { mutableStateOf(false) }
@@ -193,7 +188,7 @@ fun OTPVerificationScreen(
 
             OtpTextField(
                 otpText = otpValue,
-                onOtpTextChange = { value, otpInputFilled ->
+                onOtpTextChange = { value, _ ->
                     otpValue = value
                 }
             )
@@ -203,7 +198,7 @@ fun OTPVerificationScreen(
             Button(
                 onClick = {
                     if (otpValue.length == 6) {
-                        success = VerifyOtp(otpValue, random)
+                        success = verifyOtp(otpValue, random)
                         if (success){
                             viewModel.signUp(name, email, password, phoneNumber, address)
                         }else {
@@ -226,7 +221,12 @@ fun OTPVerificationScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            TextButton(onClick = { resendOTP(email) }) {
+            TextButton(
+                onClick = {
+                    val newOtp = resendOTP(email)
+                    updateOtp(newOtp)
+                }
+            ) {
                 Text("Didn't receive OTP? Resend OTP")
             }
 

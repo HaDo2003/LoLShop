@@ -4,14 +4,11 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import com.example.lolshop.model.Category
-import com.example.lolshop.utils.CloudinaryConfig
 import com.example.lolshop.utils.CloudinaryHelper
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.util.UUID
 
 class CategoryRepository(private val context: Context) {
     private val database = FirebaseDatabase.getInstance().reference.child("category")

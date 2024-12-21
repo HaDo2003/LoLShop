@@ -21,12 +21,12 @@ class CloudinaryHelper(private val context: Context) {
     }
 
     // Upload image to Cloudinary
-    suspend fun uploadImageToCloudinary(file: File, Directory: String): String {
+    suspend fun uploadImageToCloudinary(file: File, directory: String): String {
         return withContext(Dispatchers.IO) {
             val requestParams = mapOf(
                 "public_id" to UUID.randomUUID().toString(),
                 "overwrite" to true,
-                "folder" to Directory
+                "folder" to directory
             )
             try {
                 val result = CloudinaryConfig.cloudinary.uploader().upload(file, requestParams)

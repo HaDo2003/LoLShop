@@ -94,7 +94,7 @@ fun ProductItem(product: Product, onDelete: () -> Unit, onEdit: () -> Unit) {
                         contentScale = ContentScale.Crop,
                         error = painterResource(id = R.drawable.placeholder_image),
                         placeholder = painterResource(id = R.drawable.placeholder_image),
-                        onSuccess = { result ->
+                        onSuccess = { _ ->
                             Log.d("ImageDebug", "Image loaded successfully")
                         },
                         onError = { error ->
