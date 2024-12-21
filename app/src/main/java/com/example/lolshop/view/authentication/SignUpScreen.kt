@@ -116,7 +116,6 @@ fun SignUpScreen(
 
         Button(
             onClick = {
-                //viewModel.signUp(name, email, password, phoneNumber, address, isAdmin = false)
                 navigateToOtp(name, email, password, phoneNumber, address)
             },
             modifier = Modifier
