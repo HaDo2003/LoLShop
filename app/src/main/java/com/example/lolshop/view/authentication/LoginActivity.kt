@@ -53,6 +53,10 @@ class LoginActivity : BaseActivity() {
                 },
                 onLoginWithGG = {
                     Log.d("LoginScreen", "Navigating to LoginWithGG.")
+                },
+                onForgetPassword = {
+                    val intent = Intent(this, ForgetPassword::class.java)
+                    startActivity(intent)
                 }
             )
         }
@@ -69,7 +73,8 @@ fun LoginScreen(
         )
     ),
     onSignUp: () -> Unit,
-    onLoginWithGG: () -> Unit
+    onLoginWithGG: () -> Unit,
+    onForgetPassword: () -> Unit
 ) {
     val loginState by viewModel.loginState.collectAsState()
     var email by rememberSaveable { mutableStateOf("") }
@@ -171,7 +176,7 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            TextButton(onClick = onSignUp) {
+            TextButton(onClick = onForgetPassword) {
                 Text(
                     "Forget Password",
                     color = MaterialTheme.colorScheme.primary,
@@ -229,7 +234,7 @@ fun LoginScreen(
                         .size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp)) // Adds a 10.dp space
-                Text("Login with Google")
+                Text("Google")
             }
         }
 
@@ -254,17 +259,4 @@ fun LoginScreen(
             else -> Unit
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-    LoginScreen(
-        onSignUp = {
-            Log.d("Preview", "Navigating to SignUp screen")
-        },
-        onLoginWithGG = {
-            Log.d("Preview", "Login with Google clicked")
-        }
-    )
 }
