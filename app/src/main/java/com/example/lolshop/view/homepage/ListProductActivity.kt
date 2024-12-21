@@ -46,7 +46,7 @@ class ListProductActivity : BaseActivity() {
                 onBackClick={finish()},
                 viewModel=viewModel,
                 id=id
-        )
+            )
         }
     }
 
@@ -57,23 +57,25 @@ class ListProductActivity : BaseActivity() {
         viewModel: MainViewModel,
         id: String
     ) {
-    val product by viewModel.loadFiltered(id).observeAsState(emptyList())
+        val product by viewModel.loadFiltered(id).observeAsState(emptyList())
         var isLoading by remember { mutableStateOf(true) }
+
+
 
         LaunchedEffect(id) {
             viewModel.loadFiltered(id)
         }
 
-        Column (modifier = Modifier.fillMaxSize()){
+        Column(modifier = Modifier.fillMaxSize()) {
             ConstraintLayout(
-                modifier = Modifier.padding(top=36.dp, start=16.dp,end=16.dp)
+                modifier = Modifier.padding(top = 36.dp, start = 16.dp, end = 16.dp)
             ) {
-                val(backBtn, CartTxt)=createRefs()
+                val (backBtn, CartTxt) = createRefs()
 
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .constrainAs(CartTxt){centerTo(parent)},
+                        .constrainAs(CartTxt) { centerTo(parent) },
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
                     fontSize = 25.sp,
@@ -84,30 +86,33 @@ class ListProductActivity : BaseActivity() {
                     painter = painterResource(R.drawable.back),
                     contentDescription = null,
                     modifier = Modifier
-                        .clickable{
+                        .clickable {
                             onBackClick()
                         }
-                        .constrainAs(backBtn){
+                        .constrainAs(backBtn) {
                             top.linkTo(parent.top)
                             bottom.linkTo(parent.bottom)
                             start.linkTo(parent.start)
                         }
                 )
             }
-            if (isLoading){
+
+            if (isLoading) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
-                ){
+                ) {
                     CircularProgressIndicator()
                 }
-            }else{
+            } else {
+                // Pass categoryOptions to ListProductFullSize
                 ListProductFullSize(product)
             }
         }
+
         LaunchedEffect(product) {
-            isLoading=product.isEmpty()
+            isLoading = product.isEmpty()
         }
     }
-}
 
+}

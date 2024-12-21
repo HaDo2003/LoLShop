@@ -46,6 +46,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
@@ -62,6 +63,12 @@ import com.example.lolshop.view.BaseActivity
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
+
+import android.util.Log
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.*
 
 
 @Composable
@@ -126,7 +133,7 @@ fun HomePageScreen(onCartClick:()-> Unit) {
         viewModel.loadPopular().observeForever{
             Popular.clear()
             Popular.addAll(it)
-            showBannerLoading=false
+            showPopularLoading=false
         }
     }
 
@@ -204,7 +211,7 @@ fun HomePageScreen(onCartClick:()-> Unit) {
 
             }
             item{
-                if (showBannerLoading){
+                if (showCategoryLoading){
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -221,7 +228,7 @@ fun HomePageScreen(onCartClick:()-> Unit) {
                 SectionTitLe("Most Popular", "See All")
             }
             item{
-                if(showBannerLoading){
+                if(showPopularLoading){
                     Box(modifier = Modifier
                         .fillMaxWidth()
                         .height(200.dp),
@@ -277,37 +284,57 @@ fun CategoryList(categories: SnapshotStateList<Category>) {
 
 
 @Composable
-fun CategoryItem(item: Category, isSelected:Boolean, onItemClick:()->Unit){
+fun CategoryItem(item: Category, isSelected: Boolean, onItemClick: () -> Unit) {
+    val backgroundColor = if (isSelected) MaterialTheme.colors.primary else Color.Transparent
+    val textColor = if (isSelected) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onSecondary
+
     Column(
         modifier = Modifier
-            .clickable(onClick = onItemClick), horizontalAlignment = Alignment.CenterHorizontally
+            .clickable(onClick = onItemClick)
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AsyncImage(
-            model = (item.imageUrl),
-            contentDescription = item.name,
+        Box(
             modifier = Modifier
-                .size(if (isSelected)60.dp else 50.dp)
+                .size(if (isSelected) 120.dp else 100.dp) // Outer size of the circular frame
                 .background(
-                    color = if(isSelected) colorResource(R.color.purple_200)else colorResource(R.color.purple_500),
-                    shape = RoundedCornerShape(100.dp)
-                ),
-            contentScale = ContentScale.Inside,
-            colorFilter = if(isSelected){
-                ColorFilter.tint(Color.White)
-            }else{
-                ColorFilter.tint(Color.Black)
+                    color = backgroundColor,
+                    shape = CircleShape
+                )
+                .padding(5.dp) // Adjusted padding for making the picture smaller
+        ) {
+            if (item.imageUrl.isNotEmpty()) {
+                AsyncImage(
+                    model = item.imageUrl,
+                    contentDescription = item.name,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(CircleShape)
+                        .padding(10.dp), // Reduce picture size further inside the circle
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Text(
+                    text = "No Image",
+                    style = MaterialTheme.typography.body2,
+                    color = textColor,
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
-        )
-        Spacer(modifier = Modifier.padding(top=8.dp))
+        }
+
+        // Display category name below the image
         Text(
-            text= item.name,
-            color = colorResource(R.color.purple_200),
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold
+            text = item.name,
+            style = MaterialTheme.typography.body1,
+            color = textColor,
+            modifier = Modifier.padding(top = 8.dp) // Add spacing between image and text
         )
     }
-
 }
+
+
+
 
 @Composable
 fun SectionTitLe(title: String, actionText: String) {
