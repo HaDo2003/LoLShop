@@ -1,5 +1,6 @@
 package com.example.lolshop.model
 
+import com.google.firebase.database.PropertyName
 import java.io.Serializable
 
 data class User(
@@ -8,5 +9,5 @@ data class User(
     val email: String = "",
     val phone_number: String = "",
     val address: String = "",
-    val isAdmin: Boolean = false,
+    @get:PropertyName("isAdmin") val isAdmin: Boolean = false
 ) : Serializable

@@ -7,6 +7,7 @@ import com.example.lolshop.view.admin.AdminActivity
 import com.example.lolshop.view.admin.BannerActivity
 import com.example.lolshop.view.authentication.LoginActivity
 import com.example.lolshop.view.authentication.OTPActivity
+import com.example.lolshop.view.authentication.SignUpActivity
 
 class MainActivity : BaseActivity() {
 
