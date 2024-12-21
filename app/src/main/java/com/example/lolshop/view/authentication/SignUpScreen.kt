@@ -19,9 +19,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lolshop.R
-import com.example.lolshop.utils.ChangeField
-import com.example.lolshop.viewmodel.SignUpViewModel
-import com.example.lolshop.viewmodel.SignUpViewModelFactory
+import com.example.lolshop.viewmodel.authentication.SignUpViewModel
+import com.example.lolshop.viewmodel.authentication.SignUpViewModelFactory
 import com.example.lolshop.utils.Resource
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -34,7 +33,8 @@ fun SignUpScreen(
             FirebaseFirestore.getInstance()
         )
     ),
-    navigateToLogin: () -> Unit
+    navigateToLogin: () -> Unit,
+    navigateToOtp: (String, String, String, String, String) -> Unit
 ) {
     val signUpState by viewModel.signUpState.collectAsState()
     var name by rememberSaveable { mutableStateOf("") }
@@ -42,7 +42,6 @@ fun SignUpScreen(
     var password by rememberSaveable { mutableStateOf("") }
     var phoneNumber by rememberSaveable { mutableStateOf("") }
     var address by rememberSaveable { mutableStateOf("") }
-    val changeField = ChangeField()
 
     Column(
         modifier = Modifier
@@ -116,7 +115,10 @@ fun SignUpScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = { viewModel.signUp(name, email, password, phoneNumber, address) },
+            onClick = {
+                //viewModel.signUp(name, email, password, phoneNumber, address, isAdmin = false)
+                navigateToOtp(name, email, password, phoneNumber, address)
+            },
             modifier = Modifier
                 .fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
@@ -144,7 +146,6 @@ fun SignUpScreen(
                     Toast.LENGTH_SHORT
                 ).show()
                 navigateToLogin()
-                changeField.changeField()
             }
             is Resource.Error -> {
                 val message = (signUpState as Resource.Error).message

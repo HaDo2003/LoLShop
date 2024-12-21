@@ -9,7 +9,7 @@ import androidx.compose.ui.*
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.lolshop.model.Category
-import com.example.lolshop.viewmodel.AdminViewModel
+import com.example.lolshop.viewmodel.admin.AdminViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

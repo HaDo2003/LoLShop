@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.lifecycle.lifecycleScope
@@ -62,7 +63,7 @@ class CategoryActivity : BaseActivity() {
 
     @Composable
     fun CategoryScreen() {
-        var categoryName by remember { mutableStateOf("") }
+        var categoryName by rememberSaveable { mutableStateOf("") }
         var isLoading by remember { mutableStateOf(false) }
 
         // Fetch categories and total count from Firebase

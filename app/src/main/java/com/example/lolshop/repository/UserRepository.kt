@@ -14,6 +14,7 @@ class UserRepository(
             val user = User(
                 id = authResult.user?.uid ?: "",
                 full_name = name,
+                email = email,
                 phone_number = phoneNumber,
                 address = address,
                 isAdmin = false
