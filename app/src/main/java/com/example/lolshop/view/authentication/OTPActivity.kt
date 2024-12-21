@@ -51,6 +51,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lolshop.R
+import com.example.lolshop.utils.ChangeField
 import com.example.lolshop.utils.Resource
 import com.example.lolshop.view.BaseActivity
 import com.example.lolshop.view.theme.GreyDark
@@ -158,6 +159,8 @@ fun OTPVerificationScreen(
     var otpValue by rememberSaveable { mutableStateOf("") }
     var success by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
+    val changeField = ChangeField()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -202,8 +205,7 @@ fun OTPVerificationScreen(
                     if (otpValue.length == 6) {
                         success = VerifyOtp(otpValue, random)
                         if (success){
-                            val isAdmin: Boolean = false
-                            viewModel.signUp(name, email, password, phoneNumber, address, isAdmin)
+                            viewModel.signUp(name, email, password, phoneNumber, address)
                         }else {
                             // Show error toast for wrong OTP
                             Toast.makeText(
@@ -239,6 +241,7 @@ fun OTPVerificationScreen(
                         Toast.LENGTH_SHORT
                     ).show()
                     navigateToLogin()
+                    changeField.changeField()
                 }
                 is Resource.Error -> {
                     val message = (signUpState as Resource.Error).message
