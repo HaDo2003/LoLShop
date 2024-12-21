@@ -6,8 +6,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.lolshop.view.admin.AdminActivity
 import com.example.lolshop.view.admin.BannerActivity
 import com.example.lolshop.view.authentication.LoginActivity
+import com.example.lolshop.view.authentication.OTPActivity
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

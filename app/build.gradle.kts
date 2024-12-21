@@ -68,8 +68,6 @@ dependencies {
     // Compose ViewModel support
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.firebase.appcheck.playintegrity)
-    implementation(libs.coil.compose.v230)
-
 
     // Firebase
     implementation(libs.firebase.database)
@@ -89,6 +87,9 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.volley)
     implementation(libs.androidx.espresso.core)
+    implementation (libs.androidx.runtime.livedata)
+    implementation (libs.lifecycle.runtime.compose)
+    implementation (libs.sendmail)
 
     // Testing dependencies
     testImplementation(libs.junit)

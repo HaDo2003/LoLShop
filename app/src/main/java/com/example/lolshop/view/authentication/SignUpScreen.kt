@@ -33,7 +33,8 @@ fun SignUpScreen(
             FirebaseFirestore.getInstance()
         )
     ),
-    navigateToLogin: () -> Unit
+    navigateToLogin: () -> Unit,
+    navigateToOtp: (String, String, String, String, String) -> Unit
 ) {
     val signUpState by viewModel.signUpState.collectAsState()
     var name by rememberSaveable { mutableStateOf("") }
@@ -114,7 +115,10 @@ fun SignUpScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = { viewModel.signUp(name, email, password, phoneNumber, address, isAdmin = false) },
+            onClick = {
+                //viewModel.signUp(name, email, password, phoneNumber, address, isAdmin = false)
+                navigateToOtp(name, email, password, phoneNumber, address)
+            },
             modifier = Modifier
                 .fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(

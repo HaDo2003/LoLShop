@@ -128,7 +128,7 @@ fun LoginScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             singleLine = true,
             trailingIcon = {
-                val image = if (passwordVisible) R.drawable.show else R.drawable.hide
+                val image = if (passwordVisible) R.drawable.hide else R.drawable.show
                 val description = if (passwordVisible) "Hide password" else "Show password"
 
                 Image(

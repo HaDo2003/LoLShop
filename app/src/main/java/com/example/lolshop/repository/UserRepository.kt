@@ -14,11 +14,15 @@ class UserRepository(
             val user = User(
                 id = authResult.user?.uid ?: "",
                 full_name = name,
+                email = email,
                 phone_number = phoneNumber,
                 address = address,
                 isAdmin = isAdmin
             )
-            firestore.collection("Users").document(user.id).set(user).await()
+            firestore.collection("Users")
+                .document(user.id)
+                .set(user)
+                .await()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
