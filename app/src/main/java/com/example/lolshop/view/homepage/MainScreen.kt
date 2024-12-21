@@ -68,8 +68,8 @@ import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.*
 
+import androidx.core.content.ContextCompat.startActivity
 
 @Composable
 fun AlignedContent() {
@@ -274,7 +274,7 @@ fun CategoryList(categories: SnapshotStateList<Category>) {
                             putExtra("id", categories[index].id.toString())
                             putExtra("title", categories[index].name)
                         }
-                        context.startActivity(intent) // Use context.startActivity() explicitly.
+                        startActivity(context,intent,null)
                     }, 500)
                 }
             )

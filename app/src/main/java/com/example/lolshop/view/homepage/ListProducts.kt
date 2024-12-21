@@ -101,9 +101,6 @@ fun PopularProduct(product: List<Product>, pos: Int) {
     }
 }
 
-
-
-
 @Composable
 fun ListProduct(product: SnapshotStateList<Product>){
     LazyRow (modifier = Modifier
