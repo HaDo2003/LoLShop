@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lolshop.R
+import com.example.lolshop.utils.ChangeField
 import com.example.lolshop.viewmodel.SignUpViewModel
 import com.example.lolshop.viewmodel.SignUpViewModelFactory
 import com.example.lolshop.utils.Resource
@@ -41,6 +42,7 @@ fun SignUpScreen(
     var password by rememberSaveable { mutableStateOf("") }
     var phoneNumber by rememberSaveable { mutableStateOf("") }
     var address by rememberSaveable { mutableStateOf("") }
+    val changeField = ChangeField()
 
     Column(
         modifier = Modifier
@@ -114,7 +116,7 @@ fun SignUpScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = { viewModel.signUp(name, email, password, phoneNumber, address, isAdmin = false) },
+            onClick = { viewModel.signUp(name, email, password, phoneNumber, address) },
             modifier = Modifier
                 .fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
@@ -142,6 +144,7 @@ fun SignUpScreen(
                     Toast.LENGTH_SHORT
                 ).show()
                 navigateToLogin()
+                changeField.changeField()
             }
             is Resource.Error -> {
                 val message = (signUpState as Resource.Error).message
