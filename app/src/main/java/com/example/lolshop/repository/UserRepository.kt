@@ -8,7 +8,7 @@ import kotlinx.coroutines.tasks.await
 class UserRepository(
     private val auth: FirebaseAuth, private val firestore: FirebaseFirestore
 ) {
-    suspend fun signUpUser(name: String, email: String, password: String, phoneNumber: String, address: String, isAdmin: Boolean): Result<Unit> {
+    suspend fun signUpUser(name: String, email: String, password: String, phoneNumber: String, address: String): Result<Unit> {
         return try {
             val authResult = auth.createUserWithEmailAndPassword(email, password).await()
             val user = User(
@@ -16,9 +16,12 @@ class UserRepository(
                 full_name = name,
                 phone_number = phoneNumber,
                 address = address,
-                isAdmin = isAdmin
+                isAdmin = false
             )
-            firestore.collection("Users").document(user.id).set(user).await()
+            firestore.collection("Users")
+                .document(user.id)
+                .set(user)
+                .await()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

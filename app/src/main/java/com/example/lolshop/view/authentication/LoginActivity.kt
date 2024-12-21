@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lolshop.R
+import com.example.lolshop.utils.ChangeField
 import com.example.lolshop.view.admin.AdminActivity
 import com.example.lolshop.view.BaseActivity
 import com.example.lolshop.view.MainScreen
@@ -36,6 +37,7 @@ import com.example.lolshop.viewmodel.LoginViewModel
 import com.example.lolshop.viewmodel.LoginViewModelFactory
 import com.example.lolshop.viewmodel.UserRoleViewModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
 
@@ -58,6 +60,8 @@ class LoginActivity : BaseActivity() {
 
 }
 
+
+
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(
@@ -72,7 +76,6 @@ fun LoginScreen(
     val loginState by viewModel.loginState.collectAsState()
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
