@@ -35,7 +35,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lolshop.R
-import com.example.lolshop.utils.ChangeField
 import com.example.lolshop.utils.OTPHelper
 import com.example.lolshop.utils.Resource
 import com.example.lolshop.view.BaseActivity
@@ -113,7 +112,6 @@ fun OTPVerificationScreen(
     var otpValue by rememberSaveable { mutableStateOf("") }
     var success by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
-    val changeField = ChangeField()
 
     Box(
         modifier = Modifier
@@ -200,7 +198,6 @@ fun OTPVerificationScreen(
                         Toast.LENGTH_SHORT
                     ).show()
                     navigateToLogin()
-                    changeField.changeField()
                 }
                 is Resource.Error -> {
                     val message = (signUpState as Resource.Error).message

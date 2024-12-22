@@ -17,18 +17,19 @@ class UserRepository(
     suspend fun signUpUser(name: String, email: String, password: String, phoneNumber: String, address: String): Result<Unit> {
         return try {
             val authResult = auth.createUserWithEmailAndPassword(email, password).await()
-            val user = User(
-                id = authResult.user?.uid ?: "",
-                full_name = name,
-                email = email,
-                phone_number = phoneNumber,
-                address = address,
-                isAdmin = false
+            val user = hashMapOf(
+                "id" to (authResult.user?.uid ?: ""),
+                "full_name" to name,
+                "phone_number" to phoneNumber,
+                "address" to address,
+                "isAdmin" to false
             )
-            firestore.collection("Users")
-                .document(user.id)
-                .set(user)
-                .await()
+            authResult.user?.uid?.let { uid ->
+                firestore.collection("Users")
+                    .document(uid)  // Use user ID as document ID
+                    .set(user)
+                    .await()
+            }
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
