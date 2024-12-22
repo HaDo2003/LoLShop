@@ -38,6 +38,10 @@ import com.example.lolshop.R
 
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
@@ -45,12 +49,10 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.example.lolshop.model.Product
+import com.example.lolshop.view.BaseActivity
 
 
-
-
-
-class DetailActivity : AppCompatActivity() {
+class DetailActivity : BaseActivity() {
     private lateinit var product: Product
     private lateinit var managmentCart: ManagmentCart
 
@@ -97,17 +99,13 @@ class DetailActivity : AppCompatActivity() {
                     .height(430.dp)
                     .padding(bottom = 16.dp)
             ) {
-                val (back,fav,mainImage, thumbnail)=createRefs()
+                val (back,mainImage,)=createRefs()
                 Image(
                     painter = rememberAsyncImagePainter(model = selectedImageUrl),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(
-                            colorResource(R.color.purple_200),
-                            shape = RoundedCornerShape(8.dp)
-                        )
                         .constrainAs(mainImage){
                             top.linkTo(parent.top)
                             bottom.linkTo(parent.bottom)
@@ -127,24 +125,6 @@ class DetailActivity : AppCompatActivity() {
                         }
                 )
 
-                LazyRow(
-                    modifier = Modifier
-                        .padding(vertical = 16.dp)
-                        .background(
-                            color = colorResource(R.color.white),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                ) {
-//                    items(product.imageUrl){imageUrl->
-//                        ImageThumbNail(
-//                            imageUrl = imageUrl,
-//                            isSelected = selectedModelIndex == imageUrl,
-//                            onClick = {selectedImageUrl=imageUrl}
-//                        )
-//                    }
-                }
-
-
 
             }
             Row(verticalAlignment = Alignment.CenterVertically,
@@ -163,100 +143,46 @@ class DetailActivity : AppCompatActivity() {
                     text="$${product.price}",
                     fontSize = 22.sp
                 )
-                ModelSelector(
-                    models=product.model,
-                    selectedModelIndex=selectedModelIndex,
-                    onModelSelected= {selectedModelIndex=it}
+                Text(text=product.description,
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    modifier = Modifier.padding(16.dp)
                 )
-            }
-        }
-    }
-
-    @Composable
-    fun ImageThumbNail(imageUrl: Int, isSelected: Boolean, onClick: () -> Unit) {
-        val backColor = if (isSelected) {
-            colorResource(R.color.teal_700)
-        } else {
-            colorResource(R.color.teal_200)
-        }
-
-        Box(
-            modifier = Modifier
-                .padding(4.dp)
-                .size(55.dp)
-                .then(
-                    if (isSelected) {
-                        Modifier.border(
-                            1.dp,
-                            colorResource(R.color.teal_700),
-                            RoundedCornerShape(10.dp)
+                Row (
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth().padding(18.dp)
+                ){
+                    IconButton(
+                        onClick = onCartClick,
+                        modifier = Modifier.background(
+                            colorResource(R.color.purple_700),
+                            shape = RoundedCornerShape(10.dp)
                         )
-                    } else {
-                        Modifier
+                    ) {
+                        Icon(
+                            painter = painterResource(id= R.drawable.btn_2),
+                            contentDescription =  "Cart",
+                            tint= Color.Black
+                        )
                     }
-                )
-                .background(backColor, shape = RoundedCornerShape(10.dp))
-                .clickable(onClick = onClick)
-        ) {
-            Image(
-                painter = rememberAsyncImagePainter(model = imageUrl),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-    }
-
-    @Composable
-    fun ModelSelector(
-        models: ArrayList<String>,
-        selectedModelIndex: Int,
-        onModelSelected: (Int) -> Unit
-    ) {
-        LazyRow(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
-            itemsIndexed(models){
-                    index,model->
-                Box(modifier = Modifier
-                    .padding(end=16.dp)
-                    .height(40.dp)
-                    .then(
-                        if(index==selectedModelIndex){
-                            Modifier.border(1.dp, colorResource(R.color.teal_700)
-                                , RoundedCornerShape(10.dp)
-                            )
-                        }else{
-                            Modifier.border(1.dp, colorResource(R.color.teal_700)
-                                , RoundedCornerShape(10.dp)
-                            )
-                        }
-                    )
-                    .background(
-                        if (index==selectedModelIndex) colorResource(R.color.teal_700)else
-                        colorResource(R.color.white)
-                    )
-                    .clickable{onModelSelected(index)}
-                    .padding(horizontal = 16.dp)
-                ) {
-                    Text(
-                        text=model,
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = if(index==selectedModelIndex) colorResource(R.color.white)
-                        else colorResource(R.color.black),
-                        modifier = Modifier.align(Alignment.Center)
-                    )
+                    Button(
+                        onClick = onAddToCartClick,
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            contentColor = colorResource(R.color.purple_700)
+                        ),
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp)
+                            .height(50.dp)
+                    ) {
+                        Text(
+                            text = " Add to cart", fontSize = 18.sp
+                        )
+                    }
                 }
             }
         }
     }
 
-
-
 }
-
-
-
-
-
-

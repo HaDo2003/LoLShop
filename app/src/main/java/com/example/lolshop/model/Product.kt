@@ -11,5 +11,4 @@ data class Product(
     val showRecommended: Boolean = false,
     val imageUrl: String = "",
     var numberInCart: Int =0,
-    var model: ArrayList<String> = ArrayList()
 ) : Serializable

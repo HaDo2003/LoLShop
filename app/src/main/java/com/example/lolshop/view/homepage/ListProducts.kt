@@ -1,5 +1,6 @@
 package com.example.lolshop.view.homepage
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -47,10 +48,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.ui.*
 import androidx.compose.ui.text.style.TextOverflow
+import com.cloudinary.android.uploadwidget.UploadWidget.startActivity
 
 
 @Composable
 fun PopularProduct(product: List<Product>, pos: Int) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .padding(8.dp),
@@ -61,6 +64,12 @@ fun PopularProduct(product: List<Product>, pos: Int) {
             modifier = Modifier
                 .size(175.dp) // Standard size for all images
                 .clip(RoundedCornerShape(10.dp)) // Ensure the image is clipped
+                .clickable{
+                    val intent =Intent(context, DetailActivity::class.java).apply{
+                        putExtra("object",product[pos])
+                    }
+                    context.startActivity(intent)
+                }
         ) {
             if (product[pos].imageUrl.isNotEmpty()) {
                 AsyncImage(
@@ -129,5 +138,6 @@ fun ListProductFullSize(product: List<Product>){
         }
     }
 }
+
 
 
