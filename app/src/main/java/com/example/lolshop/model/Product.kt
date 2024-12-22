@@ -9,5 +9,7 @@ data class Product(
     val price: String = "",
     val description: String = "",
     val showRecommended: Boolean = false,
-    val imageUrl: String = ""
+    val imageUrl: String = "",
+    var numberInCart: Int =0,
+    var model: ArrayList<String> = ArrayList()
 ) : Serializable

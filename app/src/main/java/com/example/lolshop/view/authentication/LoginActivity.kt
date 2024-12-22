@@ -31,7 +31,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lolshop.R
 import com.example.lolshop.view.admin.AdminActivity
 import com.example.lolshop.view.BaseActivity
-import com.example.lolshop.view.MainScreen
+import com.example.lolshop.view.homepage.MainScreen
 import com.example.lolshop.viewmodel.authentication.LoginState
 import com.example.lolshop.viewmodel.authentication.LoginViewModel
 import com.example.lolshop.viewmodel.authentication.LoginViewModelFactory
@@ -293,9 +293,7 @@ fun LoginScreen(
                 val intent = Intent(
                     LocalContext.current,
                     if (isAdmin) AdminActivity::class.java
-                    else MainScreen(userRoleViewModel = UserRoleViewModel().apply {
-                        setAdminRole(isAdmin)
-                })::class.java)
+                    else MainScreen::class.java)
                 LocalContext.current.startActivity(intent)
             }
             is LoginState.Error -> {

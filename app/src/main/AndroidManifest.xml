@@ -29,10 +29,17 @@
             android:name=".view.authentication.EmailVerification"
             android:exported="false" />
         <activity
-            android:name=".view.admin.BannerActivity"
+            android:name=".view.homepage.DetailActivity"
             android:exported="false" />
         <activity
+            android:name=".view.admin.BannerActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".view.admin.CategoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.homepage.MainScreen"
             android:exported="false" />
         <activity
             android:name=".view.IntroActivity"
