@@ -13,6 +13,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.Normalizer
+import java.util.regex.Pattern
 
 class GoogleSignInManager(private val activity: Activity) {
 
@@ -65,9 +67,10 @@ class GoogleSignInManager(private val activity: Activity) {
     }
 
     private fun saveUserToFirestore(user: FirebaseUser) {
+        val name = replaceText(user.displayName)
         val userMap = hashMapOf(
             "id" to user.uid,
-            "full_name" to user.displayName,
+            "full_name" to name,
             "email" to user.email,
             "address" to "",
             "phone_number" to "",
@@ -84,6 +87,16 @@ class GoogleSignInManager(private val activity: Activity) {
             .addOnFailureListener { e ->
                 Log.w("GoogleSignInManager", "Error adding user data to Firestore", e)
             }
+    }
+
+    private fun replaceText(input: String?): String {
+        // Normalize the text to decompose diacritics
+        val normalized = Normalizer.normalize(input, Normalizer.Form.NFD)
+
+        // Remove diacritics using a regex pattern
+        val withoutDiacritics = Pattern.compile("\\p{InCombiningDiacriticalMarks}+").matcher(normalized).replaceAll("")
+
+        return withoutDiacritics
     }
 
     companion object {

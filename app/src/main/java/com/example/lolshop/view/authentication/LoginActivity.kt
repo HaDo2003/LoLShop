@@ -117,6 +117,7 @@ fun LoginScreen(
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -291,10 +292,10 @@ fun LoginScreen(
             is LoginState.Success -> {
                 val isAdmin = (loginState as LoginState.Success).isAdmin
                 val intent = Intent(
-                    LocalContext.current,
+                    context,
                     if (isAdmin) AdminActivity::class.java
                     else MainScreen::class.java)
-                LocalContext.current.startActivity(intent)
+                context.startActivity(intent)
             }
             is LoginState.Error -> {
                 val errorMessage = (loginState as LoginState.Error).message

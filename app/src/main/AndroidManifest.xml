@@ -31,9 +31,6 @@
         <activity
             android:name=".view.homepage.DetailActivity"
             android:exported="false" />
-        <activity
-            android:name=".view.admin.BannerActivity"
-            android:exported="false" />
 
         <activity
             android:name=".view.admin.CategoryActivity"
@@ -60,6 +57,7 @@
             android:theme="@style/Theme.LoLShop" />
         <activity android:name=".view.authentication.LoginActivity" />
         <activity android:name=".view.admin.AdminActivity" />
+        <activity android:name=".view.admin.BannerActivity" />
         <activity android:name=".view.authentication.SignUpActivity" />
     </application>
 
