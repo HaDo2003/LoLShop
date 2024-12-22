@@ -25,7 +25,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -37,11 +36,14 @@ import com.example.lolshop.viewmodel.authentication.LoginState
 import com.example.lolshop.viewmodel.authentication.LoginViewModel
 import com.example.lolshop.viewmodel.authentication.LoginViewModelFactory
 import com.example.lolshop.viewmodel.UserRoleViewModel
+import com.example.lolshop.viewmodel.authentication.GoogleSignInManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 
 class LoginActivity : BaseActivity() {
+    private lateinit var googleSignInManager: GoogleSignInManager
+    private var isLoading by mutableStateOf(false)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -50,18 +52,52 @@ class LoginActivity : BaseActivity() {
                     Log.d("LoginScreen", "Navigating to SignUpActivity.")
                     val intent = Intent(this, SignUpActivity::class.java)
                     startActivity(intent)
+                    finish()
                 },
                 onLoginWithGG = {
-                    Log.d("LoginScreen", "Navigating to LoginWithGG.")
+                    Log.d("LoginScreen", "Navigating to Google Sign-In.")
+                    isLoading = true
+
+                    googleSignInManager = GoogleSignInManager(this)
+                    googleSignInManager.signIn { task ->
+                        isLoading = false
+                        if (task != null && task.isSuccessful) {
+                            // Navigate to AdminActivity after successful sign-in
+                            val intent = Intent(this, AdminActivity::class.java)
+                            startActivity(intent)
+                            finish() // Optional: finish LoginActivity to prevent going back to it
+                        } else {
+                            // Handle failed sign-in
+                            Toast.makeText(this, "Google Sign-In failed.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 },
                 onForgetPassword = {
                     val intent = Intent(this, ForgetPassword::class.java)
                     startActivity(intent)
-                }
+                    finish()
+                },
+                isLoading = isLoading
             )
         }
     }
 
+    // Handle the result from Google Sign-In
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        googleSignInManager.handleSignInResult(requestCode, data) { success ->
+            isLoading = false
+            if (success) {
+                // Navigate to AdminActivity after successful sign-in
+                val intent = Intent(this, AdminActivity::class.java)
+                startActivity(intent)
+                finish() // Optional: finish LoginActivity to prevent going back to it
+            } else {
+                // Handle failed sign-in
+                Toast.makeText(this, "Google Sign-In failed.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 }
 
 @Composable
@@ -72,6 +108,7 @@ fun LoginScreen(
             FirebaseFirestore.getInstance()
         )
     ),
+    isLoading: Boolean,
     onSignUp: () -> Unit,
     onLoginWithGG: () -> Unit,
     onForgetPassword: () -> Unit
@@ -218,23 +255,32 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        OutlinedButton(
-            onClick = onLoginWithGG,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 5.dp),
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+        if (isLoading) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.google),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(10.dp)) // Adds a 10.dp space
-                Text("Google")
+                CircularProgressIndicator()
+            }
+        } else {
+            OutlinedButton(
+                onClick = onLoginWithGG,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 5.dp),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.google),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp)) // Adds a 10.dp space
+                    Text("Google")
+                }
             }
         }
 

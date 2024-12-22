@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -42,6 +43,7 @@ fun SignUpScreen(
     var password by rememberSaveable { mutableStateOf("") }
     var phoneNumber by rememberSaveable { mutableStateOf("") }
     var address by rememberSaveable { mutableStateOf("") }
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -140,7 +142,7 @@ fun SignUpScreen(
             }
             is Resource.Success -> {
                 Toast.makeText(
-                    androidx.compose.ui.platform.LocalContext.current,
+                    context,
                     "Sign-up successful!",
                     Toast.LENGTH_SHORT
                 ).show()
@@ -149,7 +151,7 @@ fun SignUpScreen(
             is Resource.Error -> {
                 val message = (signUpState as Resource.Error).message
                 Toast.makeText(
-                    androidx.compose.ui.platform.LocalContext.current,
+                    context,
                     message,
                     Toast.LENGTH_SHORT
                 ).show()
