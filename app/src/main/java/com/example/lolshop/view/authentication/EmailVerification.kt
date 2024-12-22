@@ -195,7 +195,7 @@ fun OTPVerificationScreen(
                 }
                 is Resource.Success -> {
                     Toast.makeText(
-                        LocalContext.current,
+                        context,
                         "Sign-up successful!",
                         Toast.LENGTH_SHORT
                     ).show()
@@ -205,7 +205,7 @@ fun OTPVerificationScreen(
                 is Resource.Error -> {
                     val message = (signUpState as Resource.Error).message
                     Toast.makeText(
-                        LocalContext.current,
+                        context,
                         message,
                         Toast.LENGTH_SHORT
                     ).show()

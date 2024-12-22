@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.auth.ktx)
 
     // Other dependencies
     implementation(libs.androidx.constraintlayout)
@@ -90,6 +91,10 @@ dependencies {
     implementation (libs.androidx.runtime.livedata)
     implementation (libs.lifecycle.runtime.compose)
     implementation (libs.sendmail)
+    implementation (libs.play.services.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
     // Testing dependencies
     testImplementation(libs.junit)

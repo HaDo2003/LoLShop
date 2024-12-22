@@ -8,9 +8,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
 class UserRepository(
-    private val auth: FirebaseAuth, private val firestore: FirebaseFirestore
+    private val auth: FirebaseAuth,
+    private val firestore: FirebaseFirestore
 ) {
     fun getCurrentUser() = auth.currentUser
+
+    //Sign Up
     suspend fun signUpUser(name: String, email: String, password: String, phoneNumber: String, address: String): Result<Unit> {
         return try {
             val authResult = auth.createUserWithEmailAndPassword(email, password).await()
@@ -32,6 +35,7 @@ class UserRepository(
         }
     }
 
+    //Login
     suspend fun loginUser(email: String, password: String): Result<String> {
         return try {
             val authResult = auth.signInWithEmailAndPassword(email, password).await()
@@ -52,6 +56,7 @@ class UserRepository(
         }
     }
 
+    //Change password
     suspend fun updatePassword(newPassword: String): Result<String> {
         val user = getCurrentUser()
         return if (user != null) {
@@ -66,6 +71,7 @@ class UserRepository(
         }
     }
 
+    //Forgot password and reset password
     suspend fun resetPasswordWithCode(oobCode: String, newPassword: String): Result<String> {
         return try {
             auth.confirmPasswordReset(oobCode, newPassword).await()
@@ -74,4 +80,7 @@ class UserRepository(
             Result.failure(e)
         }
     }
+
+    //Sign In with google
+
 }
