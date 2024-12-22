@@ -1,4 +1,4 @@
-package com.example.lolshop.viewmodel
+package com.example.lolshop.viewmodel.authentication
 
 sealed class LoginState {
     object Idle : LoginState()

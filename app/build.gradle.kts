@@ -50,18 +50,30 @@ android {
 
 dependencies {
 
+    // AndroidX core libraries
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+
+    // Compose UI libraries
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // Compose ViewModel support
+    implementation(libs.lifecycle.viewmodel.compose)
+    implementation(libs.firebase.appcheck.playintegrity)
+
+    // Firebase
     implementation(libs.firebase.database)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.auth.ktx)
+
+    // Other dependencies
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -72,6 +84,17 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.volley)
+    implementation(libs.androidx.espresso.core)
+    implementation (libs.androidx.runtime.livedata)
+    implementation (libs.lifecycle.runtime.compose)
+    implementation (libs.sendmail)
+    implementation (libs.play.services.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+
+    // Testing dependencies
     implementation(libs.accompanist.pager.indicators)
     implementation(libs.google.accompanist.pager)
     implementation(libs.androidx.runtime.livedata)

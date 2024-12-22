@@ -17,11 +17,24 @@
         android:theme="@style/Theme.LoLShop"
         tools:targetApi="31">
         <activity
+            android:name=".view.authentication.ChangePassword"
+            android:exported="false" />
+        <activity
+            android:name=".view.authentication.OTPVerification"
+            android:exported="false" />
+        <activity
+            android:name=".view.authentication.ForgetPassword"
+            android:exported="false" />
+        <activity
+            android:name=".view.authentication.EmailVerification"
+            android:exported="false" />
+        <activity
             android:name=".view.homepage.DetailActivity"
             android:exported="false" />
         <activity
             android:name=".view.admin.BannerActivity"
             android:exported="false" />
+
         <activity
             android:name=".view.admin.CategoryActivity"
             android:exported="false" />

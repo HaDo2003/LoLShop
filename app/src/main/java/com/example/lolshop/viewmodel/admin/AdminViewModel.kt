@@ -1,12 +1,12 @@
-package com.example.lolshop.viewmodel
+package com.example.lolshop.viewmodel.admin
 
 import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.lolshop.model.Product
 import com.example.lolshop.repository.ProductRepository
+import com.example.lolshop.utils.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -33,15 +33,21 @@ class AdminViewModel(private val context: Context) : ViewModel() {
 
     fun addProduct(
         name: String,
+        categoryId: String,
         price: String,
         description: String,
-        categoryId: String,
-        isRecommended: Boolean,
-        imageUri: Uri?
+        showRecommended: Boolean,
+        imageUri: Uri?,
+        onValidationError: () -> Unit,
+        onNavigationSuccess: () -> Unit
     ) {
+        if (name.isEmpty() || price.isEmpty() || description.isEmpty() || imageUri == null) {
+            onValidationError()
+        }
         viewModelScope.launch {
-            productRepository.addProduct(name, price, description, categoryId, isRecommended, imageUri)
+            productRepository.addProduct(name, categoryId, price, description, showRecommended, imageUri)
             fetchProducts()
+            onNavigationSuccess()
         }
     }
 

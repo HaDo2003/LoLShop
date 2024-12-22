@@ -20,7 +20,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.lolshop.R
 import com.example.lolshop.model.Category
 import com.example.lolshop.model.Product
-import com.example.lolshop.viewmodel.AdminViewModel
+import com.example.lolshop.viewmodel.admin.AdminViewModel
 
 @Composable
 fun ManageProductScreen(adminViewModel: AdminViewModel, navController: NavController) {
@@ -94,7 +94,7 @@ fun ProductItem(product: Product, onDelete: () -> Unit, onEdit: () -> Unit) {
                         contentScale = ContentScale.Crop,
                         error = painterResource(id = R.drawable.placeholder_image),
                         placeholder = painterResource(id = R.drawable.placeholder_image),
-                        onSuccess = { result ->
+                        onSuccess = { _ ->
                             Log.d("ImageDebug", "Image loaded successfully")
                         },
                         onError = { error ->
