@@ -9,13 +9,14 @@ import com.example.lolshop.view.authentication.ChangePassword
 import com.example.lolshop.view.authentication.LoginActivity
 import com.example.lolshop.view.authentication.EmailVerification
 import com.example.lolshop.view.authentication.SignUpActivity
+import com.example.lolshop.view.homepage.MainScreen
 
 class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Navigate to  LoginActivity
-        val intent = Intent(this, AdminActivity::class.java)
+        val intent = Intent(this, MainScreen::class.java)
         startActivity(intent)
         finish()
     }

@@ -135,13 +135,13 @@ class DetailActivity : AppCompatActivity() {
                             shape = RoundedCornerShape(10.dp)
                         )
                 ) {
-                    items(product.imageUrl){imageUrl->
-                        ImageThumbNail(
-                            imageUrl = imageUrl,
-                            isSelected = selectedModelIndex == imageUrl,
-                            onClick = {selectedImageUrl=imageUrl}
-                        )
-                    }
+//                    items(product.imageUrl){imageUrl->
+//                        ImageThumbNail(
+//                            imageUrl = imageUrl,
+//                            isSelected = selectedModelIndex == imageUrl,
+//                            onClick = {selectedImageUrl=imageUrl}
+//                        )
+//                    }
                 }
 
 

@@ -49,8 +49,7 @@ android {
 }
 
 dependencies {
-
-    // AndroidX core libraries
+    // AndroidX core and Lifecycle libraries
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
@@ -93,8 +92,6 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
-
-    // Testing dependencies
     implementation(libs.accompanist.pager.indicators)
     implementation(libs.google.accompanist.pager)
     implementation(libs.androidx.runtime.livedata)
@@ -102,6 +99,8 @@ dependencies {
     implementation(libs.gson)
     implementation (libs.androidx.constraintlayout.compose)
     implementation (libs.androidx.foundation)
+
+    // Testing dependencies
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -47,7 +47,7 @@ class ManagmentCart(val context: Context) {
         val listItem = getListCart()
         var fee = 0.0
         for (item in listItem) {
-            fee += item.price * item.numberInCart
+            fee += item.price.toDouble() * item.numberInCart
         }
         return fee
     }
