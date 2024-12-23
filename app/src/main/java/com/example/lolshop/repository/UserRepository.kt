@@ -1,17 +1,37 @@
 package com.example.lolshop.repository
 
 import com.example.lolshop.model.User
+import com.example.lolshop.utils.Resource
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 
 class UserRepository(
     private val auth: FirebaseAuth,
     private val firestore: FirebaseFirestore
 ) {
-    fun getCurrentUser() = auth.currentUser
+    fun getCurrentUser(): FirebaseUser? {
+        return FirebaseAuth.getInstance().currentUser
+    }
+
+    //Get UserId
+    fun getUserById(uid: String): Flow<User?> = flow {
+        val userSnapshot = FirebaseFirestore.getInstance()
+            .collection("Users")
+            .document(uid)
+            .get()
+            .await()
+
+        val user = userSnapshot.toObject(User::class.java)
+        emit(user)
+    }.catch {
+        emit(null) // Handle errors
+    }
 
     //Sign Up
     suspend fun signUpUser(name: String, email: String, password: String, phoneNumber: String, address: String): Result<Unit> {
@@ -22,7 +42,8 @@ class UserRepository(
                 "full_name" to name,
                 "phone_number" to phoneNumber,
                 "address" to address,
-                "isAdmin" to false
+                "isAdmin" to false,
+                "pictureProfile" to ""
             )
             authResult.user?.uid?.let { uid ->
                 firestore.collection("Users")
@@ -82,6 +103,37 @@ class UserRepository(
         }
     }
 
-    //Sign In with google
+    //Update the user profile
+    suspend fun updateUserProfile(uid: String, name: String, phoneNumber: String, address: String): Result<Unit> {
+        return try {
+            // Prepare the updated user data
+            val updatedUser = hashMapOf(
+                "full_name" to name,
+                "phone_number" to phoneNumber,
+                "address" to address
+            )
 
+            // Update the Firestore document with the new details
+            firestore.collection("Users")
+                .document(uid)
+                .update(updatedUser as Map<String, Any>)
+                .await()
+
+            // Return success
+            Result.success(Unit)
+        } catch (e: Exception) {
+            // Return failure in case of an exception
+            Result.failure(e)
+        }
+    }
+
+    //Log out
+    suspend fun logout(): Resource<Unit> {
+        return try {
+            auth.signOut()  // Sign out the current user
+            Resource.Success(Unit)  // Return success
+        } catch (e: Exception) {
+            Resource.Error("$e")  // Return failure if there's an error
+        }
+    }
 }

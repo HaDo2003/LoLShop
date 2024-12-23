@@ -5,6 +5,7 @@ import android.content.Intent
 import android.util.Log
 import com.cloudinary.api.exceptions.ApiException
 import com.example.lolshop.R
+import com.example.lolshop.utils.CloudinaryHelper
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -74,7 +75,8 @@ class GoogleSignInManager(private val activity: Activity) {
             "email" to user.email,
             "address" to "",
             "phone_number" to "",
-            "isAdmin" to true
+            "isAdmin" to false,
+            "pictureProfile" to ""
         )
 
         // Store user data in Firestore

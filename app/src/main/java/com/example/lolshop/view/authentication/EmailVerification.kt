@@ -91,12 +91,7 @@ class EmailVerification : BaseActivity() {
 
 @Composable
 fun OTPVerificationScreen(
-    viewModel: SignUpViewModel = viewModel(
-        factory = SignUpViewModelFactory(
-            FirebaseAuth.getInstance(),
-            FirebaseFirestore.getInstance()
-        )
-    ),
+    viewModel: SignUpViewModel,
     otpHelper: OTPHelper,
     random: String,
     name: String,

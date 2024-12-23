@@ -29,14 +29,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lolshop.R
+import com.example.lolshop.repository.UserRepository
 import com.example.lolshop.view.admin.AdminActivity
 import com.example.lolshop.view.BaseActivity
 import com.example.lolshop.view.homepage.MainScreen
+import com.example.lolshop.view.homepage.UserProfile
 import com.example.lolshop.viewmodel.authentication.LoginState
 import com.example.lolshop.viewmodel.authentication.LoginViewModel
 import com.example.lolshop.viewmodel.authentication.LoginViewModelFactory
 import com.example.lolshop.viewmodel.UserRoleViewModel
 import com.example.lolshop.viewmodel.authentication.GoogleSignInManager
+import com.example.lolshop.viewmodel.homepage.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -291,10 +294,16 @@ fun LoginScreen(
             }
             is LoginState.Success -> {
                 val isAdmin = (loginState as LoginState.Success).isAdmin
+                val uid = (loginState as LoginState.Success).uid
                 val intent = Intent(
                     context,
                     if (isAdmin) AdminActivity::class.java
-                    else MainScreen::class.java)
+                    else MainScreen::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    putExtra("id", uid)
+                }
                 context.startActivity(intent)
             }
             is LoginState.Error -> {
