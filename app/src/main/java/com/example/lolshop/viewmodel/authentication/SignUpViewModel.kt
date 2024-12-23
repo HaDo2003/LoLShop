@@ -1,4 +1,4 @@
-package com.example.lolshop.viewmodel
+package com.example.lolshop.viewmodel.authentication
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

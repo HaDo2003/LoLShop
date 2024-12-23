@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -22,26 +23,27 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lolshop.R
-import com.example.lolshop.utils.ChangeField
 import com.example.lolshop.view.admin.AdminActivity
 import com.example.lolshop.view.BaseActivity
-import com.example.lolshop.view.MainScreen
-import com.example.lolshop.viewmodel.LoginState
-import com.example.lolshop.viewmodel.LoginViewModel
-import com.example.lolshop.viewmodel.LoginViewModelFactory
+import com.example.lolshop.view.homepage.MainScreen
+import com.example.lolshop.viewmodel.authentication.LoginState
+import com.example.lolshop.viewmodel.authentication.LoginViewModel
+import com.example.lolshop.viewmodel.authentication.LoginViewModelFactory
 import com.example.lolshop.viewmodel.UserRoleViewModel
+import com.example.lolshop.viewmodel.authentication.GoogleSignInManager
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
 
 class LoginActivity : BaseActivity() {
+    private lateinit var googleSignInManager: GoogleSignInManager
+    private var isLoading by mutableStateOf(false)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -50,17 +52,53 @@ class LoginActivity : BaseActivity() {
                     Log.d("LoginScreen", "Navigating to SignUpActivity.")
                     val intent = Intent(this, SignUpActivity::class.java)
                     startActivity(intent)
+                    finish()
                 },
                 onLoginWithGG = {
-                    Log.d("LoginScreen", "Navigating to LoginWithGG.")
-                }
+                    Log.d("LoginScreen", "Navigating to Google Sign-In.")
+                    isLoading = true
+
+                    googleSignInManager = GoogleSignInManager(this)
+                    googleSignInManager.signIn { task ->
+                        isLoading = false
+                        if (task != null && task.isSuccessful) {
+                            // Navigate to AdminActivity after successful sign-in
+                            val intent = Intent(this, AdminActivity::class.java)
+                            startActivity(intent)
+                            finish() // Optional: finish LoginActivity to prevent going back to it
+                        } else {
+                            // Handle failed sign-in
+                            Toast.makeText(this, "Google Sign-In failed.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                },
+                onForgetPassword = {
+                    val intent = Intent(this, ForgetPassword::class.java)
+                    startActivity(intent)
+                    finish()
+                },
+                isLoading = isLoading
             )
         }
     }
 
+    // Handle the result from Google Sign-In
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        googleSignInManager.handleSignInResult(requestCode, data) { success ->
+            isLoading = false
+            if (success) {
+                // Navigate to AdminActivity after successful sign-in
+                val intent = Intent(this, AdminActivity::class.java)
+                startActivity(intent)
+                finish() // Optional: finish LoginActivity to prevent going back to it
+            } else {
+                // Handle failed sign-in
+                Toast.makeText(this, "Google Sign-In failed.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 }
-
-
 
 @Composable
 fun LoginScreen(
@@ -70,12 +108,16 @@ fun LoginScreen(
             FirebaseFirestore.getInstance()
         )
     ),
+    isLoading: Boolean,
     onSignUp: () -> Unit,
-    onLoginWithGG: () -> Unit
+    onLoginWithGG: () -> Unit,
+    onForgetPassword: () -> Unit
 ) {
     val loginState by viewModel.loginState.collectAsState()
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -124,9 +166,21 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 5.dp),
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             singleLine = true,
+            trailingIcon = {
+                val image = if (passwordVisible) R.drawable.hide else R.drawable.show
+                val description = if (passwordVisible) "Hide password" else "Show password"
+
+                Image(
+                    painter = painterResource(id = image),
+                    contentDescription = description,
+                    modifier = Modifier
+                        .clickable { passwordVisible = !passwordVisible }
+                        .size(30.dp)
+                )
+            },
             colors = TextFieldDefaults.colors(
                 focusedTextColor = Color.Black,
                 unfocusedTextColor = Color.Black,
@@ -155,12 +209,24 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(5.dp))
 
-        TextButton(onClick = onSignUp) {
-            Text(
-                "Don't have an account? Sign up",
-                color = MaterialTheme.colorScheme.primary,
-                textAlign = TextAlign.Center
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            TextButton(onClick = onForgetPassword) {
+                Text(
+                    "Forget Password",
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Start
+                )
+            }
+            TextButton(onClick = onSignUp) {
+                Text(
+                    "Don't have an account? Sign up",
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.End
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -189,23 +255,32 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        OutlinedButton(
-            onClick = onLoginWithGG,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 5.dp),
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+        if (isLoading) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.google),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(10.dp)) // Adds a 10.dp space
-                Text("Login with Google")
+                CircularProgressIndicator()
+            }
+        } else {
+            OutlinedButton(
+                onClick = onLoginWithGG,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 5.dp),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.google),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp)) // Adds a 10.dp space
+                    Text("Google")
+                }
             }
         }
 
@@ -218,9 +293,7 @@ fun LoginScreen(
                 val intent = Intent(
                     LocalContext.current,
                     if (isAdmin) AdminActivity::class.java
-                    else MainScreen(userRoleViewModel = UserRoleViewModel().apply {
-                        setAdminRole(isAdmin)
-                })::class.java)
+                    else MainScreen::class.java)
                 LocalContext.current.startActivity(intent)
             }
             is LoginState.Error -> {
@@ -230,17 +303,4 @@ fun LoginScreen(
             else -> Unit
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-    LoginScreen(
-        onSignUp = {
-            Log.d("Preview", "Navigating to SignUp screen")
-        },
-        onLoginWithGG = {
-            Log.d("Preview", "Login with Google clicked")
-        }
-    )
 }

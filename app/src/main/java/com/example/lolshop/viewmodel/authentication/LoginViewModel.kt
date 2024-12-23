@@ -1,4 +1,4 @@
-package com.example.lolshop.viewmodel
+package com.example.lolshop.viewmodel.authentication
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -46,7 +46,8 @@ class LoginViewModel(
                     }
                 },
                 onFailure = { error ->
-                    _loginState.value = LoginState.Error(error.message ?: "Failed to fetch access level")
+                    _loginState.value =
+                        LoginState.Error(error.message ?: "Failed to fetch access level")
                 }
             )
         }

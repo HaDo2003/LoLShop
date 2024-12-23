@@ -19,7 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.lolshop.model.Product
 import com.example.lolshop.repository.ProductRepository
-import com.example.lolshop.viewmodel.AdminViewModel
+import com.example.lolshop.viewmodel.admin.AdminViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

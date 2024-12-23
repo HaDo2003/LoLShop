@@ -9,8 +9,8 @@ import androidx.navigation.compose.composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lolshop.model.Screen
 import com.example.lolshop.repository.ProductRepository
-import com.example.lolshop.viewmodel.AdminViewModel
-import com.example.lolshop.viewmodel.AdminViewModelFactory
+import com.example.lolshop.viewmodel.admin.AdminViewModel
+import com.example.lolshop.viewmodel.admin.AdminViewModelFactory
 
 @Composable
 fun AppNavGraph(navController: NavHostController, modifier: Modifier) {

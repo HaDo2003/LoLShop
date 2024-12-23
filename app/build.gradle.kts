@@ -41,9 +41,6 @@ android {
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -52,8 +49,7 @@ android {
 }
 
 dependencies {
-
-    // AndroidX core libraries
+    // AndroidX core and Lifecycle libraries
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
@@ -68,14 +64,13 @@ dependencies {
     // Compose ViewModel support
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.firebase.appcheck.playintegrity)
-    implementation(libs.coil.compose.v230)
-
 
     // Firebase
     implementation(libs.firebase.database)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.auth.ktx)
 
     // Other dependencies
     implementation(libs.androidx.constraintlayout)
@@ -83,12 +78,27 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.coil.compose)
+    implementation (libs.material3)
     implementation(libs.cloudinary.android)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.volley)
     implementation(libs.androidx.espresso.core)
+    implementation (libs.androidx.runtime.livedata)
+    implementation (libs.lifecycle.runtime.compose)
+    implementation (libs.sendmail)
+    implementation (libs.play.services.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+    implementation(libs.accompanist.pager.indicators)
+    implementation(libs.google.accompanist.pager)
+    implementation(libs.androidx.runtime.livedata)
+    implementation(libs.glide)
+    implementation(libs.gson)
+    implementation (libs.androidx.constraintlayout.compose)
+    implementation (libs.androidx.foundation)
 
     // Testing dependencies
     testImplementation(libs.junit)
