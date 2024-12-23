@@ -64,8 +64,22 @@ class BannerRepository(private val context: Context) {
                 "overwrite" to true,
                 "folder" to "MobileProject/BannerImages"
             )
-            val result = CloudinaryConfig.cloudinary.uploader().upload(file, requestParams)
-            result["url"]?.toString() ?: throw Exception("Image upload failed")
+            try {
+                val result = CloudinaryConfig.cloudinary.uploader().upload(file, requestParams)
+
+                // Ensure the URL is HTTPS
+                val imageUrl = result["url"]?.toString()
+
+                // If URL is HTTP, you can manually replace it with HTTPS
+                if (imageUrl != null && imageUrl.startsWith("http://")) {
+                    return@withContext imageUrl.replace("http://", "https://")
+                }
+
+                // Return the URL (it should already be HTTPS)
+                return@withContext imageUrl ?: throw Exception("Image upload failed")
+            } catch (e: Exception) {
+                throw Exception("Image upload failed: ${e.message}")
+            }
         }
     }
 }

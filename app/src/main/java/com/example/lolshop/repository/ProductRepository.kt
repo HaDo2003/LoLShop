@@ -79,13 +79,27 @@ class ProductRepository(private val context: Context) {
                 "overwrite" to true,
                 "folder" to "MobileProject/ProductImages"
             )
-            val result = CloudinaryConfig.cloudinary.uploader().upload(file, requestParams)
-            result["url"]?.toString() ?: throw Exception("Image upload failed")
+            try {
+                val result = CloudinaryConfig.cloudinary.uploader().upload(file, requestParams)
+
+                // Ensure the URL is HTTPS
+                val imageUrl = result["url"]?.toString()
+
+                // If URL is HTTP, you can manually replace it with HTTPS
+                if (imageUrl != null && imageUrl.startsWith("http://")) {
+                    return@withContext imageUrl.replace("http://", "https://")
+                }
+
+                // Return the URL (it should already be HTTPS)
+                return@withContext imageUrl ?: throw Exception("Image upload failed")
+            } catch (e: Exception) {
+                throw Exception("Image upload failed: ${e.message}")
+            }
         }
     }
 
-    fun updateProduct(productId: String, name: String, price: String, description: String) {
-        val product = Product(productId, name, price, description)
+    fun updateProduct(productId: String, name: String, categoryId: String, price: String, description: String, showRecommended: Boolean, imageUrl: String) {
+        val product = Product(productId, name, categoryId, price, description, showRecommended, imageUrl)
         database.child(productId).setValue(product)
     }
 

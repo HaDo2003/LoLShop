@@ -18,11 +18,11 @@
         android:theme="@style/Theme.LoLShop"
         tools:targetApi="31">
         <activity
-            android:name=".view.BannerActivity"
+            android:name=".view.admin.BannerActivity"
             android:exported="false" />
 
         <activity
-            android:name=".view.CategoryActivity"
+            android:name=".view.admin.CategoryActivity"
             android:exported="false" />
         <activity
             android:name=".view.IntroActivity"
@@ -41,9 +41,9 @@
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.LoLShop" />
-        <activity android:name=".view.LoginActivity" />
-        <activity android:name=".view.AdminActivity" />
-        <activity android:name=".view.SignUpActivity" />
+        <activity android:name=".view.authentication.LoginActivity" />
+        <activity android:name=".view.admin.AdminActivity" />
+        <activity android:name=".view.authentication.SignUpActivity" />
     </application>
 
 </manifest>

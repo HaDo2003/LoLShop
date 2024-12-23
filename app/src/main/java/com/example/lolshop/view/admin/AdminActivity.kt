@@ -1,4 +1,4 @@
-package com.example.lolshop.view
+package com.example.lolshop.view.admin
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

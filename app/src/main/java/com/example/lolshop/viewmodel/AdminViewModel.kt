@@ -45,10 +45,26 @@ class AdminViewModel(private val context: Context) : ViewModel() {
         }
     }
 
-    fun updateProduct(productId: String, name: String, price: String, description: String) {
+    fun updateProduct(
+        productId: String,
+        name: String,
+        categoryId: String,
+        price: String,
+        description: String,
+        showRecommended: Boolean,
+        imageUrl: String
+    ) {
         viewModelScope.launch {
-            productRepository.updateProduct(productId, name, price, description)
-            fetchProducts()
+            productRepository.updateProduct(
+                productId,
+                name,
+                categoryId,
+                price,
+                description,
+                showRecommended,
+                imageUrl
+            )
+            fetchProducts() // refresh the list after updating
         }
     }
 

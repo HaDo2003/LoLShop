@@ -1,5 +1,6 @@
-package com.example.lolshop.view
+package com.example.lolshop.view.admin
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -17,12 +18,14 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.lolshop.R
+import com.example.lolshop.model.Category
 import com.example.lolshop.model.Product
 import com.example.lolshop.viewmodel.AdminViewModel
 
 @Composable
 fun ManageProductScreen(adminViewModel: AdminViewModel, navController: NavController) {
     val products by adminViewModel.products.collectAsState()
+
 
     LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.fillMaxSize()) {
         items(products) { product ->
@@ -32,6 +35,8 @@ fun ManageProductScreen(adminViewModel: AdminViewModel, navController: NavContro
                 onEdit = {
                     if (product.id.isNotEmpty()) {
                         navController.navigate("edit_product/${product.id}")
+                    }else {
+                        Log.e("ManageProductScreen", "Product ID is empty; cannot navigate.")
                     }
                 }
             )
@@ -41,6 +46,16 @@ fun ManageProductScreen(adminViewModel: AdminViewModel, navController: NavContro
 
 @Composable
 fun ProductItem(product: Product, onDelete: () -> Unit, onEdit: () -> Unit) {
+    val categoryOptions = listOf(
+        Category("-OE4s6JDMNBmybnPHxzj", "LCK"),
+        Category("-OE4tac7kwwSFADLtfoG", "LPL"),
+        Category("-OE4tefxh5HJh8UgGyU5", "VCS"),
+        Category("-OE4tiYv8OMefiXdZ-el", "LEC"),
+        Category("-OE4tmqfq9DWVUO-5Kpm", "PCS"),
+        Category("-OE4ts0w9YaDnfT2UM_-", "LCS")
+    )
+    val selectedCategory = categoryOptions.find { it.id == product.categoryId }
+
     Card(
         modifier = Modifier.padding(8.dp),
         elevation = CardDefaults.cardElevation(4.dp)
@@ -50,15 +65,41 @@ fun ProductItem(product: Product, onDelete: () -> Unit, onEdit: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = product.name, style = MaterialTheme.typography.bodyLarge)
-            Text(text = product.price, style = MaterialTheme.typography.bodyMedium)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Row {
+                    Text("Region: ", style = MaterialTheme.typography.bodyMedium)
+                    selectedCategory?.let { Text(text = it.name, style = MaterialTheme.typography.bodyMedium) }
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Row {
+                    Text("Price: ", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = product.price, style = MaterialTheme.typography.bodyMedium)
+                }
+            }
 
             if (product.imageUrl.isNotEmpty()) {
+                Log.d("ImageDebug", "Loading image from URL: ${product.imageUrl}")
                 Image(
                     painter = rememberAsyncImagePainter(
                         model = product.imageUrl,
                         contentScale = ContentScale.Crop,
                         error = painterResource(id = R.drawable.placeholder_image),
-                        placeholder = painterResource(id = R.drawable.placeholder_image)
+                        placeholder = painterResource(id = R.drawable.placeholder_image),
+                        onSuccess = { result ->
+                            Log.d("ImageDebug", "Image loaded successfully")
+                        },
+                        onError = { error ->
+                            Log.e("ImageDebug", "Failed to load imageError. Error: ${error.result.throwable?.message}")
+                        }
                     ),
                     contentDescription = "Product Image",
                     modifier = Modifier
@@ -66,6 +107,7 @@ fun ProductItem(product: Product, onDelete: () -> Unit, onEdit: () -> Unit) {
                         .clip(MaterialTheme.shapes.medium)
                 )
             } else {
+                Log.d("ImageDebug", "No image URL available")
                 Text("No image available", style = MaterialTheme.typography.bodySmall)
             }
 
