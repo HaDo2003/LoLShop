@@ -70,6 +70,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.getValue
 
 import androidx.core.content.ContextCompat.startActivity
+import com.example.lolshop.view.admin.AdminActivity
 
 @Composable
 fun AlignedContent() {
@@ -102,6 +103,10 @@ class MainScreen : BaseActivity() {
                     // Ví dụ, mở Activity hoặc Fragment giỏ hàng
                     val intent = Intent(this, CartActivity::class.java)
                     startActivity(intent)
+                },
+                onAdminClick = {
+                    val intent = Intent(this, AdminActivity::class.java)
+                    startActivity(intent)
                 }
             )
         }
@@ -111,7 +116,8 @@ class MainScreen : BaseActivity() {
 @Composable
 fun HomePageScreen(
     isAdmin: Boolean,
-    onCartClick:()-> Unit
+    onCartClick:()-> Unit,
+    onAdminClick: () -> Unit
 ) {
     val viewModel= MainViewModel()
 
@@ -263,7 +269,8 @@ fun HomePageScreen(
                     bottom.linkTo(parent.bottom)
                 },
             isAdmin = isAdmin,
-            onItemClick = onCartClick
+            onItemClick = onCartClick,
+            onAdminClick = onAdminClick
         )
     }
 }
@@ -458,7 +465,8 @@ fun IndicatorDot(
 fun BottomMenu(
     modifier: Modifier = Modifier,
     isAdmin: Boolean,
-    onItemClick: () -> Unit
+    onItemClick: () -> Unit,
+    onAdminClick: () -> Unit
 ) {
     Row(
         modifier = modifier
@@ -473,7 +481,7 @@ fun BottomMenu(
         BottomMenuItem(icon = painterResource(R.drawable.btn_2), text = "Cart", onItemClick = onItemClick)
 
         if (isAdmin) {
-            BottomMenuItem(icon = painterResource(R.drawable.adm), text = "Admin")
+            BottomMenuItem(icon = painterResource(R.drawable.adm), text = "Admin", onItemClick = onAdminClick)
         }
 
         BottomMenuItem(icon = painterResource(R.drawable.btn_4), text = "Order")
