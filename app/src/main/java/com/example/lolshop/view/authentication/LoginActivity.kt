@@ -121,6 +121,7 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(16.dp)
             .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -292,8 +293,9 @@ fun LoginScreen(
                 val isAdmin = (loginState as LoginState.Success).isAdmin
                 val intent = Intent(
                     LocalContext.current,
-                    if (isAdmin) AdminActivity::class.java
+                    if (isAdmin) MainScreen::class.java
                     else MainScreen::class.java)
+                intent.putExtra("IS_ADMIN", isAdmin)
                 LocalContext.current.startActivity(intent)
             }
             is LoginState.Error -> {

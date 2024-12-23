@@ -85,20 +85,34 @@ fun AlignedContent() {
 
 
 class MainScreen : BaseActivity() {
+    private var isAdmin: Boolean = false // Default value
     private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        isAdmin = intent.getBooleanExtra("IS_ADMIN", true)
+
         auth = FirebaseAuth.getInstance()
         setContent {
-            HomePageScreen{
-
-            }
+            HomePageScreen(
+                isAdmin = isAdmin,
+                onCartClick = {
+                    // Thực hiện hành động khi người dùng click vào giỏ hàng
+                    // Ví dụ, mở Activity hoặc Fragment giỏ hàng
+                    val intent = Intent(this, CartActivity::class.java)
+                    startActivity(intent)
+                }
+            )
         }
     }
 }
 
 @Composable
-fun HomePageScreen(onCartClick:()-> Unit) {
+fun HomePageScreen(
+    isAdmin: Boolean,
+    onCartClick:()-> Unit
+) {
     val viewModel= MainViewModel()
 
     val banners = remember { mutableStateListOf<Banner>() }
@@ -248,6 +262,7 @@ fun HomePageScreen(onCartClick:()-> Unit) {
                 .constrainAs(bottomMenu){
                     bottom.linkTo(parent.bottom)
                 },
+            isAdmin = isAdmin,
             onItemClick = onCartClick
         )
     }
@@ -440,7 +455,11 @@ fun IndicatorDot(
 
 
 @Composable
-fun BottomMenu(modifier: Modifier = Modifier, onItemClick: () -> Unit) {
+fun BottomMenu(
+    modifier: Modifier = Modifier,
+    isAdmin: Boolean,
+    onItemClick: () -> Unit
+) {
     Row(
         modifier = modifier
             .padding(start = 16.dp, end = 16.dp, bottom = 32.dp)
@@ -452,14 +471,22 @@ fun BottomMenu(modifier: Modifier = Modifier, onItemClick: () -> Unit) {
     ) {
         BottomMenuItem(icon = painterResource(R.drawable.btn_1), text = "Explorer")
         BottomMenuItem(icon = painterResource(R.drawable.btn_2), text = "Cart", onItemClick = onItemClick)
-        BottomMenuItem(icon = painterResource(R.drawable.btn_3), text = "Favorite")
+
+        if (isAdmin) {
+            BottomMenuItem(icon = painterResource(R.drawable.adm), text = "Admin")
+        }
+
         BottomMenuItem(icon = painterResource(R.drawable.btn_4), text = "Order")
         BottomMenuItem(icon = painterResource(R.drawable.btn_5), text = "Profile")
     }
 }
 
 @Composable
-fun BottomMenuItem(icon: Painter, text: String, onItemClick: (() -> Unit)? = null) {
+fun BottomMenuItem(
+    icon: Painter,
+    text: String,
+    onItemClick: (() -> Unit)? = null
+) {
     Column(
         modifier = Modifier
             .height(80.dp) // Increase the height of the item
