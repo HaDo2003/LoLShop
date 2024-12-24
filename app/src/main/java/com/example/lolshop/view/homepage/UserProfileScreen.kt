@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Color.parseColor
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -52,7 +51,6 @@ import com.example.lolshop.R
 import com.example.lolshop.utils.Resource
 import com.example.lolshop.view.authentication.LoginActivity
 import com.example.lolshop.viewmodel.homepage.UserViewModel
-import androidx.compose.foundation.layout.*
 
 @Composable
 fun UserProfileScreen(
@@ -66,7 +64,6 @@ fun UserProfileScreen(
     val logoutResult by userViewModel.logoutResult.observeAsState(Resource.Empty())
     val changeProfilePictureState = userViewModel.profileImageUpdateState.collectAsState().value
     var isLoading by rememberSaveable { mutableStateOf(false) }
-    var reloadKey by rememberSaveable { mutableStateOf(0) }
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
