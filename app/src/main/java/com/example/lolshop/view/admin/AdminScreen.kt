@@ -1,5 +1,6 @@
 package com.example.lolshop.view.admin
 
+import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -23,6 +24,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.lolshop.model.Product
 import com.example.lolshop.repository.ProductRepository
+import com.example.lolshop.view.homepage.BottomMenu
+import com.example.lolshop.view.homepage.CartActivity
 import com.example.lolshop.viewmodel.admin.AdminViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -48,65 +51,52 @@ fun AdminScreen(
         imageUriState.value = uri
     }
 
-//    // Background screen (homepage)
-//    Box(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .background(Color.Gray.copy(alpha = 0.5f))
-//    ) {
-//        // Left admin panel
-//        Surface(
-//            modifier = Modifier
-//                .fillMaxHeight()
-//                .fillMaxWidth(0.8f) // Take 4/5 of the width
-//                .align(Alignment.CenterStart),
-//            color = Color.White,
-//            shadowElevation = 4.dp
-//        ) {
-            NavHost(navController = navController, startDestination = "admin_main") {
-                composable("admin_main") {
-                    AdminMainScreen(navController = navController)
-                }
-                composable("add_product") {
-                    AddProductScreen(
-                        adminViewModel = adminViewModel,
-                        navController = navController,
-                        productRepository = productRepository,
-                        imageUriState = imageUriState.value,
-                        productsList = productsList.value,
-                        totalProducts = totalProducts,
-                        imageResultLauncher = imageResultLauncher,
-                        fetchProducts = fetchProducts
-                    )
-                }
-                composable("add_banner") {
-                    AddBannerScreen(adminViewModel = adminViewModel, navController = navController)
-                }
-                composable("add_category") {
-                    AddCategoryScreen(adminViewModel = adminViewModel, navController = navController)
-                }
-                composable("manage_product") {
-                    ManageProductScreen(adminViewModel = adminViewModel, navController = navController)
-                }
-                composable("edit_product/{productId}") { backStackEntry ->
-                    val productId = backStackEntry.arguments?.getString("productId")
-                    if (productId != null) {
-                        EditProductScreen(productId = productId, adminViewModel = adminViewModel, navController = navController)
-                    } else {
-                        Log.e("NavHost", "Product ID is null in edit_product route")
-                    }
-                }
-                composable("manage_order") {
-                    ManageOrderScreen()
-                }
+    NavHost(navController = navController, startDestination = "admin_main") {
+        composable("admin_main") {
+            AdminMainScreen(
+                navController = navController
+            )
+        }
+        composable("add_product") {
+            AddProductScreen(
+                adminViewModel = adminViewModel,
+                navController = navController,
+                productRepository = productRepository,
+                imageUriState = imageUriState.value,
+                productsList = productsList.value,
+                totalProducts = totalProducts,
+                imageResultLauncher = imageResultLauncher,
+                fetchProducts = fetchProducts
+            )
+        }
+        composable("add_banner") {
+            AddBannerScreen(adminViewModel = adminViewModel, navController = navController)
+        }
+        composable("add_category") {
+            AddCategoryScreen(adminViewModel = adminViewModel, navController = navController)
+        }
+        composable("manage_product") {
+            ManageProductScreen(adminViewModel = adminViewModel, navController = navController)
+        }
+        composable("edit_product/{productId}") { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId")
+            if (productId != null) {
+                EditProductScreen(productId = productId, adminViewModel = adminViewModel, navController = navController)
+            } else {
+                Log.e("NavHost", "Product ID is null in edit_product route")
             }
         }
-//    }
-//}
+        composable("manage_order") {
+            ManageOrderScreen()
+        }
+    }
+}
 
 
 @Composable
-fun AdminMainScreen(navController: NavController) {
+fun AdminMainScreen(
+    navController: NavController
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
