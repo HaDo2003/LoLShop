@@ -58,7 +58,8 @@ fun UserProfileScreen(
     uid: String,
     navController: NavController,
     onCartClick: () -> Unit,
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    onAdminClick:() -> Unit
 ) {
     val userState = userViewModel.getUserData(uid).collectAsState(initial = null)
     val logoutResult by userViewModel.logoutResult.observeAsState(Resource.Empty())
@@ -74,10 +75,12 @@ fun UserProfileScreen(
     Scaffold(
         bottomBar = {
             BottomMenu(
+                isAdmin = false,
                 modifier = Modifier
                     .fillMaxWidth(),
                 onItemClick = onCartClick,
-                onProfileClick = onProfileClick
+                onProfileClick = onProfileClick,
+                onAdminClick = onAdminClick
             )
         }
     ) { paddingValues ->

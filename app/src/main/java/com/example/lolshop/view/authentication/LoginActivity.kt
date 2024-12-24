@@ -308,6 +308,7 @@ fun LoginScreen(
                             Intent.FLAG_ACTIVITY_CLEAR_TASK or
                             Intent.FLAG_ACTIVITY_CLEAR_TOP
                     putExtra("id", uid)
+                    putExtra("IS_ADMIN", isAdmin)
                 }
                 context.startActivity(intent)
             }

@@ -487,13 +487,11 @@ fun BottomMenu(
     ) {
         BottomMenuItem(icon = painterResource(R.drawable.btn_1), text = "Explorer")
         BottomMenuItem(icon = painterResource(R.drawable.btn_2), text = "Cart", onItemClick = onItemClick)
-
+        BottomMenuItem(icon = painterResource(R.drawable.btn_4), text = "Order")
+        BottomMenuItem(icon = painterResource(R.drawable.btn_5), text = "Profile", onItemClick = onProfileClick)
         if (isAdmin) {
             BottomMenuItem(icon = painterResource(R.drawable.adm), text = "Admin", onItemClick = onAdminClick)
         }
-
-        BottomMenuItem(icon = painterResource(R.drawable.btn_4), text = "Order")
-        BottomMenuItem(icon = painterResource(R.drawable.btn_5), text = "Profile", onItemClick = onProfileClick)
     }
 }
 
