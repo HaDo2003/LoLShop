@@ -26,6 +26,9 @@ class UserViewModel(
     private val _passwordChangeState = MutableStateFlow<Resource<String>?>(null)
     val passwordChangeState: StateFlow<Resource<String>?> = _passwordChangeState
 
+    private val _profileImageUpdateState = MutableStateFlow<Resource<String>>(Resource.Empty())
+    val profileImageUpdateState: StateFlow<Resource<String>> = _profileImageUpdateState
+
     fun getUserData(uid: String): Flow<User?> {
         return userRepository.getUserById(uid)
     }
@@ -74,4 +77,17 @@ class UserViewModel(
         }
     }
 
+    //Change Profile picture
+    fun changeProfilePicture(userId: String, imageUri: Uri) {
+        viewModelScope.launch {
+            _profileImageUpdateState.value = Resource.Loading()
+
+            try {
+                userRepository.changeProfilePicture(userId, imageUri)
+                _profileImageUpdateState.value = Resource.Success("Profile picture updated successfully.")
+            } catch (e: Exception) {
+                _profileImageUpdateState.value = Resource.Error("Error updating profile picture: ${e.message}")
+            }
+        }
+    }
 }

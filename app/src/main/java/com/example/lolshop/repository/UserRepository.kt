@@ -17,8 +17,10 @@ import android.net.Uri
 
 class UserRepository(
     private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val context: Context
 ) {
+    val cloudinaryHelper = CloudinaryHelper(context)
     fun getCurrentUser(): FirebaseUser? {
         return FirebaseAuth.getInstance().currentUser
     }
@@ -44,6 +46,7 @@ class UserRepository(
             val user = hashMapOf(
                 "id" to (authResult.user?.uid ?: ""),
                 "full_name" to name,
+                "email" to email,
                 "phone_number" to phoneNumber,
                 "address" to address,
                 "isAdmin" to false,
@@ -140,6 +143,26 @@ class UserRepository(
             }
         } else {
             Resource.Error("User is not authenticated or email is null")
+        }
+    }
+
+    //Change profile picture
+    suspend fun changeProfilePicture(userId: String, imageUri: Uri?) {
+        imageUri?.let { uri ->
+            val file = cloudinaryHelper.uriToFile(uri)  // Convert URI to File
+            if (file != null) {
+                try {
+                    // Upload image to Cloudinary
+                    val downloadUrl = cloudinaryHelper.uploadImageToCloudinary(file, "MobileProject/UserImages")
+
+                    // Save the profile picture URL to Firestore
+                    val firestore = FirebaseFirestore.getInstance()
+                    val userRef = firestore.collection("Users").document(userId)
+                    userRef.update("profilePicture", downloadUrl)  // Assuming "profilePicture" field is present in Firestore
+                } catch (e: Exception) {
+                    Log.e("UserRepository", "Error uploading image or updating profile picture: ${e.message}")
+                }
+            }
         }
     }
 }

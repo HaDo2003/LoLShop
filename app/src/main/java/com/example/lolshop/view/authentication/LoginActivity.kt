@@ -50,6 +50,13 @@ class LoginActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val viewModel: LoginViewModel = viewModel(
+                factory = LoginViewModelFactory(
+                    FirebaseAuth.getInstance(),
+                    FirebaseFirestore.getInstance(),
+                    applicationContext
+                )
+            )
             LoginScreen(
                 onSignUp = {
                     Log.d("LoginScreen", "Navigating to SignUpActivity.")
@@ -77,7 +84,8 @@ class LoginActivity : BaseActivity() {
                     startActivity(intent)
                     finish()
                 },
-                isLoading = isLoading
+                isLoading = isLoading,
+                viewModel = viewModel
             )
         }
     }
@@ -107,12 +115,7 @@ class LoginActivity : BaseActivity() {
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = viewModel(
-        factory = LoginViewModelFactory(
-            FirebaseAuth.getInstance(),
-            FirebaseFirestore.getInstance()
-        )
-    ),
+    viewModel: LoginViewModel,
     isLoading: Boolean,
     onSignUp: () -> Unit,
     onLoginWithGG: () -> Unit,

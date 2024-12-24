@@ -42,7 +42,16 @@ class ChangePassword : BaseActivity() {
         super.onCreate(savedInstanceState)
         val oobCode = intent.getStringExtra("oobCode") ?: ""
         setContent{
+            val viewModel: ChangePasswordViewModel = viewModel(
+                factory = ChangePasswordViewModelFactory(
+                    FirebaseAuth.getInstance(),
+                    FirebaseFirestore.getInstance(),
+                    applicationContext
+                )
+            )
+
             ChangePasswordScreen(
+                viewModel = viewModel,
                 oobCode = oobCode,
                 navigateToLogin = {
                     val intent = Intent(this, LoginActivity::class.java)
@@ -56,12 +65,7 @@ class ChangePassword : BaseActivity() {
 
 @Composable
 fun ChangePasswordScreen(
-    viewModel: ChangePasswordViewModel = viewModel(
-        factory = ChangePasswordViewModelFactory(
-            FirebaseAuth.getInstance(),
-            FirebaseFirestore.getInstance()
-        )
-    ),
+    viewModel: ChangePasswordViewModel,
     oobCode: String,
     navigateToLogin: () -> Unit
 ) {

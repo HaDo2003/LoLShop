@@ -3,17 +3,18 @@ package com.example.lolshop.view.homepage
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color.parseColor
+import android.net.Uri
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -46,10 +47,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.example.lolshop.R
 import com.example.lolshop.utils.Resource
 import com.example.lolshop.view.authentication.LoginActivity
 import com.example.lolshop.viewmodel.homepage.UserViewModel
+import androidx.compose.foundation.layout.*
 
 @Composable
 fun UserProfileScreen(
@@ -61,8 +64,15 @@ fun UserProfileScreen(
 ) {
     val userState = userViewModel.getUserData(uid).collectAsState(initial = null)
     val logoutResult by userViewModel.logoutResult.observeAsState(Resource.Empty())
+    val changeProfilePictureState = userViewModel.profileImageUpdateState.collectAsState().value
     var isLoading by rememberSaveable { mutableStateOf(false) }
+    var reloadKey by rememberSaveable { mutableStateOf(0) }
     val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            userViewModel.changeProfilePicture(uid, uri)
+        }
+    }
 
     Scaffold(
         bottomBar = {
@@ -83,18 +93,49 @@ fun UserProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                CircularProgressIndicator(modifier = Modifier.padding(16.dp).size(40.dp))
             } else {
                 // Profile image
-                Image(
-                    painterResource(id = R.drawable.anonymous_user),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(150.dp) // Set the size you want
-                        .clip(CircleShape)  // This makes the image circular
-                        .border(2.dp, Color.Gray, CircleShape)
-                        .padding(16.dp)
-                )
+                ConstraintLayout() {
+                    val (topImg, cameraIcon) = createRefs()
+                    Image(
+                        painter = if (userState.value?.profilePicture != null) {
+                            rememberAsyncImagePainter(userState.value?.profilePicture) // Load the image from URL
+                        } else {
+                            painterResource(id = R.drawable.anonymous_user) // Default placeholder image
+                        },
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(top = 50.dp)
+                            .size(150.dp)  // Set the size you want
+                            .clip(CircleShape)  // This makes the image circular
+                            .border(2.dp, Color.Gray, CircleShape)
+                            .constrainAs(topImg) {
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom)
+                                start.linkTo(parent.start)
+                                end.linkTo(parent.end)
+                            }
+                    )
+                    // Camera Icon Overlapping the Profile Image
+                    Icon(
+                        painter = painterResource(id = R.drawable.camera), // Replace with your camera icon resource
+                        contentDescription = "Change Profile Picture",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(32.dp) // Adjust the icon size
+                            .background(Color.Black, CircleShape) // Optional background for contrast
+                            .padding(4.dp)
+                            .clickable {
+                                // Trigger an action to open the camera or gallery
+                                launcher.launch("image/*")
+                            }
+                            .constrainAs(cameraIcon) {
+                                bottom.linkTo(topImg.bottom, margin = 8.dp)
+                                end.linkTo(topImg.end, margin = 8.dp) // Position the icon on the bottom-right corner of the image
+                            }
+                    )
+                }
 
                 // User Full Name
                 Text(
@@ -219,6 +260,20 @@ fun UserProfileScreen(
             }
         }
     }
+    //Handle change profile picture
+    when (changeProfilePictureState) {
+        is Resource.Loading -> {
+        }
+        is Resource.Success -> {
+            Toast.makeText(context, "Logged out successfully!", Toast.LENGTH_SHORT).show()
+        }
+        is Resource.Error -> {
+            Toast.makeText(context, "Log out Failed", Toast.LENGTH_SHORT).show()
+        }
+        else -> {
+            Text("No upload in progress")
+        }
+    }
 
     // Handle the logout result
     LaunchedEffect(logoutResult) {
@@ -242,7 +297,8 @@ fun UserProfileScreen(
             is Resource.Empty -> {
                 isLoading = false
             }
-            null -> {}
+            null -> {
+            }
         }
     }
 }

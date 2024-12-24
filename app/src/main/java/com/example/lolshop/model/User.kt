@@ -11,5 +11,5 @@ data class User(
     val phone_number: String = "",
     val address: String = "",
     @get:PropertyName("isAdmin") val isAdmin: Boolean = false,
-    val pictureProfile: String = ""
+    val profilePicture: String = ""
 ) : Serializable

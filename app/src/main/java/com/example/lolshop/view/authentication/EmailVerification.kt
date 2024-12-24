@@ -60,7 +60,8 @@ class EmailVerification : BaseActivity() {
             val viewModel: SignUpViewModel = viewModel(
             factory = SignUpViewModelFactory(
                 FirebaseAuth.getInstance(),
-                FirebaseFirestore.getInstance()
+                FirebaseFirestore.getInstance(),
+                applicationContext
                 )
             )
             LoLShopTheme {
