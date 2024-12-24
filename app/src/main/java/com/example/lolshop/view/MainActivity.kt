@@ -18,7 +18,7 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Navigate to  LoginActivity
-        val intent = Intent(this, LoginActivity::class.java)
+        val intent = Intent(this, AdminActivity::class.java)
         startActivity(intent)
         finish()
     }

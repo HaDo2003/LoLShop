@@ -8,7 +8,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,7 +57,16 @@ fun AdminScreen(
     NavHost(navController = navController, startDestination = "admin_main") {
         composable("admin_main") {
             AdminMainScreen(
-                navController = navController
+                navController = navController,
+                onCartClick = {
+                    Log.d("Click", "Click Cart")
+                },
+                onProfileClick = {
+                    Log.d("Click", "Click Profile")
+                },
+                onAdminClick = {
+                    Log.d("Click", "Click Admin")
+                }
             )
         }
         composable("add_product") {
@@ -95,47 +107,102 @@ fun AdminScreen(
 
 @Composable
 fun AdminMainScreen(
-    navController: NavController
+    navController: NavController,
+    onCartClick: () -> Unit,
+    onProfileClick: () -> Unit,
+    onAdminClick:() -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(text = "Welcome Admin")
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = { navController.navigate("add_product") }) {
-            Text("Add Product")
+    Scaffold(
+        bottomBar = {
+            BottomMenu(
+                isAdmin = true,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                onItemClick = onCartClick,
+                onProfileClick = onProfileClick,
+                onAdminClick = onAdminClick
+            )
         }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Welcome Admin",
+                style = MaterialTheme.typography.displayMedium
+            )
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = { navController.navigate("add_banner") }) {
-            Text("Add Banner")
-        }
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                modifier = Modifier.size(width = 300.dp, height = 40.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Black,
+                    contentColor = Color.White
+                ),
+                onClick = { navController.navigate("add_product") }
+            ) {
+                Text("Add Product")
+            }
 
-        Button(onClick = { navController.navigate("add_category") }) {
-            Text("Add Category")
-        }
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                modifier = Modifier.size(width = 300.dp, height = 40.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Black,
+                    contentColor = Color.White
+                ),
+                onClick = { navController.navigate("add_banner") }
+            ) {
+                Text("Add Banner")
+            }
 
-        Button(onClick = { navController.navigate("manage_product") }) {
-            Text("Manage Products")
-        }
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                modifier = Modifier.size(width = 300.dp, height = 40.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Black,
+                    contentColor = Color.White
+                ),
+                onClick = { navController.navigate("add_category") }
+            ) {
+                Text("Add Category")
+            }
 
-        Button(onClick = { navController.navigate("manage_order") }) {
-            Text("Manage Orders")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                modifier = Modifier.size(width = 300.dp, height = 40.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Black,
+                    contentColor = Color.White
+                ),
+                onClick = { navController.navigate("manage_product") }
+            ) {
+                Text("Manage Products")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                modifier = Modifier.size(width = 300.dp, height = 40.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Black,
+                    contentColor = Color.White
+                ),
+                onClick = { navController.navigate("manage_order") }
+            ) {
+                Text("Manage Orders")
+            }
         }
     }
 }

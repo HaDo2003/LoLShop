@@ -87,7 +87,6 @@ fun AlignedContent() {
 
 
 class MainScreen : BaseActivity() {
-    private var isAdmin: Boolean = false
     private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -490,7 +489,7 @@ fun BottomMenu(
         BottomMenuItem(icon = painterResource(R.drawable.btn_4), text = "Order")
         BottomMenuItem(icon = painterResource(R.drawable.btn_5), text = "Profile", onItemClick = onProfileClick)
         if (isAdmin) {
-            BottomMenuItem(icon = painterResource(R.drawable.adm), text = "Admin", onItemClick = onAdminClick)
+            BottomMenuItem(icon = painterResource(R.drawable.admin), text = "Admin", onItemClick = onAdminClick)
         }
     }
 }
@@ -515,7 +514,7 @@ fun BottomMenuItem(
             painter = icon,
             contentDescription = text,
             tint = Color.White,
-            modifier = Modifier.size(33.dp) // Increase the icon size here
+            modifier = Modifier.size(33.dp),
         )
         Spacer(modifier = Modifier.padding(vertical = 4.dp))
         Text(text, color = Color.White, fontSize = 10.sp)
