@@ -37,7 +37,6 @@ import com.example.lolshop.view.homepage.UserProfile
 import com.example.lolshop.viewmodel.authentication.LoginState
 import com.example.lolshop.viewmodel.authentication.LoginViewModel
 import com.example.lolshop.viewmodel.authentication.LoginViewModelFactory
-import com.example.lolshop.viewmodel.UserRoleViewModel
 import com.example.lolshop.viewmodel.authentication.GoogleSignInManager
 import com.example.lolshop.viewmodel.homepage.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
