@@ -89,12 +89,16 @@ import androidx.compose.ui.text.style.TextAlign
 
 import androidx.compose.ui.*
 import coil.compose.rememberAsyncImagePainter
-import com.example.project1762.Helper.ChangeNumberItemsListener
+import com.example.lolshop.Helper.ChangeNumberItemsListener
 
 class CartActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        setContent {
+            CartScreen(
+                onBackClick = { finish() }
+            )
+        }
     }
 }
 fun calculatorCart(managmentCart: ManagmentCart, tax: MutableState<Double>){
@@ -142,10 +146,14 @@ private fun CartScreen(
         if (cartProducts.value.isEmpty()) {
             Text(text = "Cart Is Empty", modifier = Modifier.align(Alignment.CenterHorizontally))
         } else {
-            CartList(cartProducts = cartProducts.value, managmentCart) {
-                cartProducts.value = managmentCart.getListCart()
-                calculatorCart(managmentCart, tax)
-            }
+            CartList(
+                cartProducts = cartProducts.value,
+                managmentCart = managmentCart,
+                onItemChange = {
+                    cartProducts.value = managmentCart.getListCart()
+                    calculatorCart(managmentCart, tax)
+                }
+            )
             CartSummary(
                 itemTotal = managmentCart.getTotalFee(),
                 tax = tax.value,
@@ -155,19 +163,47 @@ private fun CartScreen(
     }
 }
 
+
 @Composable
 fun CartSummary(itemTotal: Double, tax: Double, delivery: Int) {
-    Column(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
+    val total = itemTotal + tax + delivery
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp)
+    ) {
         Text(text = "Item Total: $${itemTotal}", fontSize = 18.sp)
         Text(text = "Tax: $${tax}", fontSize = 18.sp)
         Text(text = "Delivery: $${delivery}", fontSize = 18.sp)
         Text(
-            text = "Total: $${itemTotal + tax + delivery}",
+            text = "Total: $${total}",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
+
+        // Button for Checkout
+        Button(
+            onClick = {
+                // Add your checkout logic here
+            },
+            shape = RoundedCornerShape(10.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorResource(R.color.purple_700)
+            ),
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .fillMaxWidth()
+                .height(50.dp)
+        ) {
+            Text(
+                text = "Check Out",
+                fontSize = 18.sp,
+                color = Color.White
+            )
+        }
     }
 }
+
 
 @Composable
 fun CartList(cartProducts: List<Product>, managmentCart: ManagmentCart, onItemChange: () -> Unit) {
@@ -197,7 +233,10 @@ fun CartProduct(
             contentDescription = null,
             modifier = Modifier
                 .size(90.dp)
-                .constrainAs(pic) { start.linkTo(parent.start) },
+                .constrainAs(pic) { start.linkTo(parent.start)
+                                    top.linkTo(parent.top)
+                                    bottom.linkTo(parent.bottom)
+                                  },
             contentScale = ContentScale.Crop
         )
         Text(
@@ -211,7 +250,7 @@ fun CartProduct(
         )
         Text(
             text = "$${item.price}",
-            color = colorResource(R.color.purple_700),
+            color = colorResource(R.color.black),
             modifier = Modifier
                 .constrainAs(feeEachTime) {
                     start.linkTo(titleTxt.start)
@@ -219,9 +258,34 @@ fun CartProduct(
                 }
                 .padding(start = 8.dp, top = 8.dp)
         )
-        
+        QuantitySelector(
+            currentQuantity = item.numberInCart,
+            onIncrease = {
+                managmentCart.plusItem(
+                    managmentCart.getListCart(),
+                    managmentCart.getListCart().indexOf(item),
+                    object : ChangeNumberItemsListener {
+                        override fun onChanged() {
+                            onItemChange()
+                        }
+                    }
+                )
+            },
+            onDecrease = {
+                managmentCart.minusItem(
+                    managmentCart.getListCart(),
+                    managmentCart.getListCart().indexOf(item),
+                    object : ChangeNumberItemsListener {
+                        override fun onChanged() {
+                            onItemChange()
+                        }
+                    }
+                )
+            }
+        )
     }
 }
+
 
 @Composable
 fun QuantitySelector(

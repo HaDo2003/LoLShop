@@ -1,6 +1,7 @@
 package com.example.lolshop.view.homepage
 
 import android.R.attr.text
+import android.content.Intent
 import android.os.Bundle
 import android.text.Layout
 import androidx.activity.compose.setContent
@@ -70,7 +71,7 @@ class DetailActivity : BaseActivity() {
                     managmentCart.insertItem(product)
                 },
                 onCartClick={
-
+                    startActivity(Intent(this, CartActivity::class.java))
                 }
             )
         }

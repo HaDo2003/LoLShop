@@ -3,52 +3,54 @@ package com.example.lolshop.Helper
 import android.content.Context
 import android.widget.Toast
 import com.example.lolshop.model.Product
-import com.example.project1762.Helper.ChangeNumberItemsListener
 
-class ManagmentCart(val context: Context) {
+class ManagmentCart(private val context: Context) {
 
     private val tinyDB = TinyDB(context)
 
+    // Insert an item into the cart
     fun insertItem(item: Product) {
-        var listItem = getListCart()
-        val existAlready = listItem.any { it.name == item.name }
-        val index = listItem.indexOfFirst { it.name == item.name }
+        val cartList = getListCart()
+        val existingItemIndex = cartList.indexOfFirst { it.id == item.id }
 
-        if (existAlready) {
-            listItem[index].numberInCart = item.numberInCart
+        if (existingItemIndex != -1) {
+            // If the item already exists in the cart, update the quantity
+            cartList[existingItemIndex].numberInCart += item.numberInCart
         } else {
-            listItem.add(item)
+            // Add a new item to the cart
+            cartList.add(item)
         }
-        tinyDB.putListObject("CartList", listItem)
+
+        tinyDB.putListObject("CartList", cartList)
         Toast.makeText(context, "Added to your Cart", Toast.LENGTH_SHORT).show()
     }
 
+    // Retrieve the list of items in the cart
     fun getListCart(): ArrayList<Product> {
-        return tinyDB.getListObject("CartList") ?: arrayListOf()
+        return tinyDB.getListObject("CartList", Product::class.java) ?: arrayListOf()
     }
 
-    fun minusItem(listItem: ArrayList<Product>, position: Int, listener: ChangeNumberItemsListener) {
-        if (listItem[position].numberInCart == 1) {
-            listItem.removeAt(position)
+    // Decrease the quantity of an item in the cart or remove it if the quantity is 1
+    fun minusItem(cartList: ArrayList<Product>, position: Int, listener: ChangeNumberItemsListener) {
+        if (cartList[position].numberInCart > 1) {
+            cartList[position].numberInCart--
         } else {
-            listItem[position].numberInCart--
+            cartList.removeAt(position)
         }
-        tinyDB.putListObject("CartList", listItem)
+
+        tinyDB.putListObject("CartList", cartList)
         listener.onChanged()
     }
 
-    fun plusItem(listItem: ArrayList<Product>, position: Int, listener: ChangeNumberItemsListener) {
-        listItem[position].numberInCart++
-        tinyDB.putListObject("CartList", listItem)
+    // Increase the quantity of an item in the cart
+    fun plusItem(cartList: ArrayList<Product>, position: Int, listener: ChangeNumberItemsListener) {
+        cartList[position].numberInCart++
+        tinyDB.putListObject("CartList", cartList)
         listener.onChanged()
     }
 
+    // Calculate the total fee of items in the cart
     fun getTotalFee(): Double {
-        val listItem = getListCart()
-        var fee = 0.0
-        for (item in listItem) {
-            fee += item.price.toDouble() * item.numberInCart
-        }
-        return fee
+        return getListCart().sumOf { it.price.toDouble() * it.numberInCart }
     }
 }

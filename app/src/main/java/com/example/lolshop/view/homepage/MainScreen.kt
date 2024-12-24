@@ -91,7 +91,7 @@ class MainScreen : BaseActivity() {
         auth = FirebaseAuth.getInstance()
         setContent {
             HomePageScreen{
-
+                startActivity(Intent(this, CartActivity::class.java))
             }
         }
     }
