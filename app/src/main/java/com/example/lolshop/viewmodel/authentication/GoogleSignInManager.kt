@@ -6,6 +6,7 @@ import android.util.Log
 import com.cloudinary.api.exceptions.ApiException
 import com.example.lolshop.R
 import com.example.lolshop.utils.CloudinaryHelper
+import com.example.lolshop.view.homepage.MainScreen
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -30,6 +31,7 @@ class GoogleSignInManager(private val activity: Activity) {
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(activity, gso)
+
     }
 
     fun signIn(onComplete: (Task<com.google.firebase.auth.AuthResult>?) -> Unit) {
@@ -98,7 +100,7 @@ class GoogleSignInManager(private val activity: Activity) {
         // Remove diacritics using a regex pattern
         val withoutDiacritics = Pattern.compile("\\p{InCombiningDiacriticalMarks}+").matcher(normalized).replaceAll("")
 
-        return withoutDiacritics
+        return withoutDiacritics.replace("Đ", "D").replace("đ", "d")
     }
 
     companion object {

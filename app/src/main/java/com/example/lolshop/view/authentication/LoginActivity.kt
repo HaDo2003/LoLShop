@@ -65,10 +65,7 @@ class LoginActivity : BaseActivity() {
                     googleSignInManager.signIn { task ->
                         isLoading = false
                         if (task != null && task.isSuccessful) {
-                            // Navigate to AdminActivity after successful sign-in
-                            val intent = Intent(this, AdminActivity::class.java)
-                            startActivity(intent)
-                            finish() // Optional: finish LoginActivity to prevent going back to it
+
                         } else {
                             // Handle failed sign-in
                             Toast.makeText(this, "Google Sign-In failed.", Toast.LENGTH_SHORT).show()
@@ -91,10 +88,15 @@ class LoginActivity : BaseActivity() {
         googleSignInManager.handleSignInResult(requestCode, data) { success ->
             isLoading = false
             if (success) {
-                // Navigate to AdminActivity after successful sign-in
-                val intent = Intent(this, AdminActivity::class.java)
-                startActivity(intent)
-                finish() // Optional: finish LoginActivity to prevent going back to it
+                val user = FirebaseAuth.getInstance().currentUser
+                user?.let {
+                    // Navigate to AdminActivity after successful sign-in
+                    val intent = Intent(this, MainScreen::class.java).apply {
+                        putExtra("id", it.uid)
+                    }
+                    startActivity(intent)
+                    finish() // Optional: finish LoginActivity to prevent going back to it
+                }
             } else {
                 // Handle failed sign-in
                 Toast.makeText(this, "Google Sign-In failed.", Toast.LENGTH_SHORT).show()

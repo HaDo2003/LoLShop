@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Color.parseColor
 import androidx.compose.ui.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -83,8 +84,7 @@ class UserProfile : BaseActivity() {
                 Surface(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.White)
-                        .padding(20.dp),
+                        .background(Color.White),
                     color = Color.White
                 ) {
                     val navController = rememberNavController()
@@ -93,10 +93,23 @@ class UserProfile : BaseActivity() {
                             UserProfileScreen(
                                 userViewModel,
                                 uid,
-                                navController = navController)
+                                navController = navController,
+                                onCartClick = {
+                                    Log.d("Click", "Click Cart")
+                                },
+                                onProfileClick = {
+                                    Log.d("Click", "Click Profile")
+                                })
                         }
                         composable("edit_profile") {
                             UserEditProfileScreen(
+                                userViewModel,
+                                uid,
+                                navController = navController
+                            )
+                        }
+                        composable("change_password") {
+                            ChangePasswordScreen(
                                 userViewModel,
                                 uid,
                                 navController = navController
@@ -109,3 +122,5 @@ class UserProfile : BaseActivity() {
         }
     }
 }
+
+

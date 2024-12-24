@@ -5,10 +5,15 @@ import android.content.Intent
 import android.graphics.Color.parseColor
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,12 +24,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,184 +55,194 @@ import com.example.lolshop.viewmodel.homepage.UserViewModel
 fun UserProfileScreen(
     userViewModel: UserViewModel,
     uid: String,
-    navController: NavController
-){
+    navController: NavController,
+    onCartClick: () -> Unit,
+    onProfileClick: () -> Unit
+) {
     val userState = userViewModel.getUserData(uid).collectAsState(initial = null)
     val logoutResult by userViewModel.logoutResult.observeAsState(Resource.Empty())
+    var isLoading by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        ConstraintLayout() {
-            val(topImg,profile) = createRefs()
-            Image(
-                painterResource(
-                    id = R.drawable.anonymous_user
-                ),
-                contentDescription = null,
+    Scaffold(
+        bottomBar = {
+            BottomMenu(
                 modifier = Modifier
-                    .padding(top = 50.dp)
-                    .size(150.dp)  // Set the size you want
-                    .clip(CircleShape)  // This makes the image circular
-                    .border(2.dp, Color.Gray, CircleShape)
-                    .constrainAs(topImg){
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
+                    .fillMaxWidth(),
+                onItemClick = onCartClick,
+                onProfileClick = onProfileClick
+            )
+        }
+    ) { paddingValues ->
+        // Main content
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(top = 50.dp), // Add some top padding
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+            } else {
+                // Profile image
+                Image(
+                    painterResource(id = R.drawable.anonymous_user),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(150.dp) // Set the size you want
+                        .clip(CircleShape)  // This makes the image circular
+                        .border(2.dp, Color.Gray, CircleShape)
+                        .padding(16.dp)
+                )
+
+                // User Full Name
+                Text(
+                    text = userState.value?.full_name ?: "Loading...",
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 16.dp),
+                    color = Color(parseColor("#646669"))
+                )
+
+                // User Email
+                Text(
+                    text = userState.value?.email ?: "Loading...",
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 16.dp),
+                    color = Color(parseColor("#646669"))
+                )
+
+                // Edit Profile Button
+                Button(
+                    onClick = {
+                        navController.navigate("edit_profile")
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 15.dp, vertical = 10.dp)
+                        .height(55.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFFFFFF)
+                    ),
+                    shape = RoundedCornerShape(15.dp),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 10.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.editprofile),
+                            contentDescription = "Edit Profile",
+                            modifier = Modifier.padding(end = 5.dp)
+                        )
+                        Text(
+                            text = "Edit Profile",
+                            color = Color.Black,
+                            fontSize = 18.sp,
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
                     }
-            )
-        }
-        Text(
-            text = userState.value?.full_name ?: "Loading...",
-            fontSize = 25.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .padding(top = 16.dp),
-            color = Color(parseColor("#646669"))
-        )
-        Text(
-            text = userState.value?.email ?: "Loading...",
-            fontSize = 25.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .padding(top = 16.dp),
-            color = Color(parseColor("#646669"))
-        )
-
-        //Edit Profile
-        Button(
-            onClick = {
-                navController.navigate("edit_profile")
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 15.dp, vertical = 10.dp)
-                .height(55.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFFFFFF)
-            ),
-            shape = RoundedCornerShape(15.dp),
-            elevation = ButtonDefaults.buttonElevation(
-                defaultElevation = 10.dp
-            )
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.editprofile),
-                    contentDescription = "Edit Profile",
-                    modifier = Modifier.padding(end = 5.dp)
-                )
-                Text(
-                    text = "Edit Profile",
-                    color = Color.Black,
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(start = 16.dp)
-                )
-            }
-        }
-
-        //Change Password
-        Button(
-            onClick = {},
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 15.dp, vertical = 10.dp)
-                .height(55.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFFFFFF)
-            ),
-            shape = RoundedCornerShape(15.dp),
-            elevation = ButtonDefaults.buttonElevation(
-                defaultElevation = 10.dp
-            )
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.changepassword),
-                    contentDescription = "Change Password",
-                    modifier = Modifier.padding(end = 5.dp)
-                )
-                Text(
-                    text = "Change Password",
-                    color = Color.Black,
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(start = 16.dp)
-                )
-            }
-        }
-
-        //Log Out
-        Button(
-            onClick = {
-                userViewModel.logout()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 15.dp, vertical = 10.dp)
-                .height(55.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFFFFFF)
-            ),
-            shape = RoundedCornerShape(15.dp),
-            elevation = ButtonDefaults.buttonElevation(
-                defaultElevation = 10.dp
-            )
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.logout),
-                    contentDescription = "Log Out",
-                    modifier = Modifier.padding(end = 5.dp)
-                )
-                Text(
-                    text = "Log Out",
-                    color = Color.Black,
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(start = 16.dp)
-                )
-            }
-        }
-        LaunchedEffect(logoutResult) {
-            when (logoutResult) {
-                is Resource.Loading -> {
-                    // CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
                 }
-                is Resource.Success -> {
-                    // Show success message
-                    Toast.makeText(context, "Logged out successfully!", Toast.LENGTH_SHORT).show()
 
-                    // Navigate to LoginActivity after successful logout
-                    val intent = Intent(context, LoginActivity::class.java).apply {
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                                Intent.FLAG_ACTIVITY_CLEAR_TASK or
-                                Intent.FLAG_ACTIVITY_CLEAR_TOP
+                // Change Password Button
+                Button(
+                    onClick = {
+                        navController.navigate("change_password")
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 15.dp, vertical = 10.dp)
+                        .height(55.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFFFFFF)
+                    ),
+                    shape = RoundedCornerShape(15.dp),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 10.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.changepassword),
+                            contentDescription = "Change Password",
+                            modifier = Modifier.padding(end = 5.dp)
+                        )
+                        Text(
+                            text = "Change Password",
+                            color = Color.Black,
+                            fontSize = 18.sp,
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
                     }
-                    context.startActivity(intent)
-                    (context as? Activity)?.finish()
                 }
-                is Resource.Error -> {
-                    // Show error message
-                    Toast.makeText(context, "Log out Failed", Toast.LENGTH_SHORT).show()
+
+                // Log Out Button
+                Button(
+                    onClick = {
+                        userViewModel.logout()
+                        isLoading = true
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 15.dp, vertical = 10.dp)
+                        .height(55.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFFFFFF)
+                    ),
+                    shape = RoundedCornerShape(15.dp),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 10.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.logout),
+                            contentDescription = "Log Out",
+                            modifier = Modifier.padding(end = 5.dp)
+                        )
+                        Text(
+                            text = "Log Out",
+                            color = Color.Black,
+                            fontSize = 18.sp,
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
+                    }
                 }
-                is Resource.Empty -> {}
-                null -> TODO()
             }
+        }
+    }
+
+    // Handle the logout result
+    LaunchedEffect(logoutResult) {
+        when (logoutResult) {
+            is Resource.Loading -> {
+                isLoading = true
+            }
+            is Resource.Success -> {
+                Toast.makeText(context, "Logged out successfully!", Toast.LENGTH_SHORT).show()
+                val intent = Intent(context, LoginActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP
+                }
+                context.startActivity(intent)
+                (context as? Activity)?.finish()
+            }
+            is Resource.Error -> {
+                Toast.makeText(context, "Log out Failed", Toast.LENGTH_SHORT).show()
+            }
+            is Resource.Empty -> {
+                isLoading = false
+            }
+            null -> {}
         }
     }
 }

@@ -463,10 +463,9 @@ fun BottomMenu(
 ) {
     Row(
         modifier = modifier
-            .padding(start = 16.dp, end = 16.dp, bottom = 32.dp)
+            .padding(bottom = 16.dp)
             .background(
                 colorResource(R.color.purple_700),
-                shape = RoundedCornerShape(18.dp)
             ),
         horizontalArrangement = Arrangement.SpaceAround
     ) {

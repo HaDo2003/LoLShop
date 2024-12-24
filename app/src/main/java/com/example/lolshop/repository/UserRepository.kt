@@ -1,6 +1,9 @@
 package com.example.lolshop.repository
 
+import android.content.Context
+import android.util.Log
 import com.example.lolshop.model.User
+import com.example.lolshop.utils.CloudinaryHelper
 import com.example.lolshop.utils.Resource
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -10,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
+import android.net.Uri
 
 class UserRepository(
     private val auth: FirebaseAuth,
@@ -78,21 +82,6 @@ class UserRepository(
         }
     }
 
-    //Change password
-    suspend fun updatePassword(newPassword: String): Result<String> {
-        val user = getCurrentUser()
-        return if (user != null) {
-            try {
-                user.updatePassword(newPassword).await()
-                Result.success("Password updated successfully.")
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        } else {
-            Result.failure(Exception("User not signed in."))
-        }
-    }
-
     //Forgot password and reset password
     suspend fun resetPasswordWithCode(oobCode: String, newPassword: String): Result<String> {
         return try {
@@ -134,6 +123,23 @@ class UserRepository(
             Resource.Success(Unit)  // Return success
         } catch (e: Exception) {
             Resource.Error("$e")  // Return failure if there's an error
+        }
+    }
+
+    //Change password
+    suspend fun changePassword(currentPassword: String, newPassword: String): Resource<String> {
+        val user = getCurrentUser()
+        return if (user != null && user.email != null) {
+            try {
+                val credential = EmailAuthProvider.getCredential(user.email!!, currentPassword)
+                user.reauthenticate(credential).await()
+                user.updatePassword(newPassword).await()
+                Resource.Success("Password updated successfully.")
+            } catch (e: Exception) {
+                Resource.Error("$e")
+            }
+        } else {
+            Resource.Error("User is not authenticated or email is null")
         }
     }
 }
