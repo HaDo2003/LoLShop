@@ -70,6 +70,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.getValue
 
 import androidx.core.content.ContextCompat.startActivity
+import com.example.lolshop.view.authentication.LoginActivity
 
 @Composable
 fun AlignedContent() {
@@ -89,16 +90,30 @@ class MainScreen : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = FirebaseAuth.getInstance()
+        val uid = intent.getStringExtra("id").toString()
         setContent {
-            HomePageScreen{
+            HomePageScreen(
+                uid,
+                onCartClick = {
 
-            }
+                },
+                onProfileClick = {
+                    val intent = Intent(this, UserProfile::class.java).apply {
+                        putExtra("uid", uid)
+                    }
+                    startActivity(intent)
+                }
+            )
         }
     }
 }
 
 @Composable
-fun HomePageScreen(onCartClick:()-> Unit) {
+fun HomePageScreen(
+    uid: String,
+    onCartClick:()-> Unit,
+    onProfileClick:() -> Unit
+) {
     val viewModel= MainViewModel()
 
     val banners = remember { mutableStateListOf<Banner>() }
@@ -248,7 +263,8 @@ fun HomePageScreen(onCartClick:()-> Unit) {
                 .constrainAs(bottomMenu){
                     bottom.linkTo(parent.bottom)
                 },
-            onItemClick = onCartClick
+            onItemClick = onCartClick,
+            onProfileClick = onProfileClick
         )
     }
 }
@@ -440,13 +456,16 @@ fun IndicatorDot(
 
 
 @Composable
-fun BottomMenu(modifier: Modifier = Modifier, onItemClick: () -> Unit) {
+fun BottomMenu(
+    modifier: Modifier = Modifier,
+    onItemClick: () -> Unit,
+    onProfileClick:() -> Unit
+) {
     Row(
         modifier = modifier
-            .padding(start = 16.dp, end = 16.dp, bottom = 32.dp)
+            .padding(bottom = 16.dp)
             .background(
                 colorResource(R.color.purple_700),
-                shape = RoundedCornerShape(18.dp)
             ),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
@@ -454,16 +473,27 @@ fun BottomMenu(modifier: Modifier = Modifier, onItemClick: () -> Unit) {
         BottomMenuItem(icon = painterResource(R.drawable.btn_2), text = "Cart", onItemClick = onItemClick)
         BottomMenuItem(icon = painterResource(R.drawable.btn_3), text = "Favorite")
         BottomMenuItem(icon = painterResource(R.drawable.btn_4), text = "Order")
-        BottomMenuItem(icon = painterResource(R.drawable.btn_5), text = "Profile")
+        BottomMenuItem(icon = painterResource(R.drawable.btn_5), text = "Profile", onProfileClick = onProfileClick)
     }
 }
 
 @Composable
-fun BottomMenuItem(icon: Painter, text: String, onItemClick: (() -> Unit)? = null) {
+fun BottomMenuItem(
+    icon: Painter,
+    text: String,
+    onItemClick: (() -> Unit)? = null,
+    onProfileClick: (() -> Unit)? = null
+) {
     Column(
         modifier = Modifier
             .height(80.dp) // Increase the height of the item
-            .clickable { onItemClick?.invoke() }
+            .clickable {
+                if (text == "Profile") {
+                    onProfileClick?.invoke() // Call onProfileClick if text is "Profile"
+                } else {
+                    onItemClick?.invoke() // Call onItemClick for other items
+                }
+            }
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
