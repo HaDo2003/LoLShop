@@ -29,14 +29,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lolshop.R
+import com.example.lolshop.repository.UserRepository
 import com.example.lolshop.view.admin.AdminActivity
 import com.example.lolshop.view.BaseActivity
 import com.example.lolshop.view.homepage.MainScreen
+import com.example.lolshop.view.homepage.UserProfile
 import com.example.lolshop.viewmodel.authentication.LoginState
 import com.example.lolshop.viewmodel.authentication.LoginViewModel
 import com.example.lolshop.viewmodel.authentication.LoginViewModelFactory
 import com.example.lolshop.viewmodel.UserRoleViewModel
 import com.example.lolshop.viewmodel.authentication.GoogleSignInManager
+import com.example.lolshop.viewmodel.homepage.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -47,6 +50,13 @@ class LoginActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val viewModel: LoginViewModel = viewModel(
+                factory = LoginViewModelFactory(
+                    FirebaseAuth.getInstance(),
+                    FirebaseFirestore.getInstance(),
+                    applicationContext
+                )
+            )
             LoginScreen(
                 onSignUp = {
                     Log.d("LoginScreen", "Navigating to SignUpActivity.")
@@ -62,10 +72,7 @@ class LoginActivity : BaseActivity() {
                     googleSignInManager.signIn { task ->
                         isLoading = false
                         if (task != null && task.isSuccessful) {
-                            // Navigate to AdminActivity after successful sign-in
-                            val intent = Intent(this, AdminActivity::class.java)
-                            startActivity(intent)
-                            finish() // Optional: finish LoginActivity to prevent going back to it
+
                         } else {
                             // Handle failed sign-in
                             Toast.makeText(this, "Google Sign-In failed.", Toast.LENGTH_SHORT).show()
@@ -77,7 +84,8 @@ class LoginActivity : BaseActivity() {
                     startActivity(intent)
                     finish()
                 },
-                isLoading = isLoading
+                isLoading = isLoading,
+                viewModel = viewModel
             )
         }
     }
@@ -88,10 +96,15 @@ class LoginActivity : BaseActivity() {
         googleSignInManager.handleSignInResult(requestCode, data) { success ->
             isLoading = false
             if (success) {
-                // Navigate to AdminActivity after successful sign-in
-                val intent = Intent(this, AdminActivity::class.java)
-                startActivity(intent)
-                finish() // Optional: finish LoginActivity to prevent going back to it
+                val user = FirebaseAuth.getInstance().currentUser
+                user?.let {
+                    // Navigate to AdminActivity after successful sign-in
+                    val intent = Intent(this, MainScreen::class.java).apply {
+                        putExtra("id", it.uid)
+                    }
+                    startActivity(intent)
+                    finish() // Optional: finish LoginActivity to prevent going back to it
+                }
             } else {
                 // Handle failed sign-in
                 Toast.makeText(this, "Google Sign-In failed.", Toast.LENGTH_SHORT).show()
@@ -102,12 +115,7 @@ class LoginActivity : BaseActivity() {
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = viewModel(
-        factory = LoginViewModelFactory(
-            FirebaseAuth.getInstance(),
-            FirebaseFirestore.getInstance()
-        )
-    ),
+    viewModel: LoginViewModel,
     isLoading: Boolean,
     onSignUp: () -> Unit,
     onLoginWithGG: () -> Unit,
@@ -117,11 +125,11 @@ fun LoginScreen(
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
             .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -291,12 +299,17 @@ fun LoginScreen(
             }
             is LoginState.Success -> {
                 val isAdmin = (loginState as LoginState.Success).isAdmin
+                val uid = (loginState as LoginState.Success).uid
                 val intent = Intent(
-                    LocalContext.current,
-                    if (isAdmin) MainScreen::class.java
-                    else MainScreen::class.java)
-                intent.putExtra("IS_ADMIN", isAdmin)
-                LocalContext.current.startActivity(intent)
+                    context,
+                    if (isAdmin) AdminActivity::class.java
+                    else MainScreen::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    putExtra("id", uid)
+                }
+                context.startActivity(intent)
             }
             is LoginState.Error -> {
                 val errorMessage = (loginState as LoginState.Error).message

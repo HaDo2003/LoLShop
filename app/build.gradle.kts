@@ -52,53 +52,56 @@ dependencies {
     // AndroidX core and Lifecycle libraries
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.constraintlayout.compose)
+    implementation(libs.androidx.runtime.livedata)
+    implementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.foundation)
 
-    // Compose UI libraries
+    // Jetpack Compose Libraries
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-
-    // Compose ViewModel support
     implementation(libs.lifecycle.viewmodel.compose)
-    implementation(libs.firebase.appcheck.playintegrity)
 
     // Firebase
+    implementation(libs.firebase.appcheck.playintegrity)
     implementation(libs.firebase.database)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.auth.ktx)
 
-    // Other dependencies
-    implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    implementation(libs.androidx.activity)
-    implementation(libs.coil.compose)
-    implementation (libs.material3)
-    implementation(libs.cloudinary.android)
-    implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.androidx.navigation.runtime.ktx)
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.volley)
-    implementation(libs.androidx.espresso.core)
-    implementation (libs.androidx.runtime.livedata)
-    implementation (libs.lifecycle.runtime.compose)
-    implementation (libs.sendmail)
-    implementation (libs.play.services.auth)
-    implementation(libs.androidx.credentials)
-    implementation(libs.androidx.credentials.play.services.auth)
-    implementation(libs.googleid)
+    //Accompanist Libraries
     implementation(libs.accompanist.pager.indicators)
     implementation(libs.google.accompanist.pager)
-    implementation(libs.androidx.runtime.livedata)
+
+    //Kotlin and Coroutines Libraries
+    implementation(libs.kotlinx.coroutines.android)
+
+    //Testing and Debugging Libraries
+    implementation(libs.lifecycle.runtime.compose)
+
+    // Other dependencies
+    implementation(libs.material)
+    implementation(libs.coil.compose)
+    implementation(libs.material3)
+    implementation(libs.cloudinary.android)
+    implementation(libs.volley)
+    implementation(libs.sendmail)
+    implementation(libs.play.services.auth)
+    implementation(libs.googleid)
     implementation(libs.glide)
     implementation(libs.gson)
-    implementation (libs.androidx.constraintlayout.compose)
-    implementation (libs.androidx.foundation)
 
     // Testing dependencies
     testImplementation(libs.junit)

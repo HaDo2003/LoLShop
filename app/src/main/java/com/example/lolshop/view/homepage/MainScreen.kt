@@ -70,6 +70,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.getValue
 
 import androidx.core.content.ContextCompat.startActivity
+import com.example.lolshop.view.authentication.LoginActivity
 import com.example.lolshop.view.admin.AdminActivity
 
 @Composable
@@ -86,22 +87,26 @@ fun AlignedContent() {
 
 
 class MainScreen : BaseActivity() {
-    private var isAdmin: Boolean = false // Default value
+    private var isAdmin: Boolean = false
     private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        isAdmin = intent.getBooleanExtra("IS_ADMIN", true)
-
         auth = FirebaseAuth.getInstance()
+        val uid = intent.getStringExtra("id").toString()
+        val isAdmin = intent.getBooleanExtra("IS_ADMIN", false)
         setContent {
             HomePageScreen(
                 isAdmin = isAdmin,
+                uid,
                 onCartClick = {
-                    // Thực hiện hành động khi người dùng click vào giỏ hàng
-                    // Ví dụ, mở Activity hoặc Fragment giỏ hàng
                     val intent = Intent(this, CartActivity::class.java)
+                    startActivity(intent)
+                },
+                onProfileClick = {
+                    val intent = Intent(this, UserProfile::class.java).apply {
+                        putExtra("uid", uid)
+                    }
                     startActivity(intent)
                 },
                 onAdminClick = {
@@ -116,7 +121,9 @@ class MainScreen : BaseActivity() {
 @Composable
 fun HomePageScreen(
     isAdmin: Boolean,
+    uid: String,
     onCartClick:()-> Unit,
+    onProfileClick:() -> Unit,
     onAdminClick: () -> Unit
 ) {
     val viewModel= MainViewModel()
@@ -270,6 +277,7 @@ fun HomePageScreen(
                 },
             isAdmin = isAdmin,
             onItemClick = onCartClick,
+            onProfileClick = onProfileClick,
             onAdminClick = onAdminClick
         )
     }
@@ -466,14 +474,14 @@ fun BottomMenu(
     modifier: Modifier = Modifier,
     isAdmin: Boolean,
     onItemClick: () -> Unit,
+    onProfileClick:() -> Unit,
     onAdminClick: () -> Unit
 ) {
     Row(
         modifier = modifier
-            .padding(start = 16.dp, end = 16.dp, bottom = 32.dp)
+            .padding(bottom = 16.dp)
             .background(
                 colorResource(R.color.purple_700),
-                shape = RoundedCornerShape(18.dp)
             ),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
@@ -485,7 +493,7 @@ fun BottomMenu(
         }
 
         BottomMenuItem(icon = painterResource(R.drawable.btn_4), text = "Order")
-        BottomMenuItem(icon = painterResource(R.drawable.btn_5), text = "Profile")
+        BottomMenuItem(icon = painterResource(R.drawable.btn_5), text = "Profile", onItemClick = onProfileClick)
     }
 }
 
@@ -498,7 +506,9 @@ fun BottomMenuItem(
     Column(
         modifier = Modifier
             .height(80.dp) // Increase the height of the item
-            .clickable { onItemClick?.invoke() }
+            .clickable {
+                onItemClick?.invoke() // Call onItemClick for other item
+            }
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center

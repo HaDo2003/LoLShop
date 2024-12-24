@@ -18,6 +18,9 @@
         android:theme="@style/Theme.LoLShop"
         tools:targetApi="31">
         <activity
+            android:name=".view.homepage.UserProfile"
+            android:exported="false" />
+        <activity
             android:name=".view.authentication.ChangePassword"
             android:exported="false" />
         <activity
@@ -32,10 +35,6 @@
         <activity
             android:name=".view.homepage.DetailActivity"
             android:exported="false" />
-        <activity
-            android:name=".view.admin.BannerActivity"
-            android:exported="false" />
-
         <activity
             android:name=".view.admin.CategoryActivity"
             android:exported="false" />
@@ -61,6 +60,7 @@
             android:theme="@style/Theme.LoLShop" />
         <activity android:name=".view.authentication.LoginActivity" />
         <activity android:name=".view.admin.AdminActivity" />
+        <activity android:name=".view.admin.BannerActivity" />
         <activity android:name=".view.authentication.SignUpActivity" />
     </application>
 
