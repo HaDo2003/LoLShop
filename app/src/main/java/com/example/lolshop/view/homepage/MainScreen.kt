@@ -2,8 +2,6 @@ package com.example.lolshop.view.homepage
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -26,8 +24,6 @@ import androidx.compose.material.Text
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -35,37 +31,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.layout.ContentScale
 import com.example.lolshop.R
-import com.example.lolshop.viewmodel.MainViewModel
+import com.example.lolshop.viewmodel.homepage.MainViewModel
 import androidx.compose.runtime.*
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.unit.Dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.example.lolshop.model.Banner
 import com.example.lolshop.model.Category
 import com.example.lolshop.model.Product
 import com.example.lolshop.view.BaseActivity
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerState
 
 import androidx.compose.runtime.getValue
 
-import androidx.core.content.ContextCompat.startActivity
 import com.example.lolshop.view.admin.AdminActivity
 import com.google.firebase.firestore.FirebaseFirestore
 

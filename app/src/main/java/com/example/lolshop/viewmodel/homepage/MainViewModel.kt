@@ -1,4 +1,4 @@
-package com.example.lolshop.viewmodel
+package com.example.lolshop.viewmodel.homepage
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel

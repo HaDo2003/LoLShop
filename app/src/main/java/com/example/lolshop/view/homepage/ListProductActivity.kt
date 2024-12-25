@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import com.example.lolshop.R
-import com.example.lolshop.viewmodel.MainViewModel
+import com.example.lolshop.viewmodel.homepage.MainViewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
