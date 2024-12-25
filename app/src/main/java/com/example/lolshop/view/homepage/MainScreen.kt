@@ -67,19 +67,6 @@ import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat.startActivity
 import com.example.lolshop.view.admin.AdminActivity
 
-@Composable
-fun AlignedContent() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Hello, World!")
-    }
-}
-
-
-
-
 class MainScreen : BaseActivity() {
     private lateinit var auth: FirebaseAuth
 
@@ -99,6 +86,7 @@ class MainScreen : BaseActivity() {
                 onProfileClick = {
                     val intent = Intent(this, UserProfile::class.java).apply {
                         putExtra("uid", uid)
+                        putExtra("isAdmin", isAdmin)
                     }
                     startActivity(intent)
                 },
@@ -206,7 +194,7 @@ fun HomePageScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .height(200.dp),
+                            .height(250.dp),
                         contentAlignment = Alignment.Center
 
                     ){
@@ -277,89 +265,6 @@ fun HomePageScreen(
 }
 
 @Composable
-fun CategoryList(categories: SnapshotStateList<Category>) {
-    var selectedIndex by remember { mutableStateOf(-1) }
-    val context = LocalContext.current
-
-    LazyRow(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(24.dp),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp)
-    ) {
-        items(categories.size) { index ->
-            CategoryItem(
-                item = categories[index],
-                isSelected = selectedIndex == index,
-                onItemClick = {
-                    selectedIndex = index
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        val intent = Intent(context, ListProductActivity::class.java).apply {
-                            putExtra("id", categories[index].id.toString())
-                            putExtra("title", categories[index].name)
-                        }
-                        startActivity(context,intent,null)
-                    }, 500)
-                }
-            )
-        }
-    }
-}
-
-
-@Composable
-fun CategoryItem(item: Category, isSelected: Boolean, onItemClick: () -> Unit) {
-    val backgroundColor = if (isSelected) MaterialTheme.colors.primary else Color.Transparent
-    val textColor = if (isSelected) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onSecondary
-
-    Column(
-        modifier = Modifier
-            .clickable(onClick = onItemClick)
-            .padding(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier
-                .size(if (isSelected) 120.dp else 100.dp) // Outer size of the circular frame
-                .background(
-                    color = backgroundColor,
-                    shape = CircleShape
-                )
-                .padding(5.dp) // Adjusted padding for making the picture smaller
-        ) {
-            if (item.imageUrl.isNotEmpty()) {
-                AsyncImage(
-                    model = item.imageUrl,
-                    contentDescription = item.name,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(CircleShape)
-                        .padding(10.dp), // Reduce picture size further inside the circle
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Text(
-                    text = "No Image",
-                    style = MaterialTheme.typography.body2,
-                    color = textColor,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
-        }
-
-        // Display category name below the image
-        Text(
-            text = item.name,
-            style = MaterialTheme.typography.body1,
-            color = textColor,
-            modifier = Modifier.padding(top = 8.dp) // Add spacing between image and text
-        )
-    }
-}
-
-
-
-
-@Composable
 fun SectionTitLe(title: String, actionText: String) {
     Row(
         modifier = Modifier
@@ -376,144 +281,7 @@ fun SectionTitLe(title: String, actionText: String) {
         )
         Text(
             text= actionText,
-            color=colorResource(R.color.purple_200)
+            color= Color.Black
         )
     }
 }
-
-@OptIn(ExperimentalPagerApi::class)
-@Composable
-fun Banners(banners: SnapshotStateList<Banner>) {
-    AutoSlidingCarousel(banners =banners)
-}
-
-@OptIn(ExperimentalPagerApi::class)
-@Composable
-fun AutoSlidingCarousel(
-    modifier: Modifier= Modifier.padding(top=16.dp),
-    pagerState: PagerState= remember { PagerState() },
-    banners: SnapshotStateList<Banner>
-) {
-    val isDragged by pagerState.interactionSource.collectIsDraggedAsState()
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        HorizontalPager(count = banners.size, state = pagerState ) { page->
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(banners[page].imageUrl)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.FillBounds,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(top=16.dp, bottom = 8.dp)
-                    .height(150.dp)
-            )
-                    }
-        DotIndicator(
-            modifier = Modifier
-                .padding(horizontal = 8.dp)
-                .align(Alignment.CenterHorizontally),
-            totalDots = banners.size,
-            selectedIndex = if (isDragged)pagerState.currentPage else pagerState.currentPage,
-            dotSize = 8.dp
-        )
-    }
-}
-@Composable
-fun DotIndicator(
-    modifier: Modifier= Modifier,
-    totalDots:Int,
-    selectedIndex:Int,
-    selectedColor:Color= colorResource(R.color.purple_200),
-    unSelectedColor: Color= colorResource(R.color.grey),
-    dotSize: Dp
-){
-    LazyRow(
-        modifier = Modifier
-            .wrapContentSize()
-    ) {
-        items(totalDots){index->
-            IndicatorDot(
-                color = if (index==selectedIndex)selectedColor else unSelectedColor,
-                size = dotSize
-            )
-            if(index!= totalDots-1){
-                Spacer(modifier = Modifier.padding(horizontal = 2.dp) )
-            }
-        }
-    }
-}
-
-
-@Composable
-fun IndicatorDot(
-    modifier: Modifier= Modifier,
-    size:Dp,
-    color:Color
-){
-    Box(
-        modifier = Modifier
-            .size(size)
-            .clip(CircleShape)
-            .background(color)
-    )
-}
-
-
-
-@Composable
-fun BottomMenu(
-    modifier: Modifier = Modifier,
-    isAdmin: Boolean,
-    onItemClick: () -> Unit,
-    onProfileClick:() -> Unit,
-    onAdminClick: () -> Unit
-) {
-    Row(
-        modifier = modifier
-            .padding(bottom = 16.dp)
-            .background(
-                colorResource(R.color.purple_700),
-            ),
-        horizontalArrangement = Arrangement.SpaceAround
-    ) {
-        BottomMenuItem(icon = painterResource(R.drawable.btn_1), text = "Explorer")
-        BottomMenuItem(icon = painterResource(R.drawable.btn_2), text = "Cart", onItemClick = onItemClick)
-        BottomMenuItem(icon = painterResource(R.drawable.btn_4), text = "Order")
-        BottomMenuItem(icon = painterResource(R.drawable.btn_5), text = "Profile", onItemClick = onProfileClick)
-        if (isAdmin) {
-            BottomMenuItem(icon = painterResource(R.drawable.admin), text = "Admin", onItemClick = onAdminClick)
-        }
-    }
-}
-
-@Composable
-fun BottomMenuItem(
-    icon: Painter,
-    text: String,
-    onItemClick: (() -> Unit)? = null
-) {
-    Column(
-        modifier = Modifier
-            .height(80.dp) // Increase the height of the item
-            .clickable {
-                onItemClick?.invoke() // Call onItemClick for other item
-            }
-            .padding(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            painter = icon,
-            contentDescription = text,
-            tint = Color.White,
-            modifier = Modifier.size(33.dp),
-        )
-        Spacer(modifier = Modifier.padding(vertical = 4.dp))
-        Text(text, color = Color.White, fontSize = 10.sp)
-    }
-}
-
-
-

@@ -85,8 +85,8 @@ class MainRepository {
 
     fun loadFilterd(id: String): LiveData<MutableList<Product>>{
         val listData= MutableLiveData<MutableList<Product>>()
-        val ref= firebaseDatabase.getReference("categoryId")
-        val query: Query=ref.orderByChild("showRecommended").equalTo(id)
+        val ref= firebaseDatabase.getReference("products")
+        val query: Query=ref.orderByChild("categoryId").equalTo(id)
         query.addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
                 val lists= mutableListOf<Product>()

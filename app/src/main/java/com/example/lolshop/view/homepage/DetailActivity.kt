@@ -1,13 +1,10 @@
 package com.example.lolshop.view.homepage
 
-import android.R.attr.text
+import android.content.Intent
 import android.os.Bundle
-import android.text.Layout
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,40 +14,33 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Text
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import com.example.lolshop.Helper.ManagmentCart
-import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
-import coil.compose.rememberAsyncImagePainter
-import com.example.lolshop.R
-
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.Text
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import coil.compose.AsyncImage
+import com.example.lolshop.Helper.ManagmentCart
+import com.example.lolshop.R
 import com.example.lolshop.model.Product
+import com.example.lolshop.view.BaseActivity
 
 
-
-
-
-class DetailActivity : AppCompatActivity() {
+class DetailActivity : BaseActivity() {
     private lateinit var product: Product
     private lateinit var managmentCart: ManagmentCart
 
@@ -68,195 +58,149 @@ class DetailActivity : AppCompatActivity() {
                     managmentCart.insertItem(product)
                 },
                 onCartClick={
-
+                    startActivity(Intent(this, CartActivity::class.java))
                 }
             )
         }
     }
+}
 
+@Composable
+fun DetailScreen(
+    product: Product,
+    onBackClick: () -> Unit,
+    onAddToCartClick: () -> Unit,
+    onCartClick: () -> Unit,
+) {
+    Scaffold(
+        bottomBar = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 30.dp, start = 5.dp, end = 5.dp)
+            ) {
+                IconButton(
+                    onClick = onCartClick,
+                    modifier = Modifier.background(
+                        color = Color.LightGray,
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.cart),
+                        contentDescription = "Cart",
+                        tint = Color.Black,
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+                Button(
+                    onClick = onAddToCartClick,
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color.Black,
+                        contentColor = Color.White
+                    ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 8.dp)
+                        .height(50.dp)
+                ) {
+                    Text(
+                        text = " Add to cart", fontSize = 18.sp
+                    )
+                }
+            }
+        }
 
-    @Composable
-    private fun DetailScreen(
-        product: Product,
-        onBackClick: () -> Unit,
-        onAddToCartClick: () -> Unit,
-        onCartClick: () -> Unit,
-    ) {
-        var selectedImageUrl by remember { mutableStateOf(product.imageUrl.first()) }
-        var selectedModelIndex by remember { mutableStateOf(-1) }
-
+    ) { paddingValue ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
                 .verticalScroll(rememberScrollState())
+                .padding(
+                    top = 0.dp, // Override any top padding caused by Scaffold
+                    bottom = paddingValue.calculateBottomPadding(),
+                )
         ) {
             ConstraintLayout(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .height(430.dp)
                     .padding(bottom = 16.dp)
             ) {
-                val (back,fav,mainImage, thumbnail)=createRefs()
-                Image(
-                    painter = rememberAsyncImagePainter(model = selectedImageUrl),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            colorResource(R.color.purple_200),
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .constrainAs(mainImage){
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                            end.linkTo(parent.end)
-                            start.linkTo(parent.start)
-                        }
-                )
-                Image(
-                    painter = painterResource(R.drawable.back),
-                    contentDescription = "",
-                    modifier = Modifier
-                        .padding(top=48.dp)
-                        .clickable{onBackClick()}
-                        .constrainAs(back){
-                            top.linkTo(parent.top)
-                            start.linkTo(parent.start)
-                        }
-                )
+                val (back, mainImage) = createRefs()
 
-                LazyRow(
+                Box(
                     modifier = Modifier
-                        .padding(vertical = 16.dp)
-                        .background(
-                            color = colorResource(R.color.white),
-                            shape = RoundedCornerShape(10.dp)
-                        )
+                        .fillMaxWidth()
+                        .height(400.dp)
+                        .constrainAs(mainImage) {
+                            top.linkTo(parent.top)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        }
                 ) {
-//                    items(product.imageUrl){imageUrl->
-//                        ImageThumbNail(
-//                            imageUrl = imageUrl,
-//                            isSelected = selectedModelIndex == imageUrl,
-//                            onClick = {selectedImageUrl=imageUrl}
-//                        )
-//                    }
+                    if (product.imageUrl.isNotEmpty()) {
+                        AsyncImage(
+                            model = product.imageUrl,
+                            contentDescription = product.name,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(RoundedCornerShape(10.dp)), // Rounded corners
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Text(
+                            text = "No Image Available",
+                            style = androidx.compose.material.MaterialTheme.typography.body2,
+                            color = Color.Gray,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
                 }
 
-
-
+                Image(
+                    painter = painterResource(R.drawable.back),
+                    contentDescription = "Back Button",
+                    modifier = Modifier
+                        .padding(top = 48.dp, start = 5.dp)
+                        .clickable { onBackClick() }
+                        .constrainAs(back) {
+                            top.linkTo(parent.top)
+                            start.linkTo(parent.start)
+                        }
+                        .size(40.dp)
+                )
             }
-            Row(verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(top=16.dp)
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .padding(top = 16.dp)
                     .padding(horizontal = 16.dp)
-            ){
+            ) {
                 Text(
-                    text=product.name,
+                    text = product.name,
                     fontSize = 23.sp,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                        .padding(end=16.dp)
+                        .padding(end = 16.dp)
                 )
                 Text(
-                    text="$${product.price}",
+                    text = "$${product.price}",
                     fontSize = 22.sp
                 )
-                ModelSelector(
-                    models=product.model,
-                    selectedModelIndex=selectedModelIndex,
-                    onModelSelected= {selectedModelIndex=it}
-                )
             }
-        }
-    }
 
-    @Composable
-    fun ImageThumbNail(imageUrl: Int, isSelected: Boolean, onClick: () -> Unit) {
-        val backColor = if (isSelected) {
-            colorResource(R.color.teal_700)
-        } else {
-            colorResource(R.color.teal_200)
-        }
-
-        Box(
-            modifier = Modifier
-                .padding(4.dp)
-                .size(55.dp)
-                .then(
-                    if (isSelected) {
-                        Modifier.border(
-                            1.dp,
-                            colorResource(R.color.teal_700),
-                            RoundedCornerShape(10.dp)
-                        )
-                    } else {
-                        Modifier
-                    }
-                )
-                .background(backColor, shape = RoundedCornerShape(10.dp))
-                .clickable(onClick = onClick)
-        ) {
-            Image(
-                painter = rememberAsyncImagePainter(model = imageUrl),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+            Text(
+                text = product.description,
+                fontSize = 14.sp,
+                color = Color.Black,
+                modifier = Modifier.padding(16.dp)
             )
         }
     }
-
-    @Composable
-    fun ModelSelector(
-        models: ArrayList<String>,
-        selectedModelIndex: Int,
-        onModelSelected: (Int) -> Unit
-    ) {
-        LazyRow(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
-            itemsIndexed(models){
-                    index,model->
-                Box(modifier = Modifier
-                    .padding(end=16.dp)
-                    .height(40.dp)
-                    .then(
-                        if(index==selectedModelIndex){
-                            Modifier.border(1.dp, colorResource(R.color.teal_700)
-                                , RoundedCornerShape(10.dp)
-                            )
-                        }else{
-                            Modifier.border(1.dp, colorResource(R.color.teal_700)
-                                , RoundedCornerShape(10.dp)
-                            )
-                        }
-                    )
-                    .background(
-                        if (index==selectedModelIndex) colorResource(R.color.teal_700)else
-                        colorResource(R.color.white)
-                    )
-                    .clickable{onModelSelected(index)}
-                    .padding(horizontal = 16.dp)
-                ) {
-                    Text(
-                        text=model,
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = if(index==selectedModelIndex) colorResource(R.color.white)
-                        else colorResource(R.color.black),
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-            }
-        }
-    }
-
-
-
 }
-
-
-
-
-
-

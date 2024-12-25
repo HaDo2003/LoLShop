@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.*
@@ -33,12 +34,10 @@ class ListProductActivity : BaseActivity() {
     private var id: String=""
     private var name: String=""
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         id= intent.getStringExtra("id")?:""
         name=intent.getStringExtra("name")?:""
-
 
         setContent{
             ListItemScreen(
@@ -49,70 +48,66 @@ class ListProductActivity : BaseActivity() {
             )
         }
     }
+}
+@Composable
+private fun ListItemScreen(
+    name: String,
+    onBackClick: () -> Unit,
+    viewModel: MainViewModel,
+    id: String
+) {
+    val product by viewModel.loadFiltered(id).observeAsState(emptyList())
+    var isLoading by remember { mutableStateOf(true) }
 
-    @Composable
-    private fun ListItemScreen(
-        name: String,
-        onBackClick: () -> Unit,
-        viewModel: MainViewModel,
-        id: String
-    ) {
-        val product by viewModel.loadFiltered(id).observeAsState(emptyList())
-        var isLoading by remember { mutableStateOf(true) }
-
-
-
-        LaunchedEffect(id) {
-            viewModel.loadFiltered(id)
-        }
-
-        Column(modifier = Modifier.fillMaxSize()) {
-            ConstraintLayout(
-                modifier = Modifier.padding(top = 36.dp, start = 16.dp, end = 16.dp)
-            ) {
-                val (backBtn, CartTxt) = createRefs()
-
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .constrainAs(CartTxt) { centerTo(parent) },
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 25.sp,
-                    text = name
-                )
-
-                Image(
-                    painter = painterResource(R.drawable.back),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .clickable {
-                            onBackClick()
-                        }
-                        .constrainAs(backBtn) {
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                            start.linkTo(parent.start)
-                        }
-                )
-            }
-
-            if (isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            } else {
-                // Pass categoryOptions to ListProductFullSize
-                ListProductFullSize(product)
-            }
-        }
-
-        LaunchedEffect(product) {
-            isLoading = product.isEmpty()
-        }
+    LaunchedEffect(id) {
+        viewModel.loadFiltered(id)
     }
 
+    Column(modifier = Modifier.fillMaxSize()) {
+        ConstraintLayout(
+            modifier = Modifier.padding(top = 36.dp, start = 16.dp, end = 16.dp)
+        ) {
+            val (backBtn, CartTxt) = createRefs()
+
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .constrainAs(CartTxt) { centerTo(parent) },
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                fontSize = 25.sp,
+                text = name
+            )
+
+            Image(
+                painter = painterResource(R.drawable.back),
+                contentDescription = null,
+                modifier = Modifier
+                    .clickable {
+                        onBackClick()
+                    }
+                    .constrainAs(backBtn) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                    }
+                    .size(40.dp)
+            )
+        }
+
+        if (isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            // Pass categoryOptions to ListProductFullSize
+            ListProductFullSize(product)
+        }
+    }
+    LaunchedEffect(product) {
+        isLoading = product.isEmpty()
+    }
 }

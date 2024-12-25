@@ -56,6 +56,7 @@ import com.example.lolshop.viewmodel.homepage.UserViewModel
 fun UserProfileScreen(
     userViewModel: UserViewModel,
     uid: String,
+    isAdmin: Boolean,
     navController: NavController,
     onCartClick: () -> Unit,
     onProfileClick: () -> Unit,
@@ -75,7 +76,7 @@ fun UserProfileScreen(
     Scaffold(
         bottomBar = {
             BottomMenu(
-                isAdmin = false,
+                isAdmin = isAdmin,
                 modifier = Modifier
                     .fillMaxWidth(),
                 onItemClick = onCartClick,
