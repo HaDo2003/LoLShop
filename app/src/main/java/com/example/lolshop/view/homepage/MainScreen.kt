@@ -70,20 +70,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.getValue
 
 import androidx.core.content.ContextCompat.startActivity
-
-@Composable
-fun AlignedContent() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Hello, World!")
-    }
-}
-
-
-
-
 class MainScreen : BaseActivity() {
     private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -186,7 +172,7 @@ fun HomePageScreen(onCartClick:()-> Unit) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .height(200.dp),
+                            .height(250.dp),
                         contentAlignment = Alignment.Center
 
                     ){
@@ -332,8 +318,6 @@ fun CategoryItem(item: Category, isSelected: Boolean, onItemClick: () -> Unit) {
         )
     }
 }
-
-
 
 
 @Composable
