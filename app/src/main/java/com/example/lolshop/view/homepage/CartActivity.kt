@@ -1,6 +1,9 @@
 package com.example.lolshop.view.homepage
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.widget.Space
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -9,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,9 +21,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.TabRowDefaults.Divider
 import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -38,80 +44,150 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.rememberAsyncImagePainter
 import com.example.lolshop.Helper.ChangeNumberItemsListener
-import com.example.lolshop.Helper.ManagmentCart
+import com.example.lolshop.Helper.ManagementCart
 import com.example.lolshop.R
 import com.example.lolshop.model.Product
 import com.example.lolshop.view.BaseActivity
+import com.example.lolshop.view.admin.AdminActivity
+import kotlin.properties.Delegates
 
 class CartActivity : BaseActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val uid = intent.getStringExtra("uid") ?: ""
+        val isAdmin = intent.getBooleanExtra("isAdmin", false)
+        Log.d("uid", uid)
+        Log.d("isAdmin", isAdmin.toString())
         setContent {
             CartScreen(
-                onBackClick = { finish() }
+                uid,
+                isAdmin = isAdmin,
+                onBackClick = { finish() },
+                onCartClick = {
+                },
+                onProfileClick = {
+                    val intent = Intent(this, UserProfile::class.java).apply {
+                        putExtra("uid", uid)
+                        putExtra("isAdmin", isAdmin)
+                    }
+                    startActivity(intent)
+                },
+                onAdminClick = {
+                    val intent = Intent(this, AdminActivity::class.java).apply {
+                        putExtra("uid", uid)
+                        putExtra("isAdmin", isAdmin)
+                    }
+                    startActivity(intent)
+                },
+                onHomeClick = {
+                    val intent = Intent(this, MainScreen::class.java).apply {
+                        putExtra("uid", uid)
+                        putExtra("isAdmin", isAdmin)
+                    }
+                    startActivity(intent)
+                }
             )
         }
     }
 }
-fun calculatorCart(managmentCart: ManagmentCart, tax: MutableState<Double>){
+fun calculatorCart(managementCart: ManagementCart, tax: MutableState<Double>){
     val percentTax = 0.02
-    tax.value= Math.round((managmentCart.getTotalFee()*percentTax)*100)/100.0
+    tax.value= Math.round((managementCart.getTotalFee()*percentTax)*100)/100.0
 }
 
 @Composable
 private fun CartScreen(
-    managmentCart: ManagmentCart = ManagmentCart(LocalContext.current),
-    onBackClick: () -> Unit
+    uid: String,
+    isAdmin: Boolean,
+    managementCart: ManagementCart = ManagementCart(LocalContext.current),
+    onBackClick: () -> Unit,
+    onCartClick: () -> Unit,
+    onProfileClick: () -> Unit,
+    onAdminClick:() -> Unit,
+    onHomeClick:() -> Unit
 ) {
-    val cartProducts = remember { mutableStateOf(managmentCart.getListCart()) }
+    val currentScreen = "cart"
+    val cartProducts = remember { mutableStateOf(managementCart.getListCart()) }
     val tax = remember { mutableStateOf(0.0) }
-    calculatorCart(managmentCart, tax)
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        ConstraintLayout(modifier = Modifier.padding(top = 36.dp)) {
-            val (backBtn, cartTxt) = createRefs()
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .constrainAs(cartTxt) { centerTo(parent) },
-                text = "Your Cart",
-                textAlign = TextAlign.Center,
-                fontSize = 25.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Image(
-                painter = painterResource(R.drawable.back),
-                contentDescription = null,
-                modifier = Modifier
-                    .clickable { onBackClick() }
-                    .constrainAs(backBtn) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                    }
-                    .size(40.dp)
-            )
-        }
-        if (cartProducts.value.isEmpty()) {
-            Text(text = "Cart Is Empty", modifier = Modifier.align(Alignment.CenterHorizontally))
-        } else {
-            CartList(
-                cartProducts = cartProducts.value,
-                managmentCart = managmentCart,
-                onItemChange = {
-                    cartProducts.value = managmentCart.getListCart()
-                    calculatorCart(managmentCart, tax)
+    calculatorCart(managementCart, tax)
+    Scaffold(
+        bottomBar = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                if (!cartProducts.value.isEmpty()) {
+                    Divider(
+                        color = Color.Gray,
+                        thickness = 1.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    CartSummary(
+                        itemTotal = managementCart.getTotalFee(),
+                        tax = tax.value,
+                        delivery = 10
+                    )
                 }
-            )
-            CartSummary(
-                itemTotal = managmentCart.getTotalFee(),
-                tax = tax.value,
-                delivery = 10
-            )
+                Spacer(Modifier.height(10.dp))
+                BottomMenu(
+                    isAdmin = isAdmin,
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    onItemClick = onCartClick,
+                    onProfileClick = onProfileClick,
+                    onAdminClick = onAdminClick,
+                    onHomeClick = onHomeClick,
+                    currentScreen = currentScreen
+                )
+            }
+        }
+    ) { paddingValue ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    top = 0.dp, // Override any top padding caused by Scaffold
+                    bottom = paddingValue.calculateBottomPadding(),
+                )
+                .padding(horizontal = 10.dp)
+        ) {
+            ConstraintLayout(modifier = Modifier.padding(top = 36.dp)) {
+                val (backBtn, cartTxt) = createRefs()
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .constrainAs(cartTxt) { centerTo(parent) },
+                    text = "Your Cart",
+                    textAlign = TextAlign.Center,
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Image(
+                    painter = painterResource(R.drawable.back),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .clickable { onBackClick() }
+                        .constrainAs(backBtn) {
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                            start.linkTo(parent.start)
+                        }
+                        .size(40.dp)
+                )
+            }
+            if (cartProducts.value.isEmpty()) {
+                Text(
+                    text = "Cart Is Empty",
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            } else {
+                CartList(
+                    cartProducts = cartProducts.value,
+                    managementCart = managementCart,
+                    onItemChange = {
+                        cartProducts.value = managementCart.getListCart()
+                        calculatorCart(managementCart, tax)
+                    }
+                )
+            }
         }
     }
 }
@@ -159,11 +235,11 @@ fun CartSummary(itemTotal: Double, tax: Double, delivery: Int) {
 
 
 @Composable
-fun CartList(cartProducts: List<Product>, managmentCart: ManagmentCart, onItemChange: () -> Unit) {
+fun CartList(cartProducts: List<Product>, managementCart: ManagementCart, onItemChange: () -> Unit) {
     LazyColumn(modifier = Modifier.padding(top = 16.dp)) {
         items(cartProducts.size) { index ->
             val item = cartProducts[index]
-            CartProduct(item, managmentCart, onItemChange)
+            CartProduct(item, managementCart, onItemChange)
         }
     }
 }
@@ -171,7 +247,7 @@ fun CartList(cartProducts: List<Product>, managmentCart: ManagmentCart, onItemCh
 @Composable
 fun CartProduct(
     item: Product,
-    managmentCart: ManagmentCart,
+    managementCart: ManagementCart,
     onItemChange: () -> Unit
 ) {
     ConstraintLayout(
@@ -186,10 +262,11 @@ fun CartProduct(
             contentDescription = null,
             modifier = Modifier
                 .size(90.dp)
-                .constrainAs(pic) { start.linkTo(parent.start)
-                                    top.linkTo(parent.top)
-                                    bottom.linkTo(parent.bottom)
-                                  },
+                .constrainAs(pic) {
+                    start.linkTo(parent.start)
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                },
             contentScale = ContentScale.Crop
         )
         Text(
@@ -226,7 +303,7 @@ fun CartProduct(
         ConstraintLayout(
             modifier = Modifier
                 .width(100.dp)
-                .constrainAs(quantity){
+                .constrainAs(quantity) {
                     end.linkTo(parent.end)
                     bottom.linkTo(parent.bottom)
                 }
@@ -234,9 +311,9 @@ fun CartProduct(
             QuantitySelector(
                 currentQuantity = item.numberInCart,
                 onIncrease = {
-                    managmentCart.plusItem(
-                        managmentCart.getListCart(),
-                        managmentCart.getListCart().indexOf(item),
+                    managementCart.plusItem(
+                        managementCart.getListCart(),
+                        managementCart.getListCart().indexOf(item),
                         object : ChangeNumberItemsListener {
                             override fun onChanged() {
                                 onItemChange()
@@ -245,9 +322,9 @@ fun CartProduct(
                     )
                 },
                 onDecrease = {
-                    managmentCart.minusItem(
-                        managmentCart.getListCart(),
-                        managmentCart.getListCart().indexOf(item),
+                    managementCart.minusItem(
+                        managementCart.getListCart(),
+                        managementCart.getListCart().indexOf(item),
                         object : ChangeNumberItemsListener {
                             override fun onChanged() {
                                 onItemChange()

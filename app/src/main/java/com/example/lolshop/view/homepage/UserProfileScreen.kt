@@ -60,8 +60,10 @@ fun UserProfileScreen(
     navController: NavController,
     onCartClick: () -> Unit,
     onProfileClick: () -> Unit,
-    onAdminClick:() -> Unit
+    onAdminClick:() -> Unit,
+    onHomeClick:() -> Unit
 ) {
+    val currentScreen = "profile"
     val userState = userViewModel.getUserData(uid).collectAsState(initial = null)
     val logoutResult by userViewModel.logoutResult.observeAsState(Resource.Empty())
     val changeProfilePictureState = userViewModel.profileImageUpdateState.collectAsState().value
@@ -81,16 +83,20 @@ fun UserProfileScreen(
                     .fillMaxWidth(),
                 onItemClick = onCartClick,
                 onProfileClick = onProfileClick,
-                onAdminClick = onAdminClick
+                onAdminClick = onAdminClick,
+                onHomeClick = onHomeClick,
+                currentScreen = currentScreen
             )
         }
-    ) { paddingValues ->
+    ) { paddingValue ->
         // Main content
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(top = 50.dp), // Add some top padding
+                .padding(
+                    top = 0.dp, // Override any top padding caused by Scaffold
+                    bottom = paddingValue.calculateBottomPadding(),
+                ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (isLoading) {

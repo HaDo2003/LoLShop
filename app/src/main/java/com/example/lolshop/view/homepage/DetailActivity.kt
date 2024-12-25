@@ -2,6 +2,7 @@ package com.example.lolshop.view.homepage
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -34,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.AsyncImage
-import com.example.lolshop.Helper.ManagmentCart
+import com.example.lolshop.Helper.ManagementCart
 import com.example.lolshop.R
 import com.example.lolshop.model.Product
 import com.example.lolshop.view.BaseActivity
@@ -42,23 +43,30 @@ import com.example.lolshop.view.BaseActivity
 
 class DetailActivity : BaseActivity() {
     private lateinit var product: Product
-    private lateinit var managmentCart: ManagmentCart
+    private lateinit var managementCart: ManagementCart
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         product=intent.getSerializableExtra("object") as Product
-        managmentCart= ManagmentCart(this)
-
+        managementCart= ManagementCart(this)
+        val uid = intent.getStringExtra("uid") ?: ""
+        val isAdmin = intent.getBooleanExtra("isAdmin", false)
+        Log.d("uid", uid)
+        Log.d("isAdmin", isAdmin.toString())
         setContent{
             DetailScreen(
                 product=product,
                 onBackClick={finish()},
                 onAddToCartClick={
                     product.numberInCart=1
-                    managmentCart.insertItem(product)
+                    managementCart.insertItem(product)
                 },
                 onCartClick={
-                    startActivity(Intent(this, CartActivity::class.java))
+                    val intent = Intent(this, CartActivity::class.java).apply {
+                        putExtra("uid", uid)
+                        putExtra("isAdmin", isAdmin)
+                    }
+                    startActivity(intent)
                 }
             )
         }
@@ -88,7 +96,7 @@ fun DetailScreen(
                     )
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.cart),
+                        painter = painterResource(id = R.drawable.cart_white),
                         contentDescription = "Cart",
                         tint = Color.Black,
                         modifier = Modifier.size(30.dp)

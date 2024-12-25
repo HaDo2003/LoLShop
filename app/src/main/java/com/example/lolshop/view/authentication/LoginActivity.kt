@@ -97,7 +97,7 @@ class LoginActivity : BaseActivity() {
                 user?.let {
                     // Navigate to AdminActivity after successful sign-in
                     val intent = Intent(this, MainScreen::class.java).apply {
-                        putExtra("id", it.uid)
+                        putExtra("uid", it.uid)
                     }
                     startActivity(intent)
                     finish() // Optional: finish LoginActivity to prevent going back to it
@@ -303,8 +303,8 @@ fun LoginScreen(
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                             Intent.FLAG_ACTIVITY_CLEAR_TASK or
                             Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    putExtra("id", uid)
-                    putExtra("IS_ADMIN", isAdmin)
+                    putExtra("uid", uid)
+                    putExtra("isAdmin", isAdmin)
                 }
                 context.startActivity(intent)
             }

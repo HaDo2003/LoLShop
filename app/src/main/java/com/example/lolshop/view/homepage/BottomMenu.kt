@@ -6,17 +6,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
+import androidx.compose.material.TabRowDefaults.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,32 +29,88 @@ fun BottomMenu(
     modifier: Modifier = Modifier,
     isAdmin: Boolean,
     onItemClick: () -> Unit,
-    onProfileClick:() -> Unit,
-    onAdminClick: () -> Unit
+    onProfileClick: () -> Unit,
+    onAdminClick: () -> Unit,
+    onHomeClick: () -> Unit,
+    currentScreen: String
 ) {
-    Row(
+    Column(
         modifier = modifier
-            .padding(bottom = 16.dp)
-            .background(
-                Color.Black,
-            ),
-        horizontalArrangement = Arrangement.SpaceAround
+            .fillMaxWidth()
+            .background(Color.Gray)
     ) {
-        BottomMenuItem(icon = painterResource(R.drawable.home), text = "Explorer")
-        BottomMenuItem(icon = painterResource(R.drawable.cart), text = "Cart", onItemClick = onItemClick)
-        BottomMenuItem(icon = painterResource(R.drawable.order), text = "Order")
-        BottomMenuItem(icon = painterResource(R.drawable.profile), text = "Profile", onItemClick = onProfileClick)
-        if (isAdmin) {
-            BottomMenuItem(icon = painterResource(R.drawable.admin), text = "Admin", onItemClick = onAdminClick)
+        // Divider on top to separate the taskbar from the content above
+        Divider(
+            color = Color.Gray,
+            thickness = 1.dp,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        // Taskbar Row
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+                .background(Color.White),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            // "Explorer" button
+            BottomMenuItem(
+                icon = if(currentScreen == "homepage") painterResource(R.drawable.home_black)
+                       else painterResource(R.drawable.home_white),
+                text = "Explorer",
+                onItemClick = onHomeClick,
+                textColor = Color.Black
+            )
+
+            // "Cart" button
+            BottomMenuItem(
+                icon = if(currentScreen == "cart") painterResource(R.drawable.cart_black)
+                       else painterResource(R.drawable.cart_white),
+                text = "Cart",
+                onItemClick = onItemClick,
+                textColor = Color.Black
+            )
+
+            // "Order" button
+            BottomMenuItem(
+                icon = if(currentScreen == "order") painterResource(R.drawable.order_black)
+                       else painterResource(R.drawable.order_white),
+                text = "Order",
+                textColor = Color.Black
+            )
+
+            // "Profile" button
+            BottomMenuItem(
+                icon = if(currentScreen == "profile") painterResource(R.drawable.profile_black)
+                       else painterResource(R.drawable.profile_white),
+                text = "Profile",
+                onItemClick = onProfileClick,
+                textColor = Color.Black
+            )
+
+            // "Admin" button (only visible if isAdmin is true)
+            if (isAdmin) {
+                BottomMenuItem(
+                    icon = if(currentScreen == "homepage") painterResource(R.drawable.adm_black)
+                           else painterResource(R.drawable.adm_white),
+                    text = "Admin",
+                    onItemClick = onAdminClick,
+                    textColor = Color.Black
+                )
+            }
         }
     }
 }
+
+
 
 @Composable
 fun BottomMenuItem(
     icon: Painter,
     text: String,
-    onItemClick: (() -> Unit)? = null
+    onItemClick: (() -> Unit)? = null,
+    textColor: Color
 ) {
     Column(
         modifier = Modifier
@@ -67,10 +125,9 @@ fun BottomMenuItem(
         Icon(
             painter = icon,
             contentDescription = text,
-            tint = Color.White,
             modifier = Modifier.size(33.dp),
         )
         Spacer(modifier = Modifier.padding(vertical = 4.dp))
-        Text(text, color = Color.White, fontSize = 10.sp)
+        Text(text, color = textColor, fontSize = 10.sp)
     }
 }

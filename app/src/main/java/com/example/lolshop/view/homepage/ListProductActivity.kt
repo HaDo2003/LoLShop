@@ -36,6 +36,8 @@ class ListProductActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val uid = intent.getStringExtra("uid") ?: ""
+        val isAdmin = intent.getBooleanExtra("isAdmin", false)
         id= intent.getStringExtra("id")?:""
         name=intent.getStringExtra("name")?:""
 
@@ -44,17 +46,21 @@ class ListProductActivity : BaseActivity() {
                 name=name,
                 onBackClick={finish()},
                 viewModel=viewModel,
-                id=id
+                id=id,
+                uid = uid,
+                isAdmin = isAdmin
             )
         }
     }
 }
 @Composable
-private fun ListItemScreen(
+fun ListItemScreen(
     name: String,
     onBackClick: () -> Unit,
     viewModel: MainViewModel,
-    id: String
+    id: String,
+    uid: String,
+    isAdmin: Boolean
 ) {
     val product by viewModel.loadFiltered(id).observeAsState(emptyList())
     var isLoading by remember { mutableStateOf(true) }
@@ -104,7 +110,7 @@ private fun ListItemScreen(
             }
         } else {
             // Pass categoryOptions to ListProductFullSize
-            ListProductFullSize(product)
+            ListProductFullSize(product, uid, isAdmin)
         }
     }
     LaunchedEffect(product) {

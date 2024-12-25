@@ -1,6 +1,7 @@
 package com.example.lolshop.view.homepage
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,7 +35,13 @@ import androidx.compose.ui.text.style.TextOverflow
 
 
 @Composable
-fun PopularProduct(product: List<Product>, pos: Int) {
+fun PopularProduct(
+    product: List<Product>,
+    pos: Int,
+    uid: String,
+    isAdmin: Boolean
+) {
+    Log.d("PopularProductuid", uid)
     val context = LocalContext.current
     Column(
         modifier = Modifier
@@ -49,6 +56,8 @@ fun PopularProduct(product: List<Product>, pos: Int) {
                 .clickable{
                     val intent =Intent(context, DetailActivity::class.java).apply{
                         putExtra("object",product[pos])
+                        putExtra("uid", uid)
+                        putExtra("isAdmin", isAdmin)
                     }
                     context.startActivity(intent)
                 }
@@ -93,7 +102,11 @@ fun PopularProduct(product: List<Product>, pos: Int) {
 }
 
 @Composable
-fun ListProduct(product: SnapshotStateList<Product>){
+fun ListProduct(
+    product: SnapshotStateList<Product>,
+    uid: String,
+    isAdmin: Boolean
+){
     LazyRow (modifier = Modifier
         .padding(top=8.dp)
         .padding(horizontal = 8.dp),
@@ -101,13 +114,17 @@ fun ListProduct(product: SnapshotStateList<Product>){
     ){
         items(product.size){
                 index: Int->
-            PopularProduct(product, index)
+            PopularProduct(product, index, uid, isAdmin)
         }
     }
 }
 
 @Composable
-fun ListProductFullSize(product: List<Product>){
+fun ListProductFullSize(
+    product: List<Product>,
+    uid: String,
+    isAdmin: Boolean
+){
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = Modifier
@@ -117,7 +134,8 @@ fun ListProductFullSize(product: List<Product>){
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         items(product.size){row ->
-            PopularProduct(product, row)
+            PopularProduct(product, row, uid, isAdmin)
+            Log.d("ListProductFullSize", uid)
         }
     }
 }

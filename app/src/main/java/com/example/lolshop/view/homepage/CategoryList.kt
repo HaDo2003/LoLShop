@@ -37,7 +37,11 @@ import coil.compose.AsyncImage
 import com.example.lolshop.model.Category
 
 @Composable
-fun CategoryList(categories: SnapshotStateList<Category>) {
+fun CategoryList(
+    categories: SnapshotStateList<Category>,
+    uid: String,
+    isAdmin: Boolean
+) {
     var selectedIndex by rememberSaveable { mutableStateOf(-1) }
     val context = LocalContext.current
     // Remember activity result to reset selection
@@ -65,6 +69,8 @@ fun CategoryList(categories: SnapshotStateList<Category>) {
                         val intent = Intent(context, ListProductActivity::class.java).apply {
                             putExtra("id", categories[index].id)
                             putExtra("title", categories[index].name)
+                            putExtra("uid", uid)
+                            putExtra("isAdmin", isAdmin)
                         }
                         activityLauncher.launch(intent)
                     }, 10)

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -66,6 +67,7 @@ import androidx.compose.runtime.getValue
 
 import androidx.core.content.ContextCompat.startActivity
 import com.example.lolshop.view.admin.AdminActivity
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MainScreen : BaseActivity() {
     private lateinit var auth: FirebaseAuth
@@ -73,14 +75,19 @@ class MainScreen : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = FirebaseAuth.getInstance()
-        val uid = intent.getStringExtra("id").toString()
-        val isAdmin = intent.getBooleanExtra("IS_ADMIN", false)
+        val uid = intent.getStringExtra("uid").toString()
+        val isAdmin = intent.getBooleanExtra("isAdmin", false)
+        Log.d("uid", uid)
+        Log.d("isAdmin", isAdmin.toString())
         setContent {
             HomePageScreen(
                 isAdmin = isAdmin,
                 uid,
                 onCartClick = {
-                    val intent = Intent(this, CartActivity::class.java)
+                    val intent = Intent(this, CartActivity::class.java).apply {
+                        putExtra("uid", uid)
+                        putExtra("isAdmin", isAdmin)
+                    }
                     startActivity(intent)
                 },
                 onProfileClick = {
@@ -91,8 +98,14 @@ class MainScreen : BaseActivity() {
                     startActivity(intent)
                 },
                 onAdminClick = {
-                    val intent = Intent(this, AdminActivity::class.java)
-                    startActivity(intent)
+                    val intent = Intent(this, AdminActivity::class.java).apply {
+                        putExtra("uid", uid)
+                        putExtra("isAdmin", isAdmin)
+                    }
+                        startActivity(intent)
+                },
+                onHomeClick = {
+
                 }
             )
         }
@@ -105,18 +118,36 @@ fun HomePageScreen(
     uid: String,
     onCartClick:()-> Unit,
     onProfileClick:() -> Unit,
-    onAdminClick: () -> Unit
+    onAdminClick: () -> Unit,
+    onHomeClick:() -> Unit
 ) {
     val viewModel= MainViewModel()
-
+    val currentScreen = "homepage"
     val banners = remember { mutableStateListOf<Banner>() }
     val categories = remember { mutableStateListOf<Category>() }
     val Popular = remember { mutableStateListOf<Product>() }
-
+    var userName = remember { mutableStateOf("Loading...") }
 
     var showBannerLoading by remember { mutableStateOf(true) }
     var showCategoryLoading by remember {mutableStateOf(true)}
     var showPopularLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(uid) {
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("Users").document(uid)
+
+        userRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    userName.value = document.getString("full_name") ?: "Unknown User"
+                } else {
+                    userName.value = "User not found"
+                }
+            }
+            .addOnFailureListener {
+                userName.value = "Error fetching user"
+            }
+    }
 
     //Banner
     LaunchedEffect(Unit) {
@@ -169,7 +200,7 @@ fun HomePageScreen(
                     Column {
                         Text("Welcome Back", color = Color.Black)
                         Text(
-                            "Huy",
+                            userName.value,
                             color = Color.Black,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
@@ -205,6 +236,7 @@ fun HomePageScreen(
                 }
             }
 
+            //Region
             item{
                 Text(
                     text="Region",
@@ -229,9 +261,11 @@ fun HomePageScreen(
                         CircularProgressIndicator()
                     }
                 }else{
-                    CategoryList(categories)
+                    CategoryList(categories, uid, isAdmin)
                 }
             }
+
+            //Popular Items
             item{
                 SectionTitLe("Most Popular", "See All")
             }
@@ -245,7 +279,7 @@ fun HomePageScreen(
                         CircularProgressIndicator()
                     }
                 }else{
-                    ListProduct(Popular)
+                    ListProduct(Popular, uid, isAdmin)
                 }
             }
         }
@@ -259,7 +293,9 @@ fun HomePageScreen(
             isAdmin = isAdmin,
             onItemClick = onCartClick,
             onProfileClick = onProfileClick,
-            onAdminClick = onAdminClick
+            onAdminClick = onAdminClick,
+            onHomeClick = onHomeClick,
+            currentScreen = currentScreen
         )
     }
 }
