@@ -40,8 +40,8 @@ class LoginViewModel(
             accessLevelResult.fold(
                 onSuccess = { isAdmin ->
                     _loginState.value = when (isAdmin) {
-                        true -> LoginState.Success(isAdmin = true)
-                        false -> LoginState.Success(isAdmin = false)
+                        true -> LoginState.Success(uid = uid, isAdmin = true)
+                        false -> LoginState.Success(uid = uid, isAdmin = false)
                         else -> LoginState.Error("Access level not defined")
                     }
                 },

@@ -1,14 +1,14 @@
-package com.example.lolshop.viewmodel.admin
+package com.example.lolshop.viewmodel.network
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
-class AdminViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+class NetworkViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(AdminViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(NetworkViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return AdminViewModel(context) as T
+            return NetworkViewModel(context) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

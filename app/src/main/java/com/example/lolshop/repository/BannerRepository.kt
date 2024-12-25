@@ -15,7 +15,7 @@ class BannerRepository(private val context: Context) {
     private val cloudinaryHelper = CloudinaryHelper(context)
 
     // Fetch banners from Firebase
-    suspend fun fetchCategories(): List<Banner> {
+    suspend fun fetchBanner(): List<Banner> {
         return withContext(Dispatchers.IO) {
             val snapshot = database.get().await()
             snapshot.children.mapNotNull { it.getValue(Banner::class.java) }

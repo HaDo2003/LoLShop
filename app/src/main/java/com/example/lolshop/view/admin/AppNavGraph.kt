@@ -28,12 +28,12 @@ fun AppNavGraph(navController: NavHostController, modifier: Modifier) {
 //            MainScreen()  // Assuming MainScreen doesn't require any arguments
 //        }
 
-        composable(Screen.Admin.route) {
-            AdminScreen(
-                adminViewModel = adminViewModel,
-                productRepository = productRepository // Passing productRepository to AdminScreen
-            )
-        }
+//        composable(Screen.Admin.route) {
+//            AdminScreen(
+//                adminViewModel = adminViewModel,
+//                productRepository = productRepository // Passing productRepository to AdminScreen
+//            )
+//        }
 
         composable("edit_product/{productId}") { backStackEntry ->
             val productId = backStackEntry.arguments?.getString("productId")

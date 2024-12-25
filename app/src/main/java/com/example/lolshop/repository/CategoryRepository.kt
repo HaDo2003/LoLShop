@@ -15,7 +15,7 @@ class CategoryRepository(private val context: Context) {
     private val cloudinaryHelper = CloudinaryHelper(context)
 
     // Fetch categories from Firebase
-    suspend fun fetchCategories(): List<Category> {
+    suspend fun fetchCategory(): List<Category> {
         return withContext(Dispatchers.IO) {
             val snapshot = database.get().await()
             snapshot.children.mapNotNull { it.getValue(Category::class.java) }
