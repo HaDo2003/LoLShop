@@ -39,7 +39,6 @@ class SignUpActivity : BaseActivity() {
                     intent.putExtra("phoneNumber", phoneNumber)
                     intent.putExtra("address", address)
                     startActivity(intent)
-                    finish()
                 }
             )
         }

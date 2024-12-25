@@ -37,9 +37,6 @@
             android:name=".view.homepage.DetailActivity"
             android:exported="false" />
         <activity
-            android:name=".view.admin.CategoryActivity"
-            android:exported="false" />
-        <activity
             android:name=".view.homepage.MainScreen"
             android:exported="false" />
         <activity

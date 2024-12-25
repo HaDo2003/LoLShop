@@ -61,7 +61,6 @@ class LoginActivity : BaseActivity() {
                     Log.d("LoginScreen", "Navigating to SignUpActivity.")
                     val intent = Intent(this, SignUpActivity::class.java)
                     startActivity(intent)
-                    finish()
                 },
                 onLoginWithGG = {
                     Log.d("LoginScreen", "Navigating to Google Sign-In.")
@@ -81,7 +80,6 @@ class LoginActivity : BaseActivity() {
                 onForgetPassword = {
                     val intent = Intent(this, ForgetPassword::class.java)
                     startActivity(intent)
-                    finish()
                 },
                 isLoading = isLoading,
                 viewModel = viewModel

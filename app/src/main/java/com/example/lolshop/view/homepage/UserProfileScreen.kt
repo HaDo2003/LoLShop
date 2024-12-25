@@ -271,7 +271,6 @@ fun UserProfileScreen(
             Toast.makeText(context, "Log out Failed", Toast.LENGTH_SHORT).show()
         }
         else -> {
-            Text("No upload in progress")
         }
     }
 

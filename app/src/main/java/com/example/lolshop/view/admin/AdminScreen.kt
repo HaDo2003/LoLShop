@@ -26,10 +26,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.lolshop.model.Product
+import com.example.lolshop.repository.BannerRepository
+import com.example.lolshop.repository.CategoryRepository
 import com.example.lolshop.repository.ProductRepository
 import com.example.lolshop.view.homepage.BottomMenu
 import com.example.lolshop.view.homepage.CartActivity
 import com.example.lolshop.viewmodel.admin.AdminViewModel
+import com.example.lolshop.viewmodel.admin.BannerViewModel
+import com.example.lolshop.viewmodel.admin.CategoryViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,7 +41,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun AdminScreen(
     adminViewModel: AdminViewModel,
-    productRepository: ProductRepository
+    categoryViewModel: CategoryViewModel,
+    bannerViewModel: BannerViewModel,
+    productRepository: ProductRepository,
+    categoryRepository: CategoryRepository,
+    bannerRepository: BannerRepository
 ) {
     val navController = rememberNavController()
 
@@ -82,13 +90,22 @@ fun AdminScreen(
             )
         }
         composable("add_banner") {
-            AddBannerScreen(adminViewModel = adminViewModel, navController = navController)
+            AddBannerScreen(
+                bannerViewModel = bannerViewModel,
+                bannerRepository = bannerRepository,
+                navController = navController)
         }
         composable("add_category") {
-            AddCategoryScreen(adminViewModel = adminViewModel, navController = navController)
+            AddCategoryScreen(
+                categoryViewModel = categoryViewModel,
+                categoryRepository = categoryRepository,
+                navController = navController)
         }
         composable("manage_product") {
-            ManageProductScreen(adminViewModel = adminViewModel, navController = navController)
+            ManageProductScreen(
+                adminViewModel = adminViewModel,
+                navController = navController
+            )
         }
         composable("edit_product/{productId}") { backStackEntry ->
             val productId = backStackEntry.arguments?.getString("productId")

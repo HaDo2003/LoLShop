@@ -29,19 +29,16 @@ class MainActivity : AppCompatActivity() {
         setContent {
             LoLShopTheme {
                 val isConnected by networkViewModel.isConnected.collectAsState(initial = false)
-                var currentScreen by remember { mutableStateOf(ScreenType.HOME) }
+                var currentScreen by remember { mutableStateOf(ScreenType.LOGIN) }
                 var showNetworkError by remember { mutableStateOf(!isConnected) }
 
-                // Theo dõi thay đổi trạng thái mạng
                 LaunchedEffect(isConnected) {
                     showNetworkError = !isConnected
                 }
 
                 if (showNetworkError) {
-                    // Hiển thị màn hình lỗi mạng
                     NetworkErrorScreen()
                 } else {
-                    // Điều hướng dựa trên màn hình hiện tại
                     when (currentScreen) {
                         ScreenType.HOME -> startActivity(Intent(this@MainActivity, MainScreen::class.java))
                         ScreenType.ADMIN -> startActivity(Intent(this@MainActivity, AdminActivity::class.java))
