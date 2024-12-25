@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.*
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -27,7 +28,12 @@ fun ManageProductScreen(adminViewModel: AdminViewModel, navController: NavContro
     val products by adminViewModel.products.collectAsState()
 
 
-    LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.fillMaxSize()) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 30.dp)
+    ) {
         items(products) { product ->
             ProductItem(
                 product = product,
@@ -121,10 +127,16 @@ fun ProductItem(product: Product, onDelete: () -> Unit, onEdit: () -> Unit) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                TextButton(onClick = onEdit) {
+                TextButton(
+                    onClick = onEdit,
+                    colors = ButtonDefaults.textButtonColors(contentColor = Color.Black)
+                ) {
                     Text("Edit")
                 }
-                TextButton(onClick = onDelete) {
+                TextButton(
+                    onClick = onDelete,
+                    colors = ButtonDefaults.textButtonColors(contentColor = Color.Black)
+                ) {
                     Text("Delete")
                 }
             }

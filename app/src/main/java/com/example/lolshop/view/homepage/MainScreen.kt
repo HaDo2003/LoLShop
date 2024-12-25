@@ -43,13 +43,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -64,13 +62,10 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 
-import android.util.Log
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.getValue
 
 import androidx.core.content.ContextCompat.startActivity
-import com.example.lolshop.view.authentication.LoginActivity
+import com.example.lolshop.view.admin.AdminActivity
 
 @Composable
 fun AlignedContent() {
@@ -87,20 +82,28 @@ fun AlignedContent() {
 
 class MainScreen : BaseActivity() {
     private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = FirebaseAuth.getInstance()
         val uid = intent.getStringExtra("id").toString()
+        val isAdmin = intent.getBooleanExtra("IS_ADMIN", false)
         setContent {
             HomePageScreen(
+                isAdmin = isAdmin,
                 uid,
                 onCartClick = {
-
+                    val intent = Intent(this, CartActivity::class.java)
+                    startActivity(intent)
                 },
                 onProfileClick = {
                     val intent = Intent(this, UserProfile::class.java).apply {
                         putExtra("uid", uid)
                     }
+                    startActivity(intent)
+                },
+                onAdminClick = {
+                    val intent = Intent(this, AdminActivity::class.java)
                     startActivity(intent)
                 }
             )
@@ -110,9 +113,11 @@ class MainScreen : BaseActivity() {
 
 @Composable
 fun HomePageScreen(
+    isAdmin: Boolean,
     uid: String,
     onCartClick:()-> Unit,
-    onProfileClick:() -> Unit
+    onProfileClick:() -> Unit,
+    onAdminClick: () -> Unit
 ) {
     val viewModel= MainViewModel()
 
@@ -263,8 +268,10 @@ fun HomePageScreen(
                 .constrainAs(bottomMenu){
                     bottom.linkTo(parent.bottom)
                 },
+            isAdmin = isAdmin,
             onItemClick = onCartClick,
-            onProfileClick = onProfileClick
+            onProfileClick = onProfileClick,
+            onAdminClick = onAdminClick
         )
     }
 }
@@ -458,8 +465,10 @@ fun IndicatorDot(
 @Composable
 fun BottomMenu(
     modifier: Modifier = Modifier,
+    isAdmin: Boolean,
     onItemClick: () -> Unit,
-    onProfileClick:() -> Unit
+    onProfileClick:() -> Unit,
+    onAdminClick: () -> Unit
 ) {
     Row(
         modifier = modifier
@@ -471,9 +480,11 @@ fun BottomMenu(
     ) {
         BottomMenuItem(icon = painterResource(R.drawable.btn_1), text = "Explorer")
         BottomMenuItem(icon = painterResource(R.drawable.btn_2), text = "Cart", onItemClick = onItemClick)
-        BottomMenuItem(icon = painterResource(R.drawable.btn_3), text = "Favorite")
         BottomMenuItem(icon = painterResource(R.drawable.btn_4), text = "Order")
-        BottomMenuItem(icon = painterResource(R.drawable.btn_5), text = "Profile", onProfileClick = onProfileClick)
+        BottomMenuItem(icon = painterResource(R.drawable.btn_5), text = "Profile", onItemClick = onProfileClick)
+        if (isAdmin) {
+            BottomMenuItem(icon = painterResource(R.drawable.admin), text = "Admin", onItemClick = onAdminClick)
+        }
     }
 }
 
@@ -481,18 +492,13 @@ fun BottomMenu(
 fun BottomMenuItem(
     icon: Painter,
     text: String,
-    onItemClick: (() -> Unit)? = null,
-    onProfileClick: (() -> Unit)? = null
+    onItemClick: (() -> Unit)? = null
 ) {
     Column(
         modifier = Modifier
             .height(80.dp) // Increase the height of the item
             .clickable {
-                if (text == "Profile") {
-                    onProfileClick?.invoke() // Call onProfileClick if text is "Profile"
-                } else {
-                    onItemClick?.invoke() // Call onItemClick for other items
-                }
+                onItemClick?.invoke() // Call onItemClick for other item
             }
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -502,7 +508,7 @@ fun BottomMenuItem(
             painter = icon,
             contentDescription = text,
             tint = Color.White,
-            modifier = Modifier.size(33.dp) // Increase the icon size here
+            modifier = Modifier.size(33.dp),
         )
         Spacer(modifier = Modifier.padding(vertical = 4.dp))
         Text(text, color = Color.White, fontSize = 10.sp)

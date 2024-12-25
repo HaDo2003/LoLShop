@@ -52,7 +52,11 @@ class UserProfile : BaseActivity() {
                                 },
                                 onProfileClick = {
                                     Log.d("Click", "Click Profile")
-                                })
+                                },
+                                onAdminClick = {
+                                    Log.d("Click", "Click Admin")
+                                }
+                            )
                         }
                         composable("edit_profile") {
                             UserEditProfileScreen(

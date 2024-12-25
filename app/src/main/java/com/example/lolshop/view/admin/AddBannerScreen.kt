@@ -1,23 +1,22 @@
 package com.example.lolshop.view.admin
 
-import android.content.Intent
 import android.net.Uri
-import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.compose.setContent
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -41,52 +40,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import com.example.lolshop.R
 import com.example.lolshop.model.Banner
+import com.example.lolshop.model.Category
 import com.example.lolshop.repository.BannerRepository
-import com.example.lolshop.view.BaseActivity
+import com.example.lolshop.viewmodel.admin.AdminViewModel
 import com.example.lolshop.viewmodel.admin.BannerViewModel
-import com.example.lolshop.viewmodel.admin.BannerViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class BannerActivity : BaseActivity() {
-    private val bannerViewModel: BannerViewModel by viewModels {
-        BannerViewModelFactory(applicationContext)
-    }
-    private lateinit var bannerRepository: BannerRepository
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        bannerRepository = BannerRepository(applicationContext)
-        setContent{
-            BannerScreen(
-                bannerViewModel = bannerViewModel,
-                bannerRepository = bannerRepository,
-                onBannerAdded = {
-                    val intent = Intent(this, BannerActivity::class.java)
-                    startActivity(intent)
-                    finish()
-                }
-            )
-        }
-    }
-}
-
 @Composable
-fun BannerScreen(
+fun AddBannerScreen(
     bannerViewModel: BannerViewModel,
     bannerRepository: BannerRepository,
-    onBannerAdded: () -> Unit
-){
+    navController: NavController
+) {
     var isLoading by remember { mutableStateOf(false) }
     var showSnackbar by rememberSaveable { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    val imageUriState = rememberSaveable {mutableStateOf<Uri?>(null) }
-    val bannersList = remember {mutableStateOf<List<Banner>>(emptyList())}
-
+    val imageUriState = rememberSaveable { mutableStateOf<Uri?>(null) }
+    val bannersList = remember { mutableStateOf<List<Banner>>(emptyList()) }
+    val totalBanners = bannersList.value.size
     val imageResultLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         imageUriState.value = uri
     }
@@ -181,7 +160,7 @@ fun BannerScreen(
                                             "Banner added successfully!",
                                             Toast.LENGTH_SHORT
                                         ).show()
-                                        onBannerAdded()
+                                        navController.navigate("admin_main")
                                     }
                                 }
                             )
@@ -198,8 +177,53 @@ fun BannerScreen(
                     if (isLoading) {
                         CircularProgressIndicator()
                     }
+
+                    Spacer(modifier = Modifier.height(32.dp))
                 }
             }
+        }
+        // Display total categories and category list
+        Text(text = "Total Banners: $totalBanners", style = MaterialTheme.typography.displaySmall)
+        Spacer(modifier = Modifier.height((-200).dp))
+        // Display list of categories
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(0.dp),
+            verticalArrangement = Arrangement.spacedBy((-110).dp)
+        ) {
+            items(bannersList.value) { banner ->
+                BannerItem(banner)
+            }
+        }
+    }
+}
+
+@Composable
+fun BannerItem(banner: Banner) {
+    Column(
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Display category image from Cloudinary
+        if (banner.imageUrl.isNotEmpty()) {
+            Image(
+                painter = rememberAsyncImagePainter(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(banner.imageUrl)  // Set the image URL
+                        .size(200)  // Set the image size
+                        .placeholder(R.drawable.placeholder)  // Set a placeholder image
+                        .error(R.drawable.error_image)  // Set an error image
+                        .build()
+                ),
+                contentDescription = "Banner Image",
+                modifier = Modifier
+                    .size(300.dp)  // Set the size for image display
+            )
+        } else {
+            // Placeholder text if imageUrl is empty
+            Text("No image available", style = MaterialTheme.typography.bodySmall)
         }
     }
 }

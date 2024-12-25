@@ -1,6 +1,7 @@
 package com.example.lolshop.view.admin
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -38,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
@@ -64,6 +66,7 @@ fun AddProductScreen(
     var description by rememberSaveable { mutableStateOf("") }
     var expanded by rememberSaveable { mutableStateOf(false) }
     var isLoading by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
 
     val categoryOptions = listOf(
         Category("-OE4s6JDMNBmybnPHxzj", "LCK"),
@@ -246,7 +249,14 @@ fun AddProductScreen(
                             }
                         },
                         onNavigationSuccess = {
-                            navController.navigate("admin_main")
+                            coroutineScope.launch {
+                                Toast.makeText(
+                                    context,
+                                    "Product added successfully!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                navController.navigate("admin_main")
+                            }
                         }
                     )
                     },

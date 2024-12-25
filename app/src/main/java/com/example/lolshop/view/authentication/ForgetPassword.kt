@@ -51,7 +51,6 @@ class ForgetPassword : BaseActivity() {
                     val intent = Intent(this, OTPVerification::class.java)
                     intent.putExtra("random", random)
                     startActivity(intent)
-                    finish()
                 },
             )
         }

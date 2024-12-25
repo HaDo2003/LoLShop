@@ -1,20 +1,24 @@
 package com.example.lolshop.view.admin
 
-import android.content.Intent
 import android.net.Uri
-import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,59 +38,35 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.lolshop.R
 import com.example.lolshop.model.Category
 import com.example.lolshop.repository.CategoryRepository
-import com.example.lolshop.view.BaseActivity
+import com.example.lolshop.viewmodel.admin.AdminViewModel
 import com.example.lolshop.viewmodel.admin.CategoryViewModel
-import com.example.lolshop.viewmodel.admin.CategoryViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class CategoryActivity : BaseActivity() {
-    private val categoryViewModel: CategoryViewModel by viewModels {
-        CategoryViewModelFactory(applicationContext)
-    }
-    private lateinit var categoryRepository: CategoryRepository
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        categoryRepository = CategoryRepository(applicationContext) // Initialize repository with context
-
-        setContent {
-            CategoryScreen(
-                categoryViewModel = categoryViewModel,
-                categoryRepository = categoryRepository,
-                onCategoryAdded = {
-                    val intent = Intent(this, CategoryActivity::class.java)
-                    startActivity(intent)
-                    finish()
-                }
-            )
-        }
-    }
-
-}
 @Composable
-fun CategoryScreen(
+fun AddCategoryScreen(
     categoryViewModel: CategoryViewModel,
     categoryRepository: CategoryRepository,
-    onCategoryAdded: () -> Unit
+    navController: NavController
 ) {
     var categoryName by rememberSaveable { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var showSnackbar by rememberSaveable { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    val imageUriState = rememberSaveable {mutableStateOf<Uri?>(null) }
-    val categoriesList = remember {mutableStateOf<List<Category>>(emptyList())}
+    val imageUriState = rememberSaveable { mutableStateOf<Uri?>(null) }
+    val categoriesList = remember { mutableStateOf<List<Category>>(emptyList()) }
     val totalCategories = categoriesList.value.size
     val imageResultLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         imageUriState.value = uri
@@ -153,7 +133,14 @@ fun CategoryScreen(
                         modifier = Modifier.size(100.dp).align(Alignment.CenterHorizontally)
                     )
                 } else {
-                    Button(onClick = { imageResultLauncher.launch("image/*") }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                    Button(
+                        onClick = { imageResultLauncher.launch("image/*") },
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Black,
+                            contentColor = Color.White
+                        )
+                    ) {
                         Text("Select Category Image")
                     }
                 }
@@ -174,16 +161,20 @@ fun CategoryScreen(
                                 coroutineScope.launch {
                                     Toast.makeText(
                                         context,
-                                        "Banner added successfully!",
+                                        "Region added successfully!",
                                         Toast.LENGTH_SHORT
                                     ).show()
-                                    onCategoryAdded()
+                                    navController.navigate("admin_main")
                                 }
                             }
                         )
                     },
                     enabled = !isLoading,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Black,
+                        contentColor = Color.White
+                    )
                 ) {
                     Text(if (isLoading) "Adding..." else "Add Category")
                 }
@@ -196,7 +187,7 @@ fun CategoryScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         // Display total categories and category list
-        Text(text = "Total Categories: $totalCategories", style = MaterialTheme.typography.bodyLarge)
+        Text(text = "Total Regions: $totalCategories", style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.height(16.dp))
 
         // Display list of categories
