@@ -66,7 +66,7 @@ class DetailActivity : BaseActivity() {
 }
 
 @Composable
-private fun DetailScreen(
+fun DetailScreen(
     product: Product,
     onBackClick: () -> Unit,
     onAddToCartClick: () -> Unit,
@@ -88,7 +88,7 @@ private fun DetailScreen(
                     )
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.btn_2),
+                        painter = painterResource(id = R.drawable.cart),
                         contentDescription = "Cart",
                         tint = Color.Black,
                         modifier = Modifier.size(30.dp)

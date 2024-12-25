@@ -18,12 +18,15 @@ import com.example.lolshop.viewmodel.homepage.UserViewModel
 import com.example.lolshop.viewmodel.homepage.UserViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlin.properties.Delegates
 
 class UserProfile : BaseActivity() {
     private lateinit var uid: String
+    private var isAdmin by Delegates.notNull<Boolean>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         uid = intent.getStringExtra("uid") ?: "".toString()
+        isAdmin = intent.getBooleanExtra("isAdmin", false)
         setContent{
             val userViewModel: UserViewModel = viewModel(
                 factory = UserViewModelFactory(
@@ -46,6 +49,7 @@ class UserProfile : BaseActivity() {
                             UserProfileScreen(
                                 userViewModel,
                                 uid,
+                                isAdmin,
                                 navController = navController,
                                 onCartClick = {
                                     Log.d("Click", "Click Cart")

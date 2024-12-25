@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         setContent {
             LoLShopTheme {
                 val isConnected by networkViewModel.isConnected.collectAsState(initial = false)
-                var currentScreen by remember { mutableStateOf(ScreenType.LOGIN) }
+                var currentScreen by remember { mutableStateOf(ScreenType.HOME) }
                 var showNetworkError by remember { mutableStateOf(!isConnected) }
 
                 LaunchedEffect(isConnected) {
