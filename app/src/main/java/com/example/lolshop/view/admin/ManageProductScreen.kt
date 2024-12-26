@@ -24,9 +24,11 @@ import com.example.lolshop.model.Product
 import com.example.lolshop.viewmodel.admin.AdminViewModel
 
 @Composable
-fun ManageProductScreen(adminViewModel: AdminViewModel, navController: NavController) {
+fun ManageProductScreen(
+    adminViewModel: AdminViewModel,
+    navController: NavController
+) {
     val products by adminViewModel.products.collectAsState()
-
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -51,7 +53,11 @@ fun ManageProductScreen(adminViewModel: AdminViewModel, navController: NavContro
 }
 
 @Composable
-fun ProductItem(product: Product, onDelete: () -> Unit, onEdit: () -> Unit) {
+fun ProductItem(
+    product: Product,
+    onDelete: () -> Unit,
+    onEdit: () -> Unit
+) {
     val categoryOptions = listOf(
         Category("-OE4s6JDMNBmybnPHxzj", "LCK"),
         Category("-OE4tac7kwwSFADLtfoG", "LPL"),

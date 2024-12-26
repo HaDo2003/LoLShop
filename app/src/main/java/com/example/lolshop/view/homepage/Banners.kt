@@ -48,7 +48,11 @@ fun AutoSlidingCarousel(
 ) {
     val isDragged by pagerState.interactionSource.collectIsDraggedAsState()
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         HorizontalPager(count = banners.size, state = pagerState ) { page->
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)

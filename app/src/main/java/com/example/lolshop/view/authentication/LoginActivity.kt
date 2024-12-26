@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -32,6 +33,7 @@ import com.example.lolshop.R
 import com.example.lolshop.repository.UserRepository
 import com.example.lolshop.view.admin.AdminActivity
 import com.example.lolshop.view.BaseActivity
+import com.example.lolshop.view.ErrorNotificationScreen
 import com.example.lolshop.view.homepage.MainScreen
 import com.example.lolshop.view.homepage.UserProfile
 import com.example.lolshop.viewmodel.authentication.LoginState
@@ -122,6 +124,9 @@ fun LoginScreen(
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    var errorMessage by remember { mutableStateOf("") }
+    var isErrorScreenVisible by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     Column(
@@ -222,14 +227,14 @@ fun LoginScreen(
             TextButton(onClick = onForgetPassword) {
                 Text(
                     "Forget Password",
-                    color = MaterialTheme.colorScheme.primary,
+                    color = Color.Black,
                     textAlign = TextAlign.Start
                 )
             }
             TextButton(onClick = onSignUp) {
                 Text(
                     "Don't have an account? Sign up",
-                    color = MaterialTheme.colorScheme.primary,
+                    color = Color.Black,
                     textAlign = TextAlign.End
                 )
             }
@@ -289,7 +294,6 @@ fun LoginScreen(
                 }
             }
         }
-
         when (loginState) {
             is LoginState.Loading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
@@ -309,10 +313,33 @@ fun LoginScreen(
                 context.startActivity(intent)
             }
             is LoginState.Error -> {
-                val errorMessage = (loginState as LoginState.Error).message
-                Toast.makeText(LocalContext.current, errorMessage, Toast.LENGTH_SHORT).show()
+                LaunchedEffect(loginState) {
+                    keyboardController?.hide()
+                    errorMessage = (loginState as LoginState.Error).message
+                    isErrorScreenVisible = true
+                    viewModel.clearError()
+                }
             }
             else -> Unit
+        }
+    }
+
+    if (isErrorScreenVisible) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 56.dp)
+                .padding(top = 381.dp, bottom = 370.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            ErrorNotificationScreen(
+                message = errorMessage,
+                onConfirm = {
+                    isErrorScreenVisible = false
+                    errorMessage = ""
+                    viewModel.clearError()
+                }
+            )
         }
     }
 }

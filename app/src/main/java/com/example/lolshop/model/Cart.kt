@@ -2,7 +2,7 @@ package com.example.lolshop.model
 
 data class Cart(
     val cartId: String,
-    val products: List<CartProduct>,
+    val products: List<CartProduct> = emptyList(),
     val total: Double
 )
 
@@ -10,5 +10,6 @@ data class CartProduct(
     val productId: String,
     val quantity: Int,
     val price: Double,
-    val name: String
+    val name: String,
+    val imageUrl: String = ""
 )

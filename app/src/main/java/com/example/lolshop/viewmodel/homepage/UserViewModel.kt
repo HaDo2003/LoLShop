@@ -77,6 +77,32 @@ class UserViewModel(
         }
     }
 
+    fun checkPassword(currentPassword: String, newPassword: String, confirmPassword: String):Boolean{
+        return when {
+            currentPassword.isBlank() -> {
+                _passwordChangeState.value = Resource.Error("Current Password is required")
+                false
+            }
+            newPassword.isBlank() -> {
+                _passwordChangeState.value = Resource.Error("New Password is required")
+                false
+            }
+            confirmPassword.isBlank() -> {
+                _passwordChangeState.value = Resource.Error("Confirm Password is required")
+                false
+            }
+            newPassword != confirmPassword -> {
+                _passwordChangeState.value = Resource.Error("Password do not match")
+                false
+            }
+            else -> true
+        }
+    }
+
+    fun clearError() {
+        _passwordChangeState.value = Resource.Empty() // or your default state
+    }
+
     //Change Profile picture
     fun changeProfilePicture(userId: String, imageUri: Uri) {
         viewModelScope.launch {

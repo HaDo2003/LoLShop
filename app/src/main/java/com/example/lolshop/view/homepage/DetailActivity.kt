@@ -34,32 +34,42 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.lolshop.Helper.ManagementCart
 import com.example.lolshop.R
 import com.example.lolshop.model.Product
 import com.example.lolshop.view.BaseActivity
+import com.example.lolshop.viewmodel.homepage.CartViewModel
+import com.example.lolshop.viewmodel.homepage.CartViewModelFactory
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 class DetailActivity : BaseActivity() {
     private lateinit var product: Product
-    private lateinit var managementCart: ManagementCart
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         product=intent.getSerializableExtra("object") as Product
-        managementCart= ManagementCart(this)
         val uid = intent.getStringExtra("uid") ?: ""
         val isAdmin = intent.getBooleanExtra("isAdmin", false)
-        Log.d("uid", uid)
-        Log.d("isAdmin", isAdmin.toString())
+
         setContent{
+            val cartViewModel: CartViewModel = viewModel(
+                factory = CartViewModelFactory(
+                    FirebaseFirestore.getInstance(),
+                    FirebaseDatabase.getInstance(),
+                    applicationContext
+                )
+            )
+
             DetailScreen(
                 product=product,
                 onBackClick={finish()},
                 onAddToCartClick={
-                    product.numberInCart=1
-                    managementCart.insertItem(product)
+                    if (uid.isNotEmpty()) {
+                        cartViewModel.addProductToCart(uid, product.id)
+                    }
                 },
                 onCartClick={
                     val intent = Intent(this, CartActivity::class.java).apply {
@@ -67,7 +77,8 @@ class DetailActivity : BaseActivity() {
                         putExtra("isAdmin", isAdmin)
                     }
                     startActivity(intent)
-                }
+                },
+                cartViewModel = cartViewModel
             )
         }
     }
@@ -75,6 +86,7 @@ class DetailActivity : BaseActivity() {
 
 @Composable
 fun DetailScreen(
+    cartViewModel: CartViewModel,
     product: Product,
     onBackClick: () -> Unit,
     onAddToCartClick: () -> Unit,

@@ -1,7 +1,9 @@
 package com.example.lolshop.viewmodel.authentication
 
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.lolshop.R
 import com.example.lolshop.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +17,7 @@ class LoginViewModel(
 
     fun loginUser(email: String, password: String) {
         if (email.isEmpty() || password.isEmpty()) {
-            _loginState.value = LoginState.Error("Please fill in all fields")
+            _loginState.value = LoginState.Error("Fields cannot be empty")
             return
         }
 
@@ -51,5 +53,9 @@ class LoginViewModel(
                 }
             )
         }
+    }
+
+    fun clearError() {
+        _loginState.value = LoginState.Idle // or your default state
     }
 }

@@ -3,7 +3,6 @@ package com.example.lolshop.view.homepage
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Space
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TabRowDefaults.Divider
@@ -27,14 +25,17 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,14 +43,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.example.lolshop.Helper.ChangeNumberItemsListener
-import com.example.lolshop.Helper.ManagementCart
 import com.example.lolshop.R
-import com.example.lolshop.model.Product
+import com.example.lolshop.model.Cart
+import com.example.lolshop.model.CartProduct
+import com.example.lolshop.utils.Result
 import com.example.lolshop.view.BaseActivity
 import com.example.lolshop.view.admin.AdminActivity
-import kotlin.properties.Delegates
+import com.example.lolshop.viewmodel.homepage.CartViewModel
+import com.example.lolshop.viewmodel.homepage.CartViewModelFactory
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 
 class CartActivity : BaseActivity() {
 
@@ -60,6 +65,13 @@ class CartActivity : BaseActivity() {
         Log.d("uid", uid)
         Log.d("isAdmin", isAdmin.toString())
         setContent {
+            val cartViewModel: CartViewModel = viewModel(
+                factory = CartViewModelFactory(
+                    FirebaseFirestore.getInstance(),
+                    FirebaseDatabase.getInstance(),
+                    applicationContext
+                )
+            )
             CartScreen(
                 uid,
                 isAdmin = isAdmin,
@@ -86,51 +98,49 @@ class CartActivity : BaseActivity() {
                         putExtra("isAdmin", isAdmin)
                     }
                     startActivity(intent)
-                }
+                },
+                cartViewModel = cartViewModel
             )
         }
     }
-}
-fun calculatorCart(managementCart: ManagementCart, tax: MutableState<Double>){
-    val percentTax = 0.02
-    tax.value= Math.round((managementCart.getTotalFee()*percentTax)*100)/100.0
 }
 
 @Composable
 private fun CartScreen(
     uid: String,
     isAdmin: Boolean,
-    managementCart: ManagementCart = ManagementCart(LocalContext.current),
     onBackClick: () -> Unit,
     onCartClick: () -> Unit,
     onProfileClick: () -> Unit,
-    onAdminClick:() -> Unit,
-    onHomeClick:() -> Unit
+    onAdminClick: () -> Unit,
+    onHomeClick: () -> Unit,
+    cartViewModel: CartViewModel
 ) {
+    // Trigger cart fetching when UID changes
+    LaunchedEffect(uid) {
+        cartViewModel.fetchCart(uid)
+    }
+
+    // Observe the cart state (LiveData for cart and StateFlow for loading/error state)
+    val cartState by cartViewModel.cart.observeAsState(Result.Empty) // Collect the cart state (loading/success/error)
+    val error by cartViewModel.error.observeAsState("") // Observe error messages
+
     val currentScreen = "cart"
-    val cartProducts = remember { mutableStateOf(managementCart.getListCart()) }
-    val tax = remember { mutableStateOf(0.0) }
-    calculatorCart(managementCart, tax)
     Scaffold(
         bottomBar = {
             Column(modifier = Modifier.fillMaxWidth()) {
-                if (!cartProducts.value.isEmpty()) {
+                if (cartState is Result.Success && (cartState as Result.Success<Cart>).data.products.isNotEmpty()) {
                     Divider(
                         color = Color.Gray,
                         thickness = 1.dp,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    CartSummary(
-                        itemTotal = managementCart.getTotalFee(),
-                        tax = tax.value,
-                        delivery = 10
-                    )
+                    CartSummary()
                 }
                 Spacer(Modifier.height(10.dp))
                 BottomMenu(
                     isAdmin = isAdmin,
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     onItemClick = onCartClick,
                     onProfileClick = onProfileClick,
                     onAdminClick = onAdminClick,
@@ -173,43 +183,48 @@ private fun CartScreen(
                         .size(40.dp)
                 )
             }
-            if (cartProducts.value.isEmpty()) {
-                Text(
-                    text = "Cart Is Empty",
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
-            } else {
-                CartList(
-                    cartProducts = cartProducts.value,
-                    managementCart = managementCart,
-                    onItemChange = {
-                        cartProducts.value = managementCart.getListCart()
-                        calculatorCart(managementCart, tax)
+
+            when (cartState) {
+                is Result.Success -> {
+                    val cart = (cartState as Result.Success<Cart>).data
+                    if (cart.products.isEmpty()) {
+                        Text("Cart is empty")
+                    } else {
+                        CartList(
+                            cart = cart,
+                            onItemChange = { productId, newQuantity ->
+                                cartViewModel.updateProductQuantity(uid, productId, newQuantity)
+                            }
+                        )
                     }
-                )
+                }
+                is Result.Error -> {
+                    Text(
+                        text = "Error: ${(cartState as Result.Error).exception.message}",
+                        color = Color.Red
+                    )
+                }
+                is Result.Empty -> Text("Cart is empty")
+            }
+
+            if (error.isNotEmpty()) {
+                Text(text = error, color = Color.Red)
             }
         }
     }
 }
 
 
+
+
 @Composable
-fun CartSummary(itemTotal: Double, tax: Double, delivery: Int) {
-    val total = itemTotal + tax + delivery
+fun CartSummary(
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 16.dp)
     ) {
-        Text(text = "Item Total: $${itemTotal}", fontSize = 18.sp)
-        Text(text = "Tax: $${tax}", fontSize = 18.sp)
-        Text(text = "Delivery: $${delivery}", fontSize = 18.sp)
-        Text(
-            text = "Total: $${total}",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
-        )
-
         // Button for Checkout
         Button(
             onClick = {
@@ -235,21 +250,30 @@ fun CartSummary(itemTotal: Double, tax: Double, delivery: Int) {
 
 
 @Composable
-fun CartList(cartProducts: List<Product>, managementCart: ManagementCart, onItemChange: () -> Unit) {
+fun CartList(
+    cart: Cart,
+    onItemChange: (String, Int) -> Unit // Change the signature to accept productId and newQuantity
+) {
     LazyColumn(modifier = Modifier.padding(top = 16.dp)) {
-        items(cartProducts.size) { index ->
-            val item = cartProducts[index]
-            CartProduct(item, managementCart, onItemChange)
+        items(cart.products.size) { index ->
+            val item = cart.products[index]
+            CartProduct(
+                product = item,
+//                onItemChange = { newQuantity ->
+//                    onItemChange(item.productId, newQuantity) // Pass the productId and newQuantity to the onItemChange
+//                }
+            )
         }
     }
 }
 
 @Composable
 fun CartProduct(
-    item: Product,
-    managementCart: ManagementCart,
-    onItemChange: () -> Unit
+    product: CartProduct,
+    //onItemChange: (productId: String, newQuantity: Int) -> Unit
 ) {
+    var quantityState by remember { mutableStateOf(product.quantity) } // Track the current quantity
+
     ConstraintLayout(
         modifier = Modifier
             .fillMaxWidth()
@@ -258,7 +282,7 @@ fun CartProduct(
         val (pic, titleTxt, feeEachTime, totalEachItem, quantity) = createRefs()
 
         Image(
-            painter = rememberAsyncImagePainter(item.imageUrl),
+            painter = rememberAsyncImagePainter(product.imageUrl),
             contentDescription = null,
             modifier = Modifier
                 .size(90.dp)
@@ -270,7 +294,7 @@ fun CartProduct(
             contentScale = ContentScale.Crop
         )
         Text(
-            text = item.name,
+            text = product.name,
             modifier = Modifier
                 .constrainAs(titleTxt) {
                     start.linkTo(pic.end)
@@ -279,7 +303,7 @@ fun CartProduct(
                 .padding(start = 8.dp, top = 8.dp)
         )
         Text(
-            text = "$${item.price}",
+            text = "$${product.price}",
             color = colorResource(R.color.black),
             modifier = Modifier
                 .constrainAs(feeEachTime) {
@@ -289,7 +313,7 @@ fun CartProduct(
                 .padding(start = 8.dp, top = 8.dp)
         )
         Text(
-            text = "$${item.numberInCart * item.price.toDouble()}",
+            text = "$${product.price * product.quantity}",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = colorResource(R.color.black),
@@ -300,42 +324,72 @@ fun CartProduct(
                 }
                 .padding(start = 8.dp)
         )
-        ConstraintLayout(
-            modifier = Modifier
-                .width(100.dp)
-                .constrainAs(quantity) {
-                    end.linkTo(parent.end)
-                    bottom.linkTo(parent.bottom)
-                }
-        ) {
-            QuantitySelector(
-                currentQuantity = item.numberInCart,
-                onIncrease = {
-                    managementCart.plusItem(
-                        managementCart.getListCart(),
-                        managementCart.getListCart().indexOf(item),
-                        object : ChangeNumberItemsListener {
-                            override fun onChanged() {
-                                onItemChange()
-                            }
-                        }
-                    )
-                },
-                onDecrease = {
-                    managementCart.minusItem(
-                        managementCart.getListCart(),
-                        managementCart.getListCart().indexOf(item),
-                        object : ChangeNumberItemsListener {
-                            override fun onChanged() {
-                                onItemChange()
-                            }
-                        }
-                    )
-                }
-            )
-        }
+
+        // Quantity controls (decrement and increment buttons)
+//        Row(
+//            modifier = Modifier
+//                .constrainAs(quantity) {
+//                    start.linkTo(totalEachItem.end)
+//                    top.linkTo(totalEachItem.top)
+//                }
+//                .padding(start = 8.dp)
+//        ) {
+//            IconButton(onClick = {
+//                if (quantityState > 1) {
+//                    quantityState -= 1
+//                    onItemChange(product.productId, quantityState) // Update the quantity and notify parent
+//                }
+//            }) {
+//                Icon(imageVector = Icons.Default.Menu, contentDescription = "Decrement")
+//            }
+//            Text(text = quantityState.toString())
+//            IconButton(onClick = {
+//                quantityState += 1
+//                onItemChange(product.productId, quantityState) // Update the quantity and notify parent
+//            }) {
+//                Icon(imageVector = Icons.Default.Add, contentDescription = "Increment")
+//            }
+//        }
     }
 }
+
+
+//        ConstraintLayout(
+//            modifier = Modifier
+//                .width(100.dp)
+//                .constrainAs(quantity) {
+//                    end.linkTo(parent.end)
+//                    bottom.linkTo(parent.bottom)
+//                }
+//        ) {
+//            QuantitySelector(
+//                currentQuantity = item.numberInCart,
+//                onIncrease = {
+//                    managementCart.plusItem(
+//                        managementCart.getListCart(),
+//                        managementCart.getListCart().indexOf(item),
+//                        object : ChangeNumberItemsListener {
+//                            override fun onChanged() {
+//                                onItemChange()
+//                            }
+//                        }
+//                    )
+//                },
+//                onDecrease = {
+//                    managementCart.minusItem(
+//                        managementCart.getListCart(),
+//                        managementCart.getListCart().indexOf(item),
+//                        object : ChangeNumberItemsListener {
+//                            override fun onChanged() {
+//                                onItemChange()
+//                            }
+//                        }
+//                    )
+//                }
+//            )
+//        }
+//    }
+//}
 
 
 @Composable

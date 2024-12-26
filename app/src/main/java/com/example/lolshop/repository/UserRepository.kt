@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import android.net.Uri
+import com.google.firebase.auth.FirebaseAuthException
 
 class UserRepository(
     private val auth: FirebaseAuth,
@@ -64,18 +65,18 @@ class UserRepository(
             val uid = authResult.user?.uid
             uid?.let {
                 // Create a new cart document in the Carts collection
-                val cartId = firestore.collection("Carts").document().id // Unique cartId from Firestore
+                val cartId = firestore.collection("Carts").document(uid) // Unique cartId from Firestore
 
                 // Cart details (e.g., an empty cart or with some initial data)
                 val cart = hashMapOf(
-                    "cartId" to cartId,
+                    "cartId" to uid,
                     "products" to listOf<Map<String, Any>>(),
                     "total" to 0.0
                 )
 
                 // Store the cart in Firestore
                 firestore.collection("Carts")
-                    .document(cartId)
+                    .document(uid)
                     .set(cart)
                     .await()
 
