@@ -83,7 +83,7 @@ class UserRepository(
                 // Now update the user's document to include the cartId
                 firestore.collection("Users")
                     .document(uid)
-                    .update("cartId", cartId)
+                    .update("cartId", uid)
                     .await()
             }
             Result.success(Unit)

@@ -92,7 +92,7 @@ fun BottomMenu(
             // "Admin" button (only visible if isAdmin is true)
             if (isAdmin) {
                 BottomMenuItem(
-                    icon = if(currentScreen == "homepage") painterResource(R.drawable.adm_black)
+                    icon = if(currentScreen == "admin") painterResource(R.drawable.adm_black)
                            else painterResource(R.drawable.adm_white),
                     text = "Admin",
                     onItemClick = onAdminClick,

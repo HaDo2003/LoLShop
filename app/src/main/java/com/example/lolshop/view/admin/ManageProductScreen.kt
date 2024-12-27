@@ -69,7 +69,9 @@ fun ProductItem(
     val selectedCategory = categoryOptions.find { it.id == product.categoryId }
 
     Card(
-        modifier = Modifier.padding(8.dp),
+        modifier = Modifier
+            .padding(8.dp)
+            .height(320.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
@@ -124,13 +126,14 @@ fun ProductItem(
             }
 
             Text(
-                text = product.description.take(100) + if (product.description.length > 100) "..." else "",
+                text = product.description.take(50) + if (product.description.length > 100) "..." else "",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 8.dp)
             )
 
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 TextButton(

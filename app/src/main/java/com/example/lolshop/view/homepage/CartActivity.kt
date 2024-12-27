@@ -153,7 +153,10 @@ private fun CartScreen(
     val currentScreen = "cart"
     Scaffold(
         bottomBar = {
-            Column(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+            ) {
                 if (cartState is Result.Success && (cartState as Result.Success<Cart>).data.products.isNotEmpty()) {
                     Divider(
                         color = Color.Gray,
@@ -161,9 +164,9 @@ private fun CartScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                     CartSummary(
-                        cart = (orderState as Result.Success<Cart>).data,
+                        cart = (cartState as Result.Success<Cart>).data,
                         uid,
-                        (orderState as Result.Success<Cart>).data.total,
+                        (cartState as Result.Success<Cart>).data.total,
                         cartViewModel = cartViewModel
                     )
                 }
@@ -187,7 +190,7 @@ private fun CartScreen(
                     top = 0.dp, // Override any top padding caused by Scaffold
                     bottom = paddingValue.calculateBottomPadding(),
                 )
-                .padding(horizontal = 10.dp)
+                .padding(bottom = 0.dp)
                 .background(Color.White)
         ) {
             ConstraintLayout(modifier = Modifier.padding(top = 36.dp)) {
@@ -292,9 +295,6 @@ private fun CartScreen(
     }
 }
 
-
-
-
 @SuppressLint("DefaultLocale")
 @Composable
 fun CartSummary(
@@ -311,6 +311,7 @@ fun CartSummary(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 10.dp, start = 10.dp, end = 10.dp)
+            .background(Color.White)
     ) {
         Text(text = "Item Total: $${Total}", fontSize = 18.sp)
         Text(text = "Tax: $${taxRounded}", fontSize = 18.sp)

@@ -176,7 +176,8 @@ fun AdminMainScreen(
                 .padding(
                     top = 0.dp, // Override any top padding caused by Scaffold
                     bottom = paddingValue.calculateBottomPadding(),
-                ),
+                )
+                .background(Color.White),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
