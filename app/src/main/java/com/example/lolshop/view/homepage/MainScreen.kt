@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -182,14 +183,16 @@ fun HomePageScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
+                    Spacer(modifier = Modifier.width(140.dp))
                     Image(
                         painter = painterResource(R.drawable.search_icon),
-                        contentDescription = null
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp)
                     )
-                    Spacer(modifier = Modifier.width(20.dp))
                     Image(
                         painter = painterResource(R.drawable.bell_icon),
-                        contentDescription = null
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp)
                     )
 
                 }

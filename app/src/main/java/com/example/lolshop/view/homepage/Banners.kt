@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -32,6 +33,7 @@ import com.example.lolshop.model.Banner
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -48,6 +50,16 @@ fun AutoSlidingCarousel(
 ) {
     val isDragged by pagerState.interactionSource.collectIsDraggedAsState()
 
+    // Auto-sliding logic
+    LaunchedEffect(pagerState) {
+        while (true) {
+            if (!isDragged) {
+                delay(3000) // Delay for 3 seconds
+                val nextPage = (pagerState.currentPage + 1) % banners.size
+                pagerState.animateScrollToPage(nextPage)
+            }
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize(),
