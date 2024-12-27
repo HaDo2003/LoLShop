@@ -63,7 +63,7 @@ class CartRepository(
                                 hashMapOf(
                                     "productId" to productId,
                                     "quantity" to 1L,
-                                    "price" to product.price,
+                                    "price" to product.price.toDouble(),
                                     "name" to product.name,
                                     "imageUrl" to product.imageUrl
                                 )
@@ -87,7 +87,7 @@ class CartRepository(
                                 hashMapOf(
                                     "productId" to productId,
                                     "quantity" to 1L,
-                                    "price" to product.price,
+                                    "price" to product.price.toDouble(),
                                     "name" to product.name,
                                     "imageUrl" to product.imageUrl
                                 )
@@ -117,22 +117,35 @@ class CartRepository(
 
             if (!cartDoc.exists()) return Result.Empty
 
-            val snapshot = firestore.collection("Carts")
-                .document(uid)
-                .collection("products")
-                .get()
-                .await()
+            // Debug logs to check Firestore data
+            val productsRaw = cartDoc.get("products")
 
-            val products = snapshot.documents.mapNotNull { document ->
-                document.toObject(CartProduct::class.java)
+            val products = productsRaw as? List<Map<String, Any>> ?: emptyList()
+            // Map the products into the CartProduct model
+            val productList = products.map { productMap ->
+                val productId = productMap["productId"] as? String ?: "Unknown"
+                val name = productMap["name"] as? String ?: "Unnamed Product"
+                val price = (productMap["price"] as? Number)?.toDouble() ?: 0.0
+                val quantity = (productMap["quantity"] as? Number)?.toInt() ?: 0
+                val imageUrl = productMap["imageUrl"] as? String ?: ""
+
+                CartProduct(
+                    productId = productId,
+                    name = name,
+                    price = price,
+                    quantity = quantity,
+                    imageUrl = imageUrl
+                )
             }
             val total = cartDoc.getDouble("total") ?: 0.0
-
-            Result.Success(Cart(
-                cartId = uid,
-                products = products,
-                total = total
-            ))
+            Log.d("Firestore", "Final mapped products: $productList")
+            Result.Success(
+                Cart(
+                    cartId = uid,
+                    products = productList,
+                    total = total
+                ) ,
+            )
         } catch (e: Exception) {
             Result.Error(e)
         }
@@ -141,20 +154,46 @@ class CartRepository(
     // Function to update cart item quantity
     suspend fun updateProductQuantity(uid: String, productId: String, newQuantity: Int): Result<Unit> {
         return try {
-            val productRef = firestore.collection("Carts")
-                .document(uid)
-                .collection("products")
-                .document(productId)
+            val cartRef = firestore.collection("Carts").document(uid)
 
-            val productDoc = productRef.get().await()
+            // Get the cart document
+            val cartDoc = cartRef.get().await()
 
-            if (!productDoc.exists()) return Result.Empty
+            if (!cartDoc.exists()) return Result.Empty
 
-            productRef.update("quantity", newQuantity).await()
+            // Get the list of products from the cart document
+            val productsRaw = cartDoc.get("products") as? List<Map<String, Any>> ?: emptyList()
+
+            // Find the product to update
+            val updatedProducts = productsRaw.map { product ->
+                val productIdInCart = product["productId"] as? String ?: ""
+                if (productIdInCart == productId) {
+                    // If the product matches, update the quantity
+                    product.toMutableMap().apply {
+                        this["quantity"] = newQuantity
+                    }
+                } else {
+                    product
+                }
+            }
+
+            // Update the products field with the updated list
+            cartRef.update("products", updatedProducts).await()
+
+            // Optionally update the total price of the cart if needed
+            val updatedTotal = updatedProducts.sumOf { product ->
+                val price = (product["price"] as? Number)?.toDouble() ?: 0.0
+                val quantity = (product["quantity"] as? Number)?.toInt() ?: 0
+                price * quantity
+            }
+
+            // Update the total in the cart
+            cartRef.update("total", updatedTotal).await()
 
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error(e)
         }
     }
+
 }

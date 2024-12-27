@@ -1,5 +1,6 @@
 package com.example.lolshop.viewmodel.homepage
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -47,6 +48,8 @@ class CartViewModel(
                 is Result.Error -> _error.value = "Error fetching cart: ${result.exception.message}"
                 is Result.Empty -> _cart.value = Result.Empty
             }
+            Log.d("Cart", _cart.value.toString())
+
         }
     }
 

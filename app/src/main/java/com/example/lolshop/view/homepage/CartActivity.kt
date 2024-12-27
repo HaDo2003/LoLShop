@@ -1,11 +1,13 @@
 package com.example.lolshop.view.homepage
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,12 +19,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TabRowDefaults.Divider
 import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -135,7 +140,9 @@ private fun CartScreen(
                         thickness = 1.dp,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    CartSummary()
+                    CartSummary(
+                        (cartState as Result.Success<Cart>).data.total
+                    )
                 }
                 Spacer(Modifier.height(10.dp))
                 BottomMenu(
@@ -187,8 +194,14 @@ private fun CartScreen(
             when (cartState) {
                 is Result.Success -> {
                     val cart = (cartState as Result.Success<Cart>).data
+                    Log.d("Cart", cart.toString())
                     if (cart.products.isEmpty()) {
-                        Text("Cart is empty")
+                        Row(
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text("Cart is empty")
+                        }
+
                     } else {
                         CartList(
                             cart = cart,
@@ -217,14 +230,28 @@ private fun CartScreen(
 
 
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun CartSummary(
+    Total: Double
 ) {
+    val tax: Double = Total * 0.1
+    val taxRounded:Double = String.format("%.2f", tax).toDouble()
+    val delivery = 10
+    val total = Total + taxRounded + delivery
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 16.dp)
+            .padding(top = 10.dp, start = 10.dp, end = 10.dp)
     ) {
+        Text(text = "Item Total: $${Total}", fontSize = 18.sp)
+        Text(text = "Tax: $${taxRounded}", fontSize = 18.sp)
+        Text(text = "Delivery: $${delivery}", fontSize = 18.sp)
+        Text(
+            text = "Total: $${total}",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold
+        )
         // Button for Checkout
         Button(
             onClick = {
@@ -259,9 +286,7 @@ fun CartList(
             val item = cart.products[index]
             CartProduct(
                 product = item,
-//                onItemChange = { newQuantity ->
-//                    onItemChange(item.productId, newQuantity) // Pass the productId and newQuantity to the onItemChange
-//                }
+                onItemChange = onItemChange
             )
         }
     }
@@ -270,7 +295,7 @@ fun CartList(
 @Composable
 fun CartProduct(
     product: CartProduct,
-    //onItemChange: (productId: String, newQuantity: Int) -> Unit
+    onItemChange: (productId: String, newQuantity: Int) -> Unit
 ) {
     var quantityState by remember { mutableStateOf(product.quantity) } // Track the current quantity
 
@@ -322,34 +347,77 @@ fun CartProduct(
                     start.linkTo(titleTxt.start)
                     bottom.linkTo(pic.bottom)
                 }
-                .padding(start = 8.dp)
+                .padding(start = 8.dp, end = 124.dp)
         )
 
         // Quantity controls (decrement and increment buttons)
-//        Row(
-//            modifier = Modifier
-//                .constrainAs(quantity) {
-//                    start.linkTo(totalEachItem.end)
-//                    top.linkTo(totalEachItem.top)
-//                }
-//                .padding(start = 8.dp)
-//        ) {
-//            IconButton(onClick = {
-//                if (quantityState > 1) {
-//                    quantityState -= 1
-//                    onItemChange(product.productId, quantityState) // Update the quantity and notify parent
-//                }
-//            }) {
-//                Icon(imageVector = Icons.Default.Menu, contentDescription = "Decrement")
-//            }
-//            Text(text = quantityState.toString())
-//            IconButton(onClick = {
-//                quantityState += 1
-//                onItemChange(product.productId, quantityState) // Update the quantity and notify parent
-//            }) {
-//                Icon(imageVector = Icons.Default.Add, contentDescription = "Increment")
-//            }
-//        }
+        Row(
+            modifier = Modifier
+                .constrainAs(quantity) {
+                    start.linkTo(totalEachItem.end)
+                    top.linkTo(parent.top)
+                }
+                .padding(start = 8.dp, top = 63.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            // Decrement Button
+            Box(
+                modifier = Modifier
+                    .border(1.dp,
+                        colorResource(id = R.color.black),
+                        shape = RoundedCornerShape(8.dp, 0.dp, 0.dp, 8.dp))
+                    .clickable {
+                        if (quantityState > 1) {
+                            quantityState -= 1
+                            onItemChange(product.productId, quantityState) // Update the quantity and notify parent
+                        }
+                    }
+                    .padding(7.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.minus),
+                    contentDescription = "Decrease quantity",
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+
+            // Quantity Display with Border
+            Box(
+                modifier = Modifier
+                    .border(1.dp, colorResource(id = R.color.black)) // Border around the quantity display
+                    .padding(8.dp)
+                    .width(20.dp)
+                    .height((15.5).dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = quantityState.toString(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 6.dp)
+                )
+            }
+
+            // Increment Button
+            Box(
+                modifier = Modifier
+                    .border(1.dp,
+                        colorResource(id = R.color.black),
+                        shape = RoundedCornerShape(0.dp, 8.dp, 8.dp, 0.dp)) // Border around the button
+                    .clickable {
+                        quantityState += 1
+                        onItemChange(product.productId, quantityState) // Update the quantity and notify parent
+                    }
+                    .padding(7.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.add),
+                    contentDescription = "Increase quantity",
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
+
     }
 }
 

@@ -8,8 +8,8 @@ data class Cart(
 
 data class CartProduct(
     val productId: String,
+    val name: String,
     val quantity: Int,
     val price: Double,
-    val name: String,
     val imageUrl: String = ""
 )
