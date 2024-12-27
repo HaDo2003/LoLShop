@@ -197,7 +197,8 @@ private fun CartScreen(
                     Log.d("Cart", cart.toString())
                     if (cart.products.isEmpty()) {
                         Row(
-                            horizontalArrangement = Arrangement.Center
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(horizontal = 154.dp)
                         ) {
                             Text("Cart is empty")
                         }
