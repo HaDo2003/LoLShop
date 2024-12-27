@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.example.lolshop.utils.Result
+import com.example.lolshop.viewmodel.authentication.LoginState
 
 
 class CartViewModel(
@@ -26,6 +27,9 @@ class CartViewModel(
 
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> get() = _error
+
+    private val _orderState = MutableStateFlow<Resource<Unit>>(Resource.Empty())
+    val orderState: StateFlow<Resource<Unit>> get() = _orderState
 
 
     fun addProductToCart(uid: String, productId: String) {
@@ -61,5 +65,29 @@ class CartViewModel(
                 is Result.Empty -> _error.value = "No product found to update"
             }
         }
+    }
+
+    fun placeOrderFromCart(
+        cart: Cart,
+        uid: String,
+        totalPriceOfAllProduct: Double,
+        tax: Double,
+        deliveryFee: Double,
+        totalPriceAtAll: Double
+    ){
+        viewModelScope.launch {
+            try {
+                cartRepository.placeOrderFromCart(cart, uid, totalPriceOfAllProduct, tax, deliveryFee, totalPriceAtAll)
+                // If successful, update the status
+                _orderState .value = Resource.Success(Unit)
+            } catch (e: Exception) {
+                // If an error occurs, update the status
+                _orderState.value = Resource.Error("$e")
+            }
+        }
+    }
+
+    fun clearError() {
+        _cartState.value = Resource.Empty() // or your default state
     }
 }

@@ -4,11 +4,14 @@ import android.content.Context
 import android.util.Log
 import com.example.lolshop.model.Cart
 import com.example.lolshop.model.CartProduct
+import com.example.lolshop.model.Order
+import com.example.lolshop.model.OrderProduct
 import com.example.lolshop.model.Product
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import com.example.lolshop.utils.Result
+import com.google.firebase.Timestamp
 
 class CartRepository(
     private val firestore: FirebaseFirestore,
@@ -202,6 +205,52 @@ class CartRepository(
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error(e)
+        }
+    }
+
+    //Function to Place order from cart
+    suspend fun placeOrderFromCart(
+        cart: Cart,
+        uid: String,
+        totalPriceOfAllProduct: Double,
+        tax: Double,
+        deliveryFee: Double,
+        totalPriceAtAll: Double
+    ) {
+        try {
+            // Map cart products to order products
+            val orderProducts = cart.products.map { cartProduct ->
+                OrderProduct(
+                    productId = cartProduct.productId,
+                    quantity = cartProduct.quantity,
+                    totalPriceOfProduct = cartProduct.quantity * cartProduct.price,
+                    price = cartProduct.price,
+                    imageUrl = cartProduct.imageUrl
+                )
+            }
+
+            // Create an Order object
+            val order = Order(
+                customerId = uid,
+                products = orderProducts,
+                TotalPriceOfAllProduct = totalPriceOfAllProduct,
+                tax = tax,
+                DeliveryFee = deliveryFee,
+                TotalPriceAtAll = totalPriceAtAll,
+                orderDate = Timestamp.now(),
+                status = "Wait for confirmation"
+            )
+
+            // Save the order to Firestore
+            val orderRef = firestore.collection("Orders").document()
+            orderRef.set(order).await()
+
+            // Clear the cart
+            firestore.collection("Carts").document(uid).update("products", emptyList<CartProduct>(), "total", 0.0).await()
+
+            Log.d("PlaceOrder", "Order placed successfully with ID: ${orderRef.id}")
+        } catch (e: Exception) {
+            Log.e("PlaceOrder", "Error placing order: ${e.localizedMessage}")
         }
     }
 }

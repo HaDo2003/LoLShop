@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,6 +27,7 @@ import androidx.compose.material.TabRowDefaults.Divider
 import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -41,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -53,13 +56,18 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.lolshop.R
 import com.example.lolshop.model.Cart
 import com.example.lolshop.model.CartProduct
+import com.example.lolshop.utils.Resource
 import com.example.lolshop.utils.Result
 import com.example.lolshop.view.BaseActivity
+import com.example.lolshop.view.SuccessScreen
 import com.example.lolshop.view.admin.AdminActivity
 import com.example.lolshop.viewmodel.homepage.CartViewModel
 import com.example.lolshop.viewmodel.homepage.CartViewModelFactory
+import com.example.lolshop.viewmodel.homepage.OrderViewModel
+import com.example.lolshop.viewmodel.homepage.OrderViewModelFactory
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.delay
 
 class CartActivity : BaseActivity() {
 
@@ -104,6 +112,13 @@ class CartActivity : BaseActivity() {
                     }
                     startActivity(intent)
                 },
+                onOrderClick = {
+                    val intent = Intent(this, OrderActivity::class.java).apply {
+                        putExtra("uid", uid)
+                        putExtra("isAdmin", isAdmin)
+                    }
+                    startActivity(intent)
+                },
                 cartViewModel = cartViewModel
             )
         }
@@ -119,6 +134,7 @@ private fun CartScreen(
     onProfileClick: () -> Unit,
     onAdminClick: () -> Unit,
     onHomeClick: () -> Unit,
+    onOrderClick:() -> Unit,
     cartViewModel: CartViewModel
 ) {
     // Trigger cart fetching when UID changes
@@ -129,6 +145,10 @@ private fun CartScreen(
     // Observe the cart state (LiveData for cart and StateFlow for loading/error state)
     val cartState by cartViewModel.cart.observeAsState(Result.Empty) // Collect the cart state (loading/success/error)
     val error by cartViewModel.error.observeAsState("") // Observe error messages
+    val orderState by cartViewModel.orderState.collectAsState() // Collect the cart state (loading/success/error)
+    var isSuccessScreenVisible by remember { mutableStateOf(false) }
+    val successMessage by remember { mutableStateOf("Place Order Successful") }
+    val context = LocalContext.current
 
     val currentScreen = "cart"
     Scaffold(
@@ -141,7 +161,10 @@ private fun CartScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                     CartSummary(
-                        (cartState as Result.Success<Cart>).data.total
+                        cart = (orderState as Result.Success<Cart>).data,
+                        uid,
+                        (orderState as Result.Success<Cart>).data.total,
+                        cartViewModel = cartViewModel
                     )
                 }
                 Spacer(Modifier.height(10.dp))
@@ -165,6 +188,7 @@ private fun CartScreen(
                     bottom = paddingValue.calculateBottomPadding(),
                 )
                 .padding(horizontal = 10.dp)
+                .background(Color.White)
         ) {
             ConstraintLayout(modifier = Modifier.padding(top = 36.dp)) {
                 val (backBtn, cartTxt) = createRefs()
@@ -224,6 +248,46 @@ private fun CartScreen(
             if (error.isNotEmpty()) {
                 Text(text = error, color = Color.Red)
             }
+
+            when (orderState) {
+                is Resource.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                }
+                is Resource.Success -> {
+                    LaunchedEffect(orderState) {
+                        isSuccessScreenVisible = true
+                        cartViewModel.clearError()
+                    }
+                }
+                is Resource.Error -> {
+                    Toast.makeText(
+                        context,
+                        "Place Order Failed",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                is Resource.Empty -> {
+                }
+            }
+        }
+    }
+    if (isSuccessScreenVisible) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 56.dp)
+                .padding(top = 381.dp, bottom = 370.dp)
+                .background(Color(0x80000000)),
+            contentAlignment = Alignment.Center
+        ) {
+            SuccessScreen(
+                message = successMessage,
+            )
+
+            LaunchedEffect(Unit) {
+                delay(2000) // Wait for 2 seconds
+                isSuccessScreenVisible = false // Hide the SuccessScreen
+            }
         }
     }
 }
@@ -234,11 +298,14 @@ private fun CartScreen(
 @SuppressLint("DefaultLocale")
 @Composable
 fun CartSummary(
-    Total: Double
+    cart: Cart,
+    uid: String,
+    Total: Double,
+    cartViewModel: CartViewModel
 ) {
     val tax: Double = Total * 0.1
     val taxRounded:Double = String.format("%.2f", tax).toDouble()
-    val delivery = 10
+    val delivery = 10.0
     val total = Total + taxRounded + delivery
     Column(
         modifier = Modifier
@@ -253,10 +320,10 @@ fun CartSummary(
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
-        // Button for Checkout
+        // Button for Place Order
         Button(
             onClick = {
-                // Add your checkout logic here
+                cartViewModel.placeOrderFromCart(cart, uid, Total, taxRounded, delivery, total)
             },
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(
@@ -268,7 +335,7 @@ fun CartSummary(
                 .height(50.dp)
         ) {
             Text(
-                text = "Check Out",
+                text = "Place Order",
                 fontSize = 18.sp,
                 color = Color.White
             )
@@ -417,105 +484,5 @@ fun CartProduct(
             }
         }
 
-    }
-}
-
-
-//        ConstraintLayout(
-//            modifier = Modifier
-//                .width(100.dp)
-//                .constrainAs(quantity) {
-//                    end.linkTo(parent.end)
-//                    bottom.linkTo(parent.bottom)
-//                }
-//        ) {
-//            QuantitySelector(
-//                currentQuantity = item.numberInCart,
-//                onIncrease = {
-//                    managementCart.plusItem(
-//                        managementCart.getListCart(),
-//                        managementCart.getListCart().indexOf(item),
-//                        object : ChangeNumberItemsListener {
-//                            override fun onChanged() {
-//                                onItemChange()
-//                            }
-//                        }
-//                    )
-//                },
-//                onDecrease = {
-//                    managementCart.minusItem(
-//                        managementCart.getListCart(),
-//                        managementCart.getListCart().indexOf(item),
-//                        object : ChangeNumberItemsListener {
-//                            override fun onChanged() {
-//                                onItemChange()
-//                            }
-//                        }
-//                    )
-//                }
-//            )
-//        }
-//    }
-//}
-
-
-@Composable
-fun QuantitySelector(
-    currentQuantity: Int,
-    onIncrease: () -> Unit,
-    onDecrease: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .background(
-                color = Color.Black,
-                shape = RoundedCornerShape(50)
-            )
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        // Decrease Button
-        Box(
-            modifier = Modifier
-                .size(28.dp)
-                .background(Color.White, RoundedCornerShape(50))
-                .clickable {
-                    if (currentQuantity > 0) onDecrease()
-                }
-        ) {
-            Text(
-                text = "-",
-                color = Color.Black,
-                modifier = Modifier.align(Alignment.Center),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        // Current Quantity
-        Text(
-            text = currentQuantity.toString(),
-            color = Color.White,
-            modifier = Modifier.padding(horizontal = 8.dp),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        // Increase Button
-        Box(
-            modifier = Modifier
-                .size(28.dp)
-                .background(Color.White, RoundedCornerShape(50))
-                .clickable { onIncrease() }
-        ) {
-            Text(
-                text = "+",
-                color = Color.Black,
-                modifier = Modifier.align(Alignment.Center),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
     }
 }

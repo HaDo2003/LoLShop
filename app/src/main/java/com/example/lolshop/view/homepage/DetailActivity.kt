@@ -2,7 +2,6 @@ package com.example.lolshop.view.homepage
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,13 +22,21 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,11 +45,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.lolshop.R
 import com.example.lolshop.model.Product
+import com.example.lolshop.utils.Resource
 import com.example.lolshop.view.BaseActivity
+import com.example.lolshop.view.SuccessScreen
 import com.example.lolshop.viewmodel.homepage.CartViewModel
 import com.example.lolshop.viewmodel.homepage.CartViewModelFactory
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.delay
 
 
 class DetailActivity : BaseActivity() {
@@ -64,6 +74,7 @@ class DetailActivity : BaseActivity() {
             )
 
             DetailScreen(
+                uid,
                 product=product,
                 onBackClick={finish()},
                 onAddToCartClick={
@@ -86,12 +97,17 @@ class DetailActivity : BaseActivity() {
 
 @Composable
 fun DetailScreen(
+    uid: String,
     cartViewModel: CartViewModel,
     product: Product,
     onBackClick: () -> Unit,
     onAddToCartClick: () -> Unit,
     onCartClick: () -> Unit,
 ) {
+    val cartState by cartViewModel.cartState.collectAsState()
+    val successMessage by remember { mutableStateOf("Added to Cart") }
+    var isSuccessScreenVisible by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     Scaffold(
         bottomBar = {
             Row(
@@ -115,7 +131,11 @@ fun DetailScreen(
                     )
                 }
                 Button(
-                    onClick = onAddToCartClick,
+                    onClick = {
+                        if (uid.isNotEmpty()) {
+                            cartViewModel.addProductToCart(uid, product.id)
+                        }
+                    },
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = Color.Black,
@@ -221,6 +241,40 @@ fun DetailScreen(
                 color = Color.Black,
                 modifier = Modifier.padding(16.dp)
             )
+
+            when (cartState) {
+                is Resource.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                }
+                is Resource.Success -> {
+                    LaunchedEffect(cartState) {
+                        isSuccessScreenVisible = true
+                        cartViewModel.clearError()
+                    }
+                }
+                is Resource.Error -> {
+                }
+                else -> Unit
+            }
+        }
+    }
+    if (isSuccessScreenVisible) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 56.dp)
+                .padding(top = 381.dp, bottom = 370.dp)
+                .background(Color(0x80000000)),
+            contentAlignment = Alignment.Center
+        ) {
+            SuccessScreen(
+                message = successMessage,
+            )
+
+            LaunchedEffect(Unit) {
+                delay(2000) // Wait for 2 seconds
+                isSuccessScreenVisible = false // Hide the SuccessScreen
+            }
         }
     }
 }

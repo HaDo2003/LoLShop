@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Color.parseColor
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -74,6 +75,8 @@ fun UserProfileScreen(
             userViewModel.changeProfilePicture(uid, uri)
         }
     }
+    Log.d("uid", uid)
+    Log.d("userState", userState.toString())
 
     Scaffold(
         bottomBar = {
