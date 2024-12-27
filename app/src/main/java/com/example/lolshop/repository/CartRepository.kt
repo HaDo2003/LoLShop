@@ -165,15 +165,24 @@ class CartRepository(
             val productsRaw = cartDoc.get("products") as? List<Map<String, Any>> ?: emptyList()
 
             // Find the product to update
-            val updatedProducts = productsRaw.map { product ->
-                val productIdInCart = product["productId"] as? String ?: ""
-                if (productIdInCart == productId) {
-                    // If the product matches, update the quantity
-                    product.toMutableMap().apply {
-                        this["quantity"] = newQuantity
+            val updatedProducts = if (newQuantity == 0) {
+                // If newQuantity is 0, remove the product
+                productsRaw.filterNot { product ->
+                    val productIdInCart = product["productId"] as? String ?: ""
+                    productIdInCart == productId
+                }
+            } else {
+                // Otherwise, update the quantity
+                productsRaw.map { product ->
+                    val productIdInCart = product["productId"] as? String ?: ""
+                    if (productIdInCart == productId) {
+                        // If the product matches, update the quantity
+                        product.toMutableMap().apply {
+                            this["quantity"] = newQuantity
+                        }
+                    } else {
+                        product
                     }
-                } else {
-                    product
                 }
             }
 
@@ -195,5 +204,4 @@ class CartRepository(
             Result.Error(e)
         }
     }
-
 }

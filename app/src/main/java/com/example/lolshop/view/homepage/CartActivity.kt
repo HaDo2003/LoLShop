@@ -367,10 +367,8 @@ fun CartProduct(
                         colorResource(id = R.color.black),
                         shape = RoundedCornerShape(8.dp, 0.dp, 0.dp, 8.dp))
                     .clickable {
-                        if (quantityState > 1) {
-                            quantityState -= 1
-                            onItemChange(product.productId, quantityState) // Update the quantity and notify parent
-                        }
+                        quantityState -= 1
+                        onItemChange(product.productId, quantityState) // Update the quantity and notify parent
                     }
                     .padding(7.dp)
             ) {
