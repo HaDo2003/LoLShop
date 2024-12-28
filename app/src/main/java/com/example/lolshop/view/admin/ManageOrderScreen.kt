@@ -12,13 +12,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -28,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,6 +55,7 @@ import com.example.lolshop.model.Order
 import com.example.lolshop.model.OrderProduct
 import com.example.lolshop.viewmodel.homepage.OrderViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageOrderScreen(
     orderViewModel: OrderViewModel,
@@ -59,6 +67,21 @@ fun ManageOrderScreen(
 
     val adminOrders by orderViewModel.adminOrders.observeAsState(emptyList())
     val error by orderViewModel.error.observeAsState(null)
+    val statusOptions = arrayOf(
+        "All",
+        "Waiting for confirmation",
+        "Delivering",
+        "Delivered",
+        "Cancelled"
+    )
+    var selectedStatus  by rememberSaveable { mutableStateOf(statusOptions[0]) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    val filteredOrders by orderViewModel.filteredOrders.observeAsState(adminOrders)
+
+    LaunchedEffect(Unit) {
+        selectedStatus = "All" // Reset to "All"
+        orderViewModel.filterOrdersByStatus("All") // Apply the "All" filter
+    }
 
     Column(
         modifier = Modifier
@@ -102,29 +125,75 @@ fun ManageOrderScreen(
                 )
             }
         } else {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End
+            ) {
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it },
+                    modifier = Modifier
+                        .background(Color.White)
+                ) {
+                    OutlinedTextField(
+                        value = selectedStatus, // Display the selected status
+                        onValueChange = { },
+                        readOnly = true, // Make the text field read-only
+                        trailingIcon = {
+                            TrailingIcon(expanded = expanded) // Default dropdown icon
+                        },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .width(150.dp)
+                            .height(50.dp)
+                            .background(Color.White)
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier.background(Color.White)
+                    ) {
+                        statusOptions.forEach { statusOption ->
+                            DropdownMenuItem(
+                                text = { Text(text = statusOption) },
+                                onClick = {
+                                    selectedStatus = statusOption // Update the selected status
+                                    expanded = false // Close the dropdown
+                                    orderViewModel.filterOrdersByStatus(selectedStatus)
+                                }
+                            )
+                        }
+                    }
+                }
+            }
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 10.dp)
                     .background(Color.White)
             ) {
-                val sortedOrders = adminOrders.sortedByDescending { it.orderDate }
+                val sortedFilteredOrders = filteredOrders.sortedByDescending { it.orderDate }
 
-                items(sortedOrders) { order ->
+                items(sortedFilteredOrders) { order ->
+                    val customerName by orderViewModel.getCustomerName(order.customerId)
+                        .collectAsState(initial = null)
+
                     OrderItem(
                         order = order,
+                        customerName = customerName,
                         onConfirm = {
                             orderViewModel.updateOrderStatus(order.orderId, "confirm")
                         },
                         onComplete = {
                             orderViewModel.updateOrderStatus(order.orderId, "complete")
-
                         },
                         onCancel = {
                             orderViewModel.updateOrderStatus(order.orderId, "cancel")
-
                         },
-                        orderViewModel = orderViewModel
                     )
                 }
             }
@@ -135,19 +204,15 @@ fun ManageOrderScreen(
 @Composable
 fun OrderItem(
     order: Order,
+    customerName: String?,
     onConfirm:() -> Unit,
     onComplete:() -> Unit,
     onCancel:() -> Unit,
-    orderViewModel: OrderViewModel
 ) {
     val totalQuantity = order.products?.sumOf { it.quantity } ?: 0
     val productList = order.products ?: emptyList()
     var expanded by remember { mutableStateOf(false) }
-    val customerName by orderViewModel.customerName.collectAsState()
 
-    LaunchedEffect(order.customerId) {
-        orderViewModel.getCustomerName(order.customerId)
-    }
 
     Card(
         modifier = Modifier

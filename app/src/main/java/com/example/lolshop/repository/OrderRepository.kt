@@ -116,12 +116,12 @@ class OrderRepository(
     suspend fun getCustomerName(uid: String): String{
         return try {
             val customerDoc = FirebaseFirestore.getInstance()
-                .collection("users")
+                .collection("Users")
                 .document(uid)
                 .get()
                 .await()
 
-            customerDoc.getString("name") ?: "Unknown Customer"
+            customerDoc.getString("full_name") ?: "Unknown Customer"
         } catch (e: Exception) {
             "Unknown Customer"
         }
@@ -166,6 +166,29 @@ class OrderRepository(
                 .await()
         } catch (e: Exception) {
             throw Exception("Failed to cancel order: ${e.message}")
+        }
+    }
+
+    suspend fun filterStatus(status: String): Result<List<Order>> {
+        return try {
+            val query = firestore.collection("Orders")
+            val querySnapshot = if (status == "All") {
+                query.get().await() // Fetch all orders if "All" is selected
+            } else {
+                query.whereEqualTo("status", status).get().await() // Fetch orders by specific status
+            }
+
+            val filteredOrders = querySnapshot.documents.mapNotNull { document ->
+                document.toObject(Order::class.java)
+            }
+
+            if (filteredOrders.isNotEmpty()) {
+                Result.Success(filteredOrders) // Return the filtered orders
+            } else {
+                Result.Empty // No orders match the filter
+            }
+        } catch (e: Exception) {
+            Result.Error(e) // Return the error result
         }
     }
 }

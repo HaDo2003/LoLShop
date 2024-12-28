@@ -9,9 +9,13 @@ import com.example.lolshop.model.Order
 import com.example.lolshop.repository.OrderRepository
 import com.example.lolshop.utils.Result
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -31,7 +35,10 @@ class OrderViewModel(
     val orderStatus: LiveData<String?> get() = _orderStatus
 
     private val _customerName = MutableStateFlow<String?>(null)
-    val customerName: StateFlow<String?> = _customerName.asStateFlow()
+    val customerName: StateFlow<String?> get() = _customerName
+
+    private val _filteredOrders = MutableLiveData<List<Order>>()
+    val filteredOrders: LiveData<List<Order>> get() = _filteredOrders
 
     fun fetchOrders(uid: String) {
         viewModelScope.launch {
@@ -69,20 +76,16 @@ class OrderViewModel(
         }
     }
 
-    fun getCustomerName(uid: String) {
-        viewModelScope.launch {
-            try {
-                _customerName.value = FirebaseFirestore.getInstance()
-                    .collection("Users")
-                    .document(uid)
-                    .get()
-                    .await()
-                    .getString("full_name") ?: "Unknown Customer"
-            } catch (e: Exception) {
-                _customerName.value = "Unknown Customer"
-            }
+    fun getCustomerName(uid: String): Flow<String?> = flow {
+        try {
+            // Fetch customer name from the repository and emit it
+            val name = orderRepository.getCustomerName(uid)
+            emit(name)
+        } catch (e: Exception) {
+            // Emit a default value in case of an error
+            emit("Unknown Customer")
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
 
     fun updateOrderStatus(orderId: String, action: String) {
@@ -108,6 +111,27 @@ class OrderViewModel(
                 // Handle error
                 _error.value = "Error updating order: ${e.message}"
                 _orderStatus.value = "Error: ${e.message}"
+            }
+        }
+    }
+
+    fun filterOrdersByStatus(status: String) {
+        viewModelScope.launch {
+            try {
+                val result = orderRepository.filterStatus(status) // Fetch filtered orders from the repository
+                when (result) {
+                    is Result.Success -> {
+                        _filteredOrders.value = result.data
+                    }
+                    is Result.Empty -> {
+                        _filteredOrders.value = emptyList() // Set empty list if no orders match
+                    }
+                    is Result.Error -> {
+                        _error.value = result.exception.message // Handle the error case
+                    }
+                }
+            } catch (e: Exception) {
+                _error.value = e.message // Handle unexpected errors
             }
         }
     }

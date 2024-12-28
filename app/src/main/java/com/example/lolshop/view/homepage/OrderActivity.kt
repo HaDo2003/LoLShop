@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -29,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,7 +40,6 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -51,7 +52,6 @@ import com.example.lolshop.view.BaseActivity
 import com.example.lolshop.view.admin.AdminActivity
 import com.example.lolshop.viewmodel.homepage.OrderViewModel
 import com.example.lolshop.viewmodel.homepage.OrderViewModelFactory
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 
 class OrderActivity : BaseActivity() {
@@ -194,7 +194,7 @@ fun OrdersScreen(
                         .padding(horizontal = 125.dp),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
-                ){
+                ) {
                     Text(
                         text = "No orders found.",
                         style = MaterialTheme.typography.bodyLarge,
