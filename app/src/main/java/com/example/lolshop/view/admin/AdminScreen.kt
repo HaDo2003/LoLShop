@@ -33,10 +33,12 @@ import com.example.lolshop.repository.ProductRepository
 import com.example.lolshop.view.homepage.BottomMenu
 import com.example.lolshop.view.homepage.CartActivity
 import com.example.lolshop.view.homepage.MainScreen
+import com.example.lolshop.view.homepage.OrderActivity
 import com.example.lolshop.view.homepage.UserProfile
 import com.example.lolshop.viewmodel.admin.AdminViewModel
 import com.example.lolshop.viewmodel.admin.BannerViewModel
 import com.example.lolshop.viewmodel.admin.CategoryViewModel
+import com.example.lolshop.viewmodel.homepage.OrderViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -50,7 +52,8 @@ fun AdminScreen(
     bannerViewModel: BannerViewModel,
     productRepository: ProductRepository,
     categoryRepository: CategoryRepository,
-    bannerRepository: BannerRepository
+    bannerRepository: BannerRepository,
+    orderViewModel: OrderViewModel
 ) {
     val navController = rememberNavController()
 
@@ -99,7 +102,14 @@ fun AdminScreen(
                         putExtra("isAdmin", isAdmin)
                     }
                     context.startActivity(intent)
-                }
+                },
+                onOrderClick = {
+                    val intent = Intent(context, OrderActivity::class.java).apply {
+                        putExtra("uid", uid)
+                        putExtra("isAdmin", isAdmin)
+                    }
+                    context.startActivity(intent)
+                },
             )
         }
         composable("add_product") {
@@ -141,7 +151,10 @@ fun AdminScreen(
             }
         }
         composable("manage_order") {
-            ManageOrderScreen()
+            ManageOrderScreen(
+                orderViewModel = orderViewModel,
+                navController = navController
+            )
         }
     }
 }
@@ -153,7 +166,8 @@ fun AdminMainScreen(
     onCartClick: () -> Unit,
     onProfileClick: () -> Unit,
     onAdminClick:() -> Unit,
-    onHomeClick:() -> Unit
+    onHomeClick:() -> Unit,
+    onOrderClick:() -> Unit
 ) {
     val currentScreen = "admin"
     Scaffold(
@@ -166,6 +180,7 @@ fun AdminMainScreen(
                 onProfileClick = onProfileClick,
                 onAdminClick = onAdminClick,
                 onHomeClick = onHomeClick,
+                onOrderClick = onOrderClick,
                 currentScreen = currentScreen
             )
         }

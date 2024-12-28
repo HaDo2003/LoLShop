@@ -49,12 +49,11 @@ class CartRepository(
                             // Update quantity if the product exists
                             val currentProduct = updatedProducts[existingProductIndex]
                             val currentQuantity = (currentProduct["quantity"] as? Long ?: 0L)
-                            val currentPrice = (currentProduct["price"] as? Double ?: 0.0)
 
                             updatedProducts[existingProductIndex] = hashMapOf(
                                 "productId" to productId,
                                 "quantity" to (currentQuantity + 1),
-                                "price" to (currentPrice + product.price.toDouble()),
+                                "price" to  product.price.toDouble(),
                                 "name" to product.name,
                                 "imageUrl" to product.imageUrl
                             )
@@ -222,27 +221,30 @@ class CartRepository(
             val orderProducts = cart.products.map { cartProduct ->
                 OrderProduct(
                     productId = cartProduct.productId,
+                    name = cartProduct.name,
                     quantity = cartProduct.quantity,
                     totalPriceOfProduct = cartProduct.quantity * cartProduct.price,
                     price = cartProduct.price,
                     imageUrl = cartProduct.imageUrl
                 )
             }
+            val orderRef = firestore.collection("Orders").document()
+            val orderId = orderRef.id
 
             // Create an Order object
             val order = Order(
+                orderId = orderId,
                 customerId = uid,
                 products = orderProducts,
-                TotalPriceOfAllProduct = totalPriceOfAllProduct,
+                totalPriceOfAllProduct = totalPriceOfAllProduct,
                 tax = tax,
-                DeliveryFee = deliveryFee,
-                TotalPriceAtAll = totalPriceAtAll,
+                deliveryFee = deliveryFee,
+                totalPriceAtAll = totalPriceAtAll,
                 orderDate = Timestamp.now(),
                 status = "Wait for confirmation"
             )
 
             // Save the order to Firestore
-            val orderRef = firestore.collection("Orders").document()
             orderRef.set(order).await()
 
             // Clear the cart

@@ -32,6 +32,7 @@ fun BottomMenu(
     onProfileClick: () -> Unit,
     onAdminClick: () -> Unit,
     onHomeClick: () -> Unit,
+    onOrderClick: () -> Unit,
     currentScreen: String
 ) {
     Column(
@@ -77,6 +78,7 @@ fun BottomMenu(
                 icon = if(currentScreen == "order") painterResource(R.drawable.order_black)
                        else painterResource(R.drawable.order_white),
                 text = "Order",
+                onItemClick = onOrderClick,
                 textColor = Color.Black
             )
 

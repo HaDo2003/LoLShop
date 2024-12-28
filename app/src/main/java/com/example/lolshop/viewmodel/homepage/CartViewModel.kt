@@ -53,7 +53,6 @@ class CartViewModel(
                 is Result.Empty -> _cart.value = Result.Empty
             }
             Log.d("Cart", _cart.value.toString())
-
         }
     }
 

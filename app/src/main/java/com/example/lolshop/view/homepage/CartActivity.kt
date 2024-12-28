@@ -167,7 +167,8 @@ private fun CartScreen(
                         cart = (cartState as Result.Success<Cart>).data,
                         uid,
                         (cartState as Result.Success<Cart>).data.total,
-                        cartViewModel = cartViewModel
+                        cartViewModel = cartViewModel,
+                        navigateToOrder = onOrderClick
                     )
                 }
                 Spacer(Modifier.height(10.dp))
@@ -178,6 +179,7 @@ private fun CartScreen(
                     onProfileClick = onProfileClick,
                     onAdminClick = onAdminClick,
                     onHomeClick = onHomeClick,
+                    onOrderClick = onOrderClick,
                     currentScreen = currentScreen
                 )
             }
@@ -215,6 +217,7 @@ private fun CartScreen(
                             start.linkTo(parent.start)
                         }
                         .size(40.dp)
+                        .padding(start = 5.dp)
                 )
             }
 
@@ -301,7 +304,8 @@ fun CartSummary(
     cart: Cart,
     uid: String,
     Total: Double,
-    cartViewModel: CartViewModel
+    cartViewModel: CartViewModel,
+    navigateToOrder:() -> Unit
 ) {
     val tax: Double = Total * 0.1
     val taxRounded:Double = String.format("%.2f", tax).toDouble()
@@ -325,6 +329,7 @@ fun CartSummary(
         Button(
             onClick = {
                 cartViewModel.placeOrderFromCart(cart, uid, Total, taxRounded, delivery, total)
+                navigateToOrder()
             },
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(

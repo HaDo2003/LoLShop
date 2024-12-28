@@ -15,6 +15,9 @@ import com.example.lolshop.viewmodel.admin.BannerViewModel
 import com.example.lolshop.viewmodel.admin.BannerViewModelFactory
 import com.example.lolshop.viewmodel.admin.CategoryViewModel
 import com.example.lolshop.viewmodel.admin.CategoryViewModelFactory
+import com.example.lolshop.viewmodel.homepage.OrderViewModel
+import com.example.lolshop.viewmodel.homepage.OrderViewModelFactory
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlin.properties.Delegates
 
 
@@ -29,6 +32,12 @@ class AdminActivity : BaseActivity() {
     }
     private val bannerViewModel: BannerViewModel by viewModels {
         BannerViewModelFactory(applicationContext)
+    }
+    private val orderViewModel: OrderViewModel by viewModels {
+        OrderViewModelFactory(
+            FirebaseFirestore.getInstance()
+            ,applicationContext
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +58,8 @@ class AdminActivity : BaseActivity() {
                 bannerViewModel = bannerViewModel,
                 productRepository = productRepository,
                 categoryRepository = categoryRepository,
-                bannerRepository = bannerRepository
+                bannerRepository = bannerRepository,
+                orderViewModel = orderViewModel
             )
         }
     }

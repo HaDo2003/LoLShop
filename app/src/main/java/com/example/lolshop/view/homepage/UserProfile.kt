@@ -84,6 +84,13 @@ class UserProfile : BaseActivity() {
                                         putExtra("isAdmin", isAdmin)
                                     }
                                     startActivity(intent)
+                                },
+                                onOrderClick = {
+                                    val intent = Intent(context, OrderActivity::class.java).apply {
+                                        putExtra("uid", uid)
+                                        putExtra("isAdmin", isAdmin)
+                                    }
+                                    startActivity(intent)
                                 }
                             )
                         }

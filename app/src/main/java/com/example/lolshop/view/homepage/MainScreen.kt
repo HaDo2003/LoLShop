@@ -83,6 +83,13 @@ class MainScreen : BaseActivity() {
                 },
                 onHomeClick = {
 
+                },
+                onOrderClick = {
+                    val intent = Intent(this, OrderActivity::class.java).apply {
+                        putExtra("uid", uid)
+                        putExtra("isAdmin", isAdmin)
+                    }
+                    startActivity(intent)
                 }
             )
         }
@@ -96,7 +103,8 @@ fun HomePageScreen(
     onCartClick:()-> Unit,
     onProfileClick:() -> Unit,
     onAdminClick: () -> Unit,
-    onHomeClick:() -> Unit
+    onHomeClick:() -> Unit,
+    onOrderClick:() -> Unit
 ) {
     val viewModel= MainViewModel()
     val currentScreen = "homepage"
@@ -274,6 +282,7 @@ fun HomePageScreen(
             onProfileClick = onProfileClick,
             onAdminClick = onAdminClick,
             onHomeClick = onHomeClick,
+            onOrderClick = onOrderClick,
             currentScreen = currentScreen
         )
     }

@@ -41,7 +41,6 @@ fun PopularProduct(
     uid: String,
     isAdmin: Boolean
 ) {
-    Log.d("PopularProductuid", uid)
     val context = LocalContext.current
     Column(
         modifier = Modifier

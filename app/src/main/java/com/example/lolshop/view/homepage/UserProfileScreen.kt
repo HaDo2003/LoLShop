@@ -62,7 +62,8 @@ fun UserProfileScreen(
     onCartClick: () -> Unit,
     onProfileClick: () -> Unit,
     onAdminClick:() -> Unit,
-    onHomeClick:() -> Unit
+    onHomeClick:() -> Unit,
+    onOrderClick:() -> Unit
 ) {
     val currentScreen = "profile"
     val userState = userViewModel.getUserData(uid).collectAsState(initial = null)
@@ -88,6 +89,7 @@ fun UserProfileScreen(
                 onProfileClick = onProfileClick,
                 onAdminClick = onAdminClick,
                 onHomeClick = onHomeClick,
+                onOrderClick = onOrderClick,
                 currentScreen = currentScreen
             )
         }
