@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -31,21 +32,28 @@ import com.example.lolshop.repository.CategoryRepository
 import com.example.lolshop.repository.ProductRepository
 import com.example.lolshop.view.homepage.BottomMenu
 import com.example.lolshop.view.homepage.CartActivity
+import com.example.lolshop.view.homepage.MainScreen
+import com.example.lolshop.view.homepage.OrderActivity
+import com.example.lolshop.view.homepage.UserProfile
 import com.example.lolshop.viewmodel.admin.AdminViewModel
 import com.example.lolshop.viewmodel.admin.BannerViewModel
 import com.example.lolshop.viewmodel.admin.CategoryViewModel
+import com.example.lolshop.viewmodel.homepage.OrderViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
 fun AdminScreen(
+    uid: String,
+    isAdmin: Boolean,
     adminViewModel: AdminViewModel,
     categoryViewModel: CategoryViewModel,
     bannerViewModel: BannerViewModel,
     productRepository: ProductRepository,
     categoryRepository: CategoryRepository,
-    bannerRepository: BannerRepository
+    bannerRepository: BannerRepository,
+    orderViewModel: OrderViewModel
 ) {
     val navController = rememberNavController()
 
@@ -64,17 +72,44 @@ fun AdminScreen(
 
     NavHost(navController = navController, startDestination = "admin_main") {
         composable("admin_main") {
+            val context = LocalContext.current
             AdminMainScreen(
                 navController = navController,
                 onCartClick = {
-                    Log.d("Click", "Click Cart")
+                    val intent = Intent(context, CartActivity::class.java).apply {
+                        putExtra("uid", uid)
+                        putExtra("isAdmin", isAdmin)
+                    }
+                    context.startActivity(intent)
                 },
                 onProfileClick = {
-                    Log.d("Click", "Click Profile")
+                    val intent = Intent(context, UserProfile::class.java).apply {
+                        putExtra("uid", uid)
+                        putExtra("isAdmin", isAdmin)
+                    }
+                    context.startActivity(intent)
                 },
                 onAdminClick = {
-                    Log.d("Click", "Click Admin")
-                }
+                    val intent = Intent(context, AdminActivity::class.java).apply {
+                        putExtra("uid", uid)
+                        putExtra("isAdmin", isAdmin)
+                    }
+                    context.startActivity(intent)
+                },
+                onHomeClick = {
+                    val intent = Intent(context, MainScreen::class.java).apply {
+                        putExtra("uid", uid)
+                        putExtra("isAdmin", isAdmin)
+                    }
+                    context.startActivity(intent)
+                },
+                onOrderClick = {
+                    val intent = Intent(context, OrderActivity::class.java).apply {
+                        putExtra("uid", uid)
+                        putExtra("isAdmin", isAdmin)
+                    }
+                    context.startActivity(intent)
+                },
             )
         }
         composable("add_product") {
@@ -116,7 +151,10 @@ fun AdminScreen(
             }
         }
         composable("manage_order") {
-            ManageOrderScreen()
+            ManageOrderScreen(
+                orderViewModel = orderViewModel,
+                navController = navController
+            )
         }
     }
 }
@@ -127,8 +165,11 @@ fun AdminMainScreen(
     navController: NavController,
     onCartClick: () -> Unit,
     onProfileClick: () -> Unit,
-    onAdminClick:() -> Unit
+    onAdminClick:() -> Unit,
+    onHomeClick:() -> Unit,
+    onOrderClick:() -> Unit
 ) {
+    val currentScreen = "admin"
     Scaffold(
         bottomBar = {
             BottomMenu(
@@ -137,15 +178,21 @@ fun AdminMainScreen(
                     .fillMaxWidth(),
                 onItemClick = onCartClick,
                 onProfileClick = onProfileClick,
-                onAdminClick = onAdminClick
+                onAdminClick = onAdminClick,
+                onHomeClick = onHomeClick,
+                onOrderClick = onOrderClick,
+                currentScreen = currentScreen
             )
         }
-    ) { paddingValues ->
+    ) { paddingValue ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
+                .padding(
+                    top = 0.dp, // Override any top padding caused by Scaffold
+                    bottom = paddingValue.calculateBottomPadding(),
+                )
+                .background(Color.White),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {

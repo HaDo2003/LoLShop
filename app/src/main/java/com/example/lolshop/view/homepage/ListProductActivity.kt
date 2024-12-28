@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import com.example.lolshop.R
-import com.example.lolshop.viewmodel.MainViewModel
+import com.example.lolshop.viewmodel.homepage.MainViewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,6 +36,8 @@ class ListProductActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val uid = intent.getStringExtra("uid") ?: ""
+        val isAdmin = intent.getBooleanExtra("isAdmin", false)
         id= intent.getStringExtra("id")?:""
         name=intent.getStringExtra("name")?:""
 
@@ -44,17 +46,21 @@ class ListProductActivity : BaseActivity() {
                 name=name,
                 onBackClick={finish()},
                 viewModel=viewModel,
-                id=id
+                id=id,
+                uid = uid,
+                isAdmin = isAdmin
             )
         }
     }
 }
 @Composable
-private fun ListItemScreen(
+fun ListItemScreen(
     name: String,
     onBackClick: () -> Unit,
     viewModel: MainViewModel,
-    id: String
+    id: String,
+    uid: String,
+    isAdmin: Boolean
 ) {
     val product by viewModel.loadFiltered(id).observeAsState(emptyList())
     var isLoading by remember { mutableStateOf(true) }
@@ -104,7 +110,7 @@ private fun ListItemScreen(
             }
         } else {
             // Pass categoryOptions to ListProductFullSize
-            ListProductFullSize(product)
+            ListProductFullSize(product, uid, isAdmin)
         }
     }
     LaunchedEffect(product) {

@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 import java.text.Normalizer
 import java.util.regex.Pattern
 
@@ -87,9 +88,40 @@ class GoogleSignInManager(private val activity: Activity) {
             .set(userMap)
             .addOnSuccessListener {
                 Log.d("GoogleSignInManager", "User data added to Firestore successfully.")
+                createCartForUser(user.uid)
             }
             .addOnFailureListener { e ->
                 Log.w("GoogleSignInManager", "Error adding user data to Firestore", e)
+            }
+    }
+
+    private fun createCartForUser(userId: String) {
+        val cart = hashMapOf(
+            "cartId" to userId,
+            "products" to listOf<Map<String, Any>>(), // Empty cart
+            "total" to 0.0
+        )
+
+        // Add the cart to Firestore
+        firestore.collection("Carts")
+            .document(userId)
+            .set(cart)
+            .addOnSuccessListener {
+                Log.d("GoogleSignInManager", "Cart created successfully.")
+
+                // Update the user's document with the cartId
+                firestore.collection("Users")
+                    .document(userId)
+                    .update("cartId", userId)
+                    .addOnSuccessListener {
+                        Log.d("GoogleSignInManager", "User document updated with cartId successfully.")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("GoogleSignInManager", "Error updating user document with cartId", e)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.w("GoogleSignInManager", "Error creating cart", e)
             }
     }
 

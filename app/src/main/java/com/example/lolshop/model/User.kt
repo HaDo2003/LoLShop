@@ -1,6 +1,5 @@
 package com.example.lolshop.model
 
-import android.graphics.Picture
 import com.google.firebase.database.PropertyName
 import java.io.Serializable
 
@@ -11,5 +10,6 @@ data class User(
     val phone_number: String = "",
     val address: String = "",
     @get:PropertyName("isAdmin") val isAdmin: Boolean = false,
-    val profilePicture: String = ""
+    val profilePicture: String = "",
+    val cartId: String = ""
 ) : Serializable

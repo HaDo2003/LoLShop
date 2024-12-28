@@ -24,9 +24,11 @@ import com.example.lolshop.model.Product
 import com.example.lolshop.viewmodel.admin.AdminViewModel
 
 @Composable
-fun ManageProductScreen(adminViewModel: AdminViewModel, navController: NavController) {
+fun ManageProductScreen(
+    adminViewModel: AdminViewModel,
+    navController: NavController
+) {
     val products by adminViewModel.products.collectAsState()
-
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -51,7 +53,11 @@ fun ManageProductScreen(adminViewModel: AdminViewModel, navController: NavContro
 }
 
 @Composable
-fun ProductItem(product: Product, onDelete: () -> Unit, onEdit: () -> Unit) {
+fun ProductItem(
+    product: Product,
+    onDelete: () -> Unit,
+    onEdit: () -> Unit
+) {
     val categoryOptions = listOf(
         Category("-OE4s6JDMNBmybnPHxzj", "LCK"),
         Category("-OE4tac7kwwSFADLtfoG", "LPL"),
@@ -63,7 +69,9 @@ fun ProductItem(product: Product, onDelete: () -> Unit, onEdit: () -> Unit) {
     val selectedCategory = categoryOptions.find { it.id == product.categoryId }
 
     Card(
-        modifier = Modifier.padding(8.dp),
+        modifier = Modifier
+            .padding(8.dp)
+            .height(320.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
@@ -118,13 +126,14 @@ fun ProductItem(product: Product, onDelete: () -> Unit, onEdit: () -> Unit) {
             }
 
             Text(
-                text = product.description.take(100) + if (product.description.length > 100) "..." else "",
+                text = product.description.take(50) + if (product.description.length > 100) "..." else "",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 8.dp)
             )
 
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 TextButton(

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Color.parseColor
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -60,8 +61,11 @@ fun UserProfileScreen(
     navController: NavController,
     onCartClick: () -> Unit,
     onProfileClick: () -> Unit,
-    onAdminClick:() -> Unit
+    onAdminClick:() -> Unit,
+    onHomeClick:() -> Unit,
+    onOrderClick:() -> Unit
 ) {
+    val currentScreen = "profile"
     val userState = userViewModel.getUserData(uid).collectAsState(initial = null)
     val logoutResult by userViewModel.logoutResult.observeAsState(Resource.Empty())
     val changeProfilePictureState = userViewModel.profileImageUpdateState.collectAsState().value
@@ -72,6 +76,8 @@ fun UserProfileScreen(
             userViewModel.changeProfilePicture(uid, uri)
         }
     }
+    Log.d("uid", uid)
+    Log.d("userState", userState.toString())
 
     Scaffold(
         bottomBar = {
@@ -81,16 +87,22 @@ fun UserProfileScreen(
                     .fillMaxWidth(),
                 onItemClick = onCartClick,
                 onProfileClick = onProfileClick,
-                onAdminClick = onAdminClick
+                onAdminClick = onAdminClick,
+                onHomeClick = onHomeClick,
+                onOrderClick = onOrderClick,
+                currentScreen = currentScreen
             )
         }
-    ) { paddingValues ->
+    ) { paddingValue ->
         // Main content
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(top = 50.dp), // Add some top padding
+                .padding(
+                    top = 0.dp, // Override any top padding caused by Scaffold
+                    bottom = paddingValue.calculateBottomPadding(),
+                )
+                .background(Color.White),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (isLoading) {

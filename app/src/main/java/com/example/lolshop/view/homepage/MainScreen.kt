@@ -2,8 +2,7 @@ package com.example.lolshop.view.homepage
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,47 +24,27 @@ import androidx.compose.material.Text
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.layout.ContentScale
 import com.example.lolshop.R
-import com.example.lolshop.viewmodel.MainViewModel
+import com.example.lolshop.viewmodel.homepage.MainViewModel
 import androidx.compose.runtime.*
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.unit.Dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.example.lolshop.model.Banner
 import com.example.lolshop.model.Category
 import com.example.lolshop.model.Product
 import com.example.lolshop.view.BaseActivity
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerState
 
 import androidx.compose.runtime.getValue
 
-import androidx.core.content.ContextCompat.startActivity
 import com.example.lolshop.view.admin.AdminActivity
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MainScreen : BaseActivity() {
     private lateinit var auth: FirebaseAuth
@@ -73,14 +52,19 @@ class MainScreen : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = FirebaseAuth.getInstance()
-        val uid = intent.getStringExtra("id").toString()
-        val isAdmin = intent.getBooleanExtra("IS_ADMIN", false)
+        val uid = intent.getStringExtra("uid").toString()
+        val isAdmin = intent.getBooleanExtra("isAdmin", false)
+        Log.d("uid", uid)
+        Log.d("isAdmin", isAdmin.toString())
         setContent {
             HomePageScreen(
                 isAdmin = isAdmin,
                 uid,
                 onCartClick = {
-                    val intent = Intent(this, CartActivity::class.java)
+                    val intent = Intent(this, CartActivity::class.java).apply {
+                        putExtra("uid", uid)
+                        putExtra("isAdmin", isAdmin)
+                    }
                     startActivity(intent)
                 },
                 onProfileClick = {
@@ -91,7 +75,20 @@ class MainScreen : BaseActivity() {
                     startActivity(intent)
                 },
                 onAdminClick = {
-                    val intent = Intent(this, AdminActivity::class.java)
+                    val intent = Intent(this, AdminActivity::class.java).apply {
+                        putExtra("uid", uid)
+                        putExtra("isAdmin", isAdmin)
+                    }
+                        startActivity(intent)
+                },
+                onHomeClick = {
+
+                },
+                onOrderClick = {
+                    val intent = Intent(this, OrderActivity::class.java).apply {
+                        putExtra("uid", uid)
+                        putExtra("isAdmin", isAdmin)
+                    }
                     startActivity(intent)
                 }
             )
@@ -105,18 +102,37 @@ fun HomePageScreen(
     uid: String,
     onCartClick:()-> Unit,
     onProfileClick:() -> Unit,
-    onAdminClick: () -> Unit
+    onAdminClick: () -> Unit,
+    onHomeClick:() -> Unit,
+    onOrderClick:() -> Unit
 ) {
     val viewModel= MainViewModel()
-
+    val currentScreen = "homepage"
     val banners = remember { mutableStateListOf<Banner>() }
     val categories = remember { mutableStateListOf<Category>() }
     val Popular = remember { mutableStateListOf<Product>() }
-
+    var userName = remember { mutableStateOf("Loading...") }
 
     var showBannerLoading by remember { mutableStateOf(true) }
     var showCategoryLoading by remember {mutableStateOf(true)}
     var showPopularLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(uid) {
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("Users").document(uid)
+
+        userRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    userName.value = document.getString("full_name") ?: "Unknown User"
+                } else {
+                    userName.value = "User not found"
+                }
+            }
+            .addOnFailureListener {
+                userName.value = "Error fetching user"
+            }
+    }
 
     //Banner
     LaunchedEffect(Unit) {
@@ -169,20 +185,22 @@ fun HomePageScreen(
                     Column {
                         Text("Welcome Back", color = Color.Black)
                         Text(
-                            "Huy",
+                            userName.value,
                             color = Color.Black,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
+                    Spacer(modifier = Modifier.width(140.dp))
                     Image(
                         painter = painterResource(R.drawable.search_icon),
-                        contentDescription = null
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp)
                     )
-                    Spacer(modifier = Modifier.width(20.dp))
                     Image(
                         painter = painterResource(R.drawable.bell_icon),
-                        contentDescription = null
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp)
                     )
 
                 }
@@ -205,6 +223,7 @@ fun HomePageScreen(
                 }
             }
 
+            //Region
             item{
                 Text(
                     text="Region",
@@ -229,9 +248,11 @@ fun HomePageScreen(
                         CircularProgressIndicator()
                     }
                 }else{
-                    CategoryList(categories)
+                    CategoryList(categories, uid, isAdmin)
                 }
             }
+
+            //Popular Items
             item{
                 SectionTitLe("Most Popular", "See All")
             }
@@ -245,7 +266,7 @@ fun HomePageScreen(
                         CircularProgressIndicator()
                     }
                 }else{
-                    ListProduct(Popular)
+                    ListProduct(Popular, uid, isAdmin)
                 }
             }
         }
@@ -259,7 +280,10 @@ fun HomePageScreen(
             isAdmin = isAdmin,
             onItemClick = onCartClick,
             onProfileClick = onProfileClick,
-            onAdminClick = onAdminClick
+            onAdminClick = onAdminClick,
+            onHomeClick = onHomeClick,
+            onOrderClick = onOrderClick,
+            currentScreen = currentScreen
         )
     }
 }

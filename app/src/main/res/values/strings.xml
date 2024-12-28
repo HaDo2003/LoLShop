@@ -7,4 +7,9 @@
     <string name="get_started">Get Started</string>
 
     <string name="web_client_id">79433977329-kkju4l47t0m917hdemis6i7296qpkrjh.apps.googleusercontent.com</string>
+
+    <!-- LoginScreen -->
+    <string name="existing_email">This email is already registered.</string>
+    <string name="wrong_current_pass">The current password you entered is incorrect.</string>
+    <string name="wrong_confirm_pass">The password confirmation does not match.</string>
 </resources>
