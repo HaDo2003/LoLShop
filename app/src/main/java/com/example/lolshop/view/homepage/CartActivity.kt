@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TabRowDefaults.Divider
 import androidx.compose.material.Text
@@ -148,6 +149,7 @@ private fun CartScreen(
     val orderState by cartViewModel.orderState.collectAsState() // Collect the cart state (loading/success/error)
     var isSuccessScreenVisible by remember { mutableStateOf(false) }
     val successMessage by remember { mutableStateOf("Place Order Successful") }
+    val scrollState = rememberScrollState()
     val context = LocalContext.current
 
     val currentScreen = "cart"
@@ -228,7 +230,7 @@ private fun CartScreen(
                     if (cart.products.isEmpty()) {
                         Row(
                             horizontalArrangement = Arrangement.Center,
-                            modifier = Modifier.padding(horizontal = 154.dp)
+                            modifier = Modifier.fillMaxWidth()
                         ) {
                             Text("Cart is empty")
                         }
@@ -248,7 +250,14 @@ private fun CartScreen(
                         color = Color.Red
                     )
                 }
-                is Result.Empty -> Text("Cart is empty")
+                is Result.Empty ->{
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Cart is empty")
+                    }
+                }
             }
 
             if (error.isNotEmpty()) {

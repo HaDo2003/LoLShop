@@ -20,8 +20,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -70,6 +72,7 @@ fun UserProfileScreen(
     val logoutResult by userViewModel.logoutResult.observeAsState(Resource.Empty())
     val changeProfilePictureState = userViewModel.profileImageUpdateState.collectAsState().value
     var isLoading by rememberSaveable { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
@@ -102,7 +105,8 @@ fun UserProfileScreen(
                     top = 0.dp, // Override any top padding caused by Scaffold
                     bottom = paddingValue.calculateBottomPadding(),
                 )
-                .background(Color.White),
+                .background(Color.White)
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (isLoading) {

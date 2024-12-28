@@ -1,6 +1,8 @@
 package com.example.lolshop.view.admin
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.runtime.*
@@ -18,6 +20,7 @@ fun EditProductScreen(
     adminViewModel: AdminViewModel,
     navController: NavController
 ) {
+    val scrollState = rememberScrollState()
     val product by rememberSaveable{ mutableStateOf(adminViewModel.getProductById(productId)) }
     var name by rememberSaveable { mutableStateOf(product?.name ?: "") }
     var price by rememberSaveable { mutableStateOf(product?.price ?: "") }
@@ -50,7 +53,8 @@ fun EditProductScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "Edit Product", style = MaterialTheme.typography.headlineLarge)
