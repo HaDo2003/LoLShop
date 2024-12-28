@@ -7,6 +7,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -170,6 +172,7 @@ fun AdminMainScreen(
     onOrderClick:() -> Unit
 ) {
     val currentScreen = "admin"
+    val scrollState = rememberScrollState()
     Scaffold(
         bottomBar = {
             BottomMenu(
@@ -192,7 +195,9 @@ fun AdminMainScreen(
                     top = 0.dp, // Override any top padding caused by Scaffold
                     bottom = paddingValue.calculateBottomPadding(),
                 )
-                .background(Color.White),
+                .background(Color.White)
+                .verticalScroll(scrollState)
+                .padding(bottom = 3.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {

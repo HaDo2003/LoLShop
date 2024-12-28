@@ -172,6 +172,7 @@ fun HomePageScreen(
                     end.linkTo(parent.end)
                     start.linkTo(parent.start)
                 }
+                .padding(bottom = 90.dp)
         ) {
             item {
                 Row(

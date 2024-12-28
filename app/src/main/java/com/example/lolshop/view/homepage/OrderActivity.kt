@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -125,6 +127,7 @@ fun OrdersScreen(
 
     val userOrders by orderViewModel.userOrders.observeAsState(emptyList())
     val error by orderViewModel.error.observeAsState(null)
+    val scrollState = rememberScrollState()
 
     Scaffold(
         bottomBar = {
@@ -155,6 +158,7 @@ fun OrdersScreen(
                 )
                 .padding(bottom = 0.dp)
                 .background(Color.White)
+                .verticalScroll(scrollState)
         ) {
             ConstraintLayout(modifier = Modifier.padding(top = 36.dp)) {
                 val (backBtn, cartTxt) = createRefs()
@@ -190,18 +194,14 @@ fun OrdersScreen(
             } else if (userOrders.isEmpty()) {
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 125.dp),
+                        .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = "No orders found.",
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        color = Color.Gray
+                        color = Color.Black
                     )
                 }
             } else {
