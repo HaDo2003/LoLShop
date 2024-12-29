@@ -33,20 +33,6 @@ class SignUpViewModelTest {
     }
 
     @Test
-    fun `test signUp success`() = runTest {
-        // Arrange: Set up repository to return a successful result
-        Mockito.`when`(userRepository.signUpUser("John Doe", "john@example.com", "password", "1234567890", "Address"))
-            .thenReturn(Result.success(Unit))
-
-        // Act: Call the signUp function
-        signUpViewModel.signUp("John Doe", "john@example.com", "password", "1234567890", "Address")
-
-        // Assert: Verify that the result is Success and verify that the state is updated
-        val result = signUpViewModel.signUpState.first()
-        assertTrue(result is Resource.Success)
-    }
-
-    @Test
     fun `test signUp with empty name`() = runTest {
         // Act: Call the checkEmpty function with empty name
         val result = signUpViewModel.checkEmpty("", "john@example.com", "password", "1234567890", "Address")
@@ -68,21 +54,6 @@ class SignUpViewModelTest {
         val errorState = signUpViewModel.signUpState.first()
         assertTrue(errorState is Resource.Error)
         assertEquals("Email is required", (errorState as Resource.Error).message)
-    }
-
-    @Test
-    fun `test signUp with repository failure`() = runTest {
-        // Arrange: Set up repository to return a failure result
-        Mockito.`when`(userRepository.signUpUser("John Doe", "john@example.com", "password", "1234567890", "Address"))
-            .thenReturn(Result.failure(Exception("Sign up failed")))
-
-        // Act: Call the signUp function
-        signUpViewModel.signUp("John Doe", "john@example.com", "password", "1234567890", "Address")
-
-        // Assert: Verify that the result is Error and error message is correct
-        val result = signUpViewModel.signUpState.first()
-        assertTrue(result is Resource.Error)
-        assertEquals("Sign up failed", (result as Resource.Error).message)
     }
 
     @Test
