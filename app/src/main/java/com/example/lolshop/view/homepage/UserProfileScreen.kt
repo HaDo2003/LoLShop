@@ -116,10 +116,12 @@ fun UserProfileScreen(
                 ConstraintLayout() {
                     val (topImg, cameraIcon) = createRefs()
                     Image(
-                        painter = if (userState.value?.profilePicture != null) {
-                            rememberAsyncImagePainter(userState.value?.profilePicture) // Load the image from URL
+                        painter = if (userState.value?.profilePicture == "") {
+                            painterResource(id = R.drawable.anonymous_user)
+                        } else if(userState.value?.profilePicture != null){
+                            rememberAsyncImagePainter(userState.value?.profilePicture)
                         } else {
-                            painterResource(id = R.drawable.anonymous_user) // Default placeholder image
+                            painterResource(id = R.drawable.anonymous_user)
                         },
                         contentDescription = null,
                         modifier = Modifier
