@@ -94,7 +94,7 @@ fun OTPVerificationScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(Color.White),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -102,7 +102,8 @@ fun OTPVerificationScreen(
                 .fillMaxSize()
                 .imePadding()
                 .padding(16.dp)
-                .verticalScroll(scrollState),
+                .verticalScroll(scrollState)
+                .background(Color.White),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
