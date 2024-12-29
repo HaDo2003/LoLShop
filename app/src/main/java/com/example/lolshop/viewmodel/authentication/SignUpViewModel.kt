@@ -14,7 +14,7 @@ class SignUpViewModel(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    private val _signUpState = MutableStateFlow<Resource<Unit>>(Resource.Empty())
+    public val _signUpState = MutableStateFlow<Resource<Unit>>(Resource.Empty())
     val signUpState: StateFlow<Resource<Unit>> get() = _signUpState
 
     fun checkEmpty(name: String, email: String, password: String, phoneNumber: String, address: String): Boolean {

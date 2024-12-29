@@ -6,14 +6,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lolshop.model.Cart
-import com.example.lolshop.model.Product
 import com.example.lolshop.repository.CartRepository
 import com.example.lolshop.utils.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.example.lolshop.utils.Result
-import com.example.lolshop.viewmodel.authentication.LoginState
 
 
 class CartViewModel(
