@@ -158,7 +158,6 @@ fun OrdersScreen(
                 )
                 .padding(bottom = 0.dp)
                 .background(Color.White)
-                .verticalScroll(scrollState)
         ) {
             ConstraintLayout(modifier = Modifier.padding(top = 36.dp)) {
                 val (backBtn, cartTxt) = createRefs()
