@@ -3,6 +3,8 @@ package com.example.lolshop.view.homepage
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -338,7 +340,9 @@ fun CartSummary(
         Button(
             onClick = {
                 cartViewModel.placeOrderFromCart(cart, uid, Total, taxRounded, delivery, total)
-                navigateToOrder()
+                Handler(Looper.getMainLooper()).postDelayed({
+                    navigateToOrder()
+                }, 2000)
             },
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(
@@ -437,10 +441,10 @@ fun CartProduct(
         Row(
             modifier = Modifier
                 .constrainAs(quantity) {
-                    start.linkTo(totalEachItem.end)
                     top.linkTo(parent.top)
+                    end.linkTo(parent.end)
                 }
-                .padding(start = 8.dp, top = 63.dp),
+                .padding(top = 63.dp, end = 8.dp),
             horizontalArrangement = Arrangement.Center
         ) {
             // Decrement Button
