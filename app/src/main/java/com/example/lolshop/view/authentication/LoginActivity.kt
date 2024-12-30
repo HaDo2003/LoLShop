@@ -137,7 +137,7 @@ fun LoginScreen(
             .fillMaxSize()
             .background(Color.White)
             .verticalScroll(scrollState)
-            .padding(bottom = 30.dp),
+            .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 30.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(100.dp))
