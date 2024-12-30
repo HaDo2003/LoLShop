@@ -344,10 +344,9 @@ fun ProductItem(
             text = "x${product.quantity}",
             modifier = Modifier
                 .constrainAs(quantity) {
-                    start.linkTo(name.end)
                     top.linkTo(parent.top)
+                    end.linkTo(parent.end)
                 }
-                .padding(start = 100.dp)
         )
 
         Text(
